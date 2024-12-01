@@ -37,9 +37,10 @@ if (EMSCRIPTEN)
 
     set(USE_FLAGS "-s USE_SDL=2 --preload-file resources/")
     set(CMAKE_CXX_FLAGS ${USE_FLAGS})
-    set_target_properties(main PROPERTIES SUFFIX ".html")
+    set_target_properties(main PROPERTIES SUFFIX ".js")
 
     file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/resources)
+    file(COPY "index.html" DESTINATION ${CMAKE_BINARY_DIR})
 
 else()
 
