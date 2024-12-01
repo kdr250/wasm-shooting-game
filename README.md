@@ -26,7 +26,7 @@ SDL2 + CMake + Emscripten のサンプルです。SDL2を使って作ったゲ�
 1. プロジェクト直下で `emcmake cmake -B build-web` を実行。
 2. `cmake --build build-web` を実行。
 3. `python -m http.server -d build-web` を実行してWebサーバー起動。
-4. ブラウザで `http://localhost:8000/main.html` にアクセスして確認。
+4. ブラウザで `http://localhost:8000/index.html` にアクセスして確認。
 
 ## 参考にしたURL
 - [SDL Wiki > Emscripten](https://wiki.libsdl.org/SDL2/README/emscripten)
