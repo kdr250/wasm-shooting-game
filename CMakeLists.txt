@@ -19,6 +19,8 @@ else()
     find_package(sdl2 CONFIG REQUIRED)
 endif()
 
+find_package(glm CONFIG REQUIRED)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
@@ -42,12 +44,18 @@ if (EMSCRIPTEN)
     file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/resources)
     file(COPY "index.html" DESTINATION ${CMAKE_BINARY_DIR})
 
+    target_link_libraries(
+        main PRIVATE
+        glm::glm
+    )
+
 else()
 
     target_link_libraries(
         main PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        glm::glm
     )
 
     add_custom_command(
