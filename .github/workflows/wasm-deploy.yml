@@ -35,6 +35,10 @@ jobs:
           emcmake cmake -B build-web &&
           cmake --build build-web
 
+      - name: Test
+        working-directory: ${{github.workspace}}/build-web
+        run: ctest -C Debug --verbose
+
       - name: Output
         run: |
           mkdir public &&
