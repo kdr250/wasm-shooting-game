@@ -40,4 +40,6 @@ private:
     SDL_Renderer* renderer;
 
     bool isRunning;
+
+    Uint64 tickCount;
 };

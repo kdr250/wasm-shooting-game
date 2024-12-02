@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <algorithm>
 
 #ifdef __EMSCRIPTEN__
     #include <emscripten.h>
@@ -6,7 +7,7 @@
 
 Game* Game::game = nullptr;
 
-Game::Game() : window(nullptr), renderer(nullptr), isRunning(true) {}
+Game::Game() : window(nullptr), renderer(nullptr), isRunning(true), tickCount(0) {}
 
 bool Game::Initialize()
 {
@@ -55,7 +56,7 @@ bool Game::Initialize()
 void Game::RunLoop()
 {
 #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(Loop, 0, 1);
+    emscripten_set_main_loop(Loop, 60, 1);
 #else
     while (game->isRunning)
     {
@@ -116,6 +117,17 @@ void Game::ProcessInput()
 
 void Game::UpdateGame()
 {
+#ifndef __EMSCRIPTEN__
+    // Wait until 16ms has elapsed since last frame
+    while (!SDL_TICKS_PASSED(SDL_GetTicks64(), game->tickCount + 16))
+        ;
+#endif
+
+    float deltaTime = (SDL_GetTicks64() - game->tickCount) / 1000.0f;
+    deltaTime       = std::min(deltaTime, 0.05f);
+
+    game->tickCount = SDL_GetTicks64();
+
     // TODO
 }
 
