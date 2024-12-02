@@ -50,6 +50,9 @@ bool Game::Initialize()
         return false;
     }
 
+    game->playerPosition = glm::vec2 {Game::WINDOW_WIDTH / 2.0f - game->playerEdge,
+                                      Game::WINDOW_HEIGHT / 2.0f - game->playerEdge};
+
     return true;
 }
 
@@ -112,7 +115,25 @@ void Game::ProcessInput()
         game->isRunning = false;
     }
 
-    // TODO
+    game->playerVelocity.x = 0.0f;
+    game->playerVelocity.y = 0.0f;
+
+    if (state[SDL_SCANCODE_A])
+    {
+        game->playerVelocity.x = -game->playerSpeed;
+    }
+    if (state[SDL_SCANCODE_D])
+    {
+        game->playerVelocity.x = game->playerSpeed;
+    }
+    if (state[SDL_SCANCODE_W])
+    {
+        game->playerVelocity.y = -game->playerSpeed;
+    }
+    if (state[SDL_SCANCODE_S])
+    {
+        game->playerVelocity.y = game->playerSpeed;
+    }
 }
 
 void Game::UpdateGame()
@@ -128,7 +149,11 @@ void Game::UpdateGame()
 
     game->tickCount = SDL_GetTicks64();
 
-    // TODO
+    game->playerPosition += game->playerVelocity * deltaTime;
+    game->playerPosition.x =
+        std::clamp(game->playerPosition.x, 0.0f, Game::WINDOW_WIDTH - game->playerEdge);
+    game->playerPosition.y =
+        std::clamp(game->playerPosition.y, 0.0f, Game::WINDOW_HEIGHT - game->playerEdge);
 }
 
 void Game::GenerateOutput()
@@ -143,6 +168,16 @@ void Game::GenerateOutput()
 
     // clear back buffer
     SDL_RenderClear(game->renderer);
+
+    // draw player rectangle
+    SDL_SetRenderDrawColor(game->renderer, 0, 255, 0, 255);
+    SDL_Rect player {
+        static_cast<int>(game->playerPosition.x),  // top left x
+        static_cast<int>(game->playerPosition.y),  // top left y
+        static_cast<int>(game->playerEdge),        // width
+        static_cast<int>(game->playerEdge)         // height
+    };
+    SDL_RenderFillRect(game->renderer, &player);
 
     // exchange front buffer for back buffer
     SDL_RenderPresent(game->renderer);

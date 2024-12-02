@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#define GLM_FORCE_PURE
+#include <glm/vec2.hpp>
 
 class Game
 {
@@ -42,4 +44,9 @@ private:
     bool isRunning;
 
     Uint64 tickCount;
+
+    glm::vec2 playerPosition;
+    glm::vec2 playerVelocity;
+    float playerEdge  = 100.0f;
+    float playerSpeed = 200.0f;
 };
