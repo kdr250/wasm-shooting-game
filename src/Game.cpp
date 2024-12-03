@@ -101,7 +101,7 @@ void Game::ProcessInput()
         switch (event.type)
         {
             case SDL_QUIT:
-                game->isRunning = false;
+                isRunning = false;
                 break;
 
             default:
