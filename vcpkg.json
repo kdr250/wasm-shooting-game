@@ -4,6 +4,7 @@
             "name": "sdl2",
             "platform": "!wasm32"
         },
+        "glm",
         "gtest"
     ]
 }

@@ -23,6 +23,7 @@ if (EMSCRIPTEN)
     target_link_libraries(
         testmain
         GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
+        glm::glm
     )
 
 else()
@@ -32,6 +33,7 @@ else()
         GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        glm::glm
     )
 
     add_custom_command(
