@@ -72,16 +72,16 @@ void Game::RunLoop()
 void Game::Loop()
 {
 #ifdef __EMSCRIPTEN__
-    if (!Game::IsRunning())
+    if (!game->isRunning)
     {
         emscripten_cancel_main_loop(); /* this should "kill" the app. */
-        Game::Shutdown();
+        Shutdown();
         return;
     }
 #endif
-    ProcessInput();
-    UpdateGame();
-    GenerateOutput();
+    game->ProcessInput();
+    game->UpdateGame();
+    game->GenerateOutput();
 }
 
 void Game::Shutdown()
@@ -112,27 +112,27 @@ void Game::ProcessInput()
     const Uint8* state = SDL_GetKeyboardState(NULL);
     if (state[SDL_SCANCODE_ESCAPE])
     {
-        game->isRunning = false;
+        isRunning = false;
     }
 
-    game->playerVelocity.x = 0.0f;
-    game->playerVelocity.y = 0.0f;
+    playerVelocity.x = 0.0f;
+    playerVelocity.y = 0.0f;
 
     if (state[SDL_SCANCODE_A])
     {
-        game->playerVelocity.x = -game->playerSpeed;
+        playerVelocity.x = -playerSpeed;
     }
     if (state[SDL_SCANCODE_D])
     {
-        game->playerVelocity.x = game->playerSpeed;
+        playerVelocity.x = playerSpeed;
     }
     if (state[SDL_SCANCODE_W])
     {
-        game->playerVelocity.y = -game->playerSpeed;
+        playerVelocity.y = -playerSpeed;
     }
     if (state[SDL_SCANCODE_S])
     {
-        game->playerVelocity.y = game->playerSpeed;
+        playerVelocity.y = playerSpeed;
     }
 }
 
@@ -140,26 +140,24 @@ void Game::UpdateGame()
 {
 #ifndef __EMSCRIPTEN__
     // Wait until 16ms has elapsed since last frame
-    while (!SDL_TICKS_PASSED(SDL_GetTicks64(), game->tickCount + 16))
+    while (!SDL_TICKS_PASSED(SDL_GetTicks64(), tickCount + 16))
         ;
 #endif
 
-    float deltaTime = (SDL_GetTicks64() - game->tickCount) / 1000.0f;
+    float deltaTime = (SDL_GetTicks64() - tickCount) / 1000.0f;
     deltaTime       = std::min(deltaTime, 0.05f);
 
-    game->tickCount = SDL_GetTicks64();
+    tickCount = SDL_GetTicks64();
 
-    game->playerPosition += game->playerVelocity * deltaTime;
-    game->playerPosition.x =
-        std::clamp(game->playerPosition.x, 0.0f, Game::WINDOW_WIDTH - game->playerEdge);
-    game->playerPosition.y =
-        std::clamp(game->playerPosition.y, 0.0f, Game::WINDOW_HEIGHT - game->playerEdge);
+    playerPosition += playerVelocity * deltaTime;
+    playerPosition.x = std::clamp(playerPosition.x, 0.0f, Game::WINDOW_WIDTH - playerEdge);
+    playerPosition.y = std::clamp(playerPosition.y, 0.0f, Game::WINDOW_HEIGHT - playerEdge);
 }
 
 void Game::GenerateOutput()
 {
     // set draw color blue
-    SDL_SetRenderDrawColor(game->renderer,
+    SDL_SetRenderDrawColor(renderer,
                            0,    // R
                            0,    // G
                            255,  // B
@@ -167,18 +165,18 @@ void Game::GenerateOutput()
     );
 
     // clear back buffer
-    SDL_RenderClear(game->renderer);
+    SDL_RenderClear(renderer);
 
     // draw player rectangle
-    SDL_SetRenderDrawColor(game->renderer, 0, 255, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_Rect player {
-        static_cast<int>(game->playerPosition.x),  // top left x
-        static_cast<int>(game->playerPosition.y),  // top left y
-        static_cast<int>(game->playerEdge),        // width
-        static_cast<int>(game->playerEdge)         // height
+        static_cast<int>(playerPosition.x),  // top left x
+        static_cast<int>(playerPosition.y),  // top left y
+        static_cast<int>(playerEdge),        // width
+        static_cast<int>(playerEdge)         // height
     };
-    SDL_RenderFillRect(game->renderer, &player);
+    SDL_RenderFillRect(renderer, &player);
 
     // exchange front buffer for back buffer
-    SDL_RenderPresent(game->renderer);
+    SDL_RenderPresent(renderer);
 }

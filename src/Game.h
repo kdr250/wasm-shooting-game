@@ -20,18 +20,13 @@ private:
     // Shutdown the game
     static void Shutdown();
 
-    static void ProcessInput();
-
-    static void UpdateGame();
-
-    static void GenerateOutput();
-
     static void Loop();
 
-    static bool IsRunning()
-    {
-        return game->isRunning;
-    }
+    void ProcessInput();
+
+    void UpdateGame();
+
+    void GenerateOutput();
 
     Game();
 
