@@ -17,6 +17,8 @@ if (EMSCRIPTEN)
     set(VCPKG_TARGET_TRIPLET "wasm32-emscripten")
 else()
     find_package(sdl2 CONFIG REQUIRED)
+    find_package(GLEW REQUIRED)
+    find_package(PNG REQUIRED)
 endif()
 
 find_package(glm CONFIG REQUIRED)
@@ -37,11 +39,11 @@ add_executable(
 
 if (EMSCRIPTEN)
 
-    set(USE_FLAGS "-s USE_SDL=2 --preload-file resources/")
+    set(USE_FLAGS "-s USE_SDL=2 -s USE_LIBPNG=1 --preload-file resources/")
     set(CMAKE_CXX_FLAGS ${USE_FLAGS})
     set_target_properties(main PROPERTIES SUFFIX ".js")
 
-    file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/resources)
+    file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
     file(COPY "index.html" DESTINATION ${CMAKE_BINARY_DIR})
 
     target_link_libraries(
@@ -55,6 +57,8 @@ else()
         main PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        GLEW::GLEW
+        PNG::PNG
         glm::glm
     )
 

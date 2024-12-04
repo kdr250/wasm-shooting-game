@@ -2,19 +2,21 @@
 #include <algorithm>
 
 #ifdef __EMSCRIPTEN__
+    #include <SDL2/SDL_opengles2.h>
     #include <emscripten.h>
+    #include <emscripten/html5.h>
 #endif
 
 Game* Game::game = nullptr;
 
-Game::Game() : window(nullptr), renderer(nullptr), isRunning(true), tickCount(0) {}
+Game::Game() : window(nullptr), isRunning(true), tickCount(0) {}
 
 bool Game::Initialize()
 {
     if (game)
     {
         SDL_Log("Game is already constructed!");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     game = new Game();
@@ -26,13 +28,30 @@ bool Game::Initialize()
         return false;
     }
 
+    // Set OpenGL attributes
+#ifdef __EMSCRIPTEN__
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                        SDL_GL_CONTEXT_PROFILE_CORE);      // Use the core OpenGL profile
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);  // Specify version 3.3
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#endif
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);  // Request a color buffer with 8-bits per RGBA channel
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);        // Enable double buffering
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);  // Force OpenGL to use hardware acceleration
+
     game->window = SDL_CreateWindow("Hello world !!",         // window title
                                     SDL_WINDOWPOS_UNDEFINED,  // Top left x-coordinate of window
                                     SDL_WINDOWPOS_UNDEFINED,  // Top left y-coordinate of window
                                     Game::WINDOW_WIDTH,       // width of window
                                     Game::WINDOW_HEIGHT,      // height of window
-                                    0                         // flags (0 for no flags set)
-    );
+                                    SDL_WINDOW_OPENGL);
 
     if (!game->window)
     {
@@ -40,27 +59,45 @@ bool Game::Initialize()
         return false;
     }
 
-    game->renderer = SDL_CreateRenderer(game->window,  // window to create renderer for
-                                        -1,            // usually -1
-                                        0);
+    // Create an OpenGL context
+    game->context = SDL_GL_CreateContext(game->window);
 
-    if (!game->renderer)
+    // Initialize GLEW
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK)
     {
-        SDL_Log("Failed to create renderer: %s", SDL_GetError());
+        SDL_Log("Failed to initialize GLEW.");
         return false;
     }
 
-    float playerEdge = 100.0f;
+    glGetError();  // On some platforms, GLEW will emit a benign error code, so clear it
+
+    std::string shaderName  = "sprite";
+    std::string textureName = "example";
+
+    if (!game->assetManager.LoadShader(shaderName, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
+    {
+        SDL_Log("Failed to load shader");
+        return false;
+    }
+
+    game->assetManager.CreateSpriteVertex();
+
+    if (!game->assetManager.LoadTexture(textureName, PLAYER_TEXTURE))
+    {
+        SDL_Log("Failed to load texture");
+        return false;
+    }
 
     auto player = game->entityManager.AddEntity("player");
     player->AddComponent<StateComponent>();
     player->AddComponent<TransformComponent>(
-        glm::vec2 {WINDOW_WIDTH / 2.0 - playerEdge, WINDOW_HEIGHT / 2.0 - playerEdge},  // position
-        2.0f,                                                                           // scale
-        200.0f                                                                          // speed
+        glm::vec2 {WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0},  // position
+        10.0f,                                                // scale
+        200.0f                                                // speed
     );
     player->AddComponent<InputComponent>();
-    player->AddComponent<RectComponent>(playerEdge);
+    player->AddComponent<SpriteComponent>(shaderName, textureName);
     game->player = player;
 
     return true;
@@ -96,7 +133,7 @@ void Game::Loop()
 
 void Game::Shutdown()
 {
-    SDL_DestroyRenderer(game->renderer);
+    SDL_GL_DeleteContext(game->context);
     SDL_DestroyWindow(game->window);
     SDL_Quit();
     delete game;
@@ -192,30 +229,28 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-    // set draw color blue
-    SDL_SetRenderDrawColor(renderer,
-                           0,    // R
-                           0,    // G
-                           255,  // B
-                           255   // A
-    );
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);  // Set the clear color to grey
+    glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
 
-    // clear back buffer
-    SDL_RenderClear(renderer);
-
-    // draw player rectangle
+    // draw player
     auto& playerTransform = player->GetComponent<TransformComponent>();
-    float playerEdge      = player->GetComponent<RectComponent>().edge;
+    auto& playerSprite    = player->GetComponent<SpriteComponent>();
 
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_Rect player {
-        static_cast<int>(playerTransform.position.x),  // top left x
-        static_cast<int>(playerTransform.position.y),  // top left y
-        static_cast<int>(playerEdge),                  // width
-        static_cast<int>(playerEdge)                   // height
-    };
-    SDL_RenderFillRect(renderer, &player);
+    auto& spriteShader = assetManager.GetShader(playerSprite.shaderName);
+    auto& spriteVertex = assetManager.GetSpriteVertex();
+    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
 
-    // exchange front buffer for back buffer
-    SDL_RenderPresent(renderer);
+    spriteShader.SetActive();
+    spriteVertex.SetActive();
+
+    spriteShader.SetVector2Uniform("uWindowSize", WINDOW_WIDTH, WINDOW_HEIGHT);
+    spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
+    spriteShader.SetVector2Uniform("uTexturePosition", playerTransform.position);
+    spriteShader.SetFloatUniform("uTextureScale", playerTransform.scale);
+
+    texture.SetActive();
+    glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+
+    // swap the buffers
+    SDL_GL_SwapWindow(window);
 }
