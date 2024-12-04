@@ -50,8 +50,18 @@ bool Game::Initialize()
         return false;
     }
 
-    game->playerPosition = glm::vec2 {Game::WINDOW_WIDTH / 2.0f - game->playerEdge,
-                                      Game::WINDOW_HEIGHT / 2.0f - game->playerEdge};
+    float playerEdge = 100.0f;
+
+    auto player = game->entityManager.AddEntity("player");
+    player->AddComponent<StateComponent>();
+    player->AddComponent<TransformComponent>(
+        glm::vec2 {WINDOW_WIDTH / 2.0 - playerEdge, WINDOW_HEIGHT / 2.0 - playerEdge},  // position
+        2.0f,                                                                           // scale
+        200.0f                                                                          // speed
+    );
+    player->AddComponent<InputComponent>();
+    player->AddComponent<RectComponent>(playerEdge);
+    game->player = player;
 
     return true;
 }
@@ -115,24 +125,24 @@ void Game::ProcessInput()
         isRunning = false;
     }
 
-    playerVelocity.x = 0.0f;
-    playerVelocity.y = 0.0f;
+    auto& input = player->GetComponent<InputComponent>();
+    input.Reset();
 
     if (state[SDL_SCANCODE_A])
     {
-        playerVelocity.x = -playerSpeed;
+        input.left = true;
     }
     if (state[SDL_SCANCODE_D])
     {
-        playerVelocity.x = playerSpeed;
+        input.right = true;
     }
     if (state[SDL_SCANCODE_W])
     {
-        playerVelocity.y = -playerSpeed;
+        input.up = true;
     }
     if (state[SDL_SCANCODE_S])
     {
-        playerVelocity.y = playerSpeed;
+        input.down = true;
     }
 }
 
@@ -149,9 +159,35 @@ void Game::UpdateGame()
 
     tickCount = SDL_GetTicks64();
 
-    playerPosition += playerVelocity * deltaTime;
-    playerPosition.x = std::clamp(playerPosition.x, 0.0f, Game::WINDOW_WIDTH - playerEdge);
-    playerPosition.y = std::clamp(playerPosition.y, 0.0f, Game::WINDOW_HEIGHT - playerEdge);
+    auto& input           = player->GetComponent<InputComponent>();
+    auto& playerTransform = player->GetComponent<TransformComponent>();
+
+    playerTransform.ResetVelocity();
+
+    if (input.left)
+    {
+        playerTransform.velocity.x = -playerTransform.speed;
+    }
+    if (input.right)
+    {
+        playerTransform.velocity.x = playerTransform.speed;
+    }
+    if (input.up)
+    {
+        playerTransform.velocity.y = -playerTransform.speed;
+    }
+    if (input.down)
+    {
+        playerTransform.velocity.y = playerTransform.speed;
+    }
+
+    float playerEdge = player->GetComponent<RectComponent>().edge;
+
+    playerTransform.position += playerTransform.velocity * deltaTime;
+    playerTransform.position.x =
+        std::clamp(playerTransform.position.x, 0.0f, Game::WINDOW_WIDTH - playerEdge);
+    playerTransform.position.y =
+        std::clamp(playerTransform.position.y, 0.0f, Game::WINDOW_HEIGHT - playerEdge);
 }
 
 void Game::GenerateOutput()
@@ -168,12 +204,15 @@ void Game::GenerateOutput()
     SDL_RenderClear(renderer);
 
     // draw player rectangle
+    auto& playerTransform = player->GetComponent<TransformComponent>();
+    float playerEdge      = player->GetComponent<RectComponent>().edge;
+
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_Rect player {
-        static_cast<int>(playerPosition.x),  // top left x
-        static_cast<int>(playerPosition.y),  // top left y
-        static_cast<int>(playerEdge),        // width
-        static_cast<int>(playerEdge)         // height
+        static_cast<int>(playerTransform.position.x),  // top left x
+        static_cast<int>(playerTransform.position.y),  // top left y
+        static_cast<int>(playerEdge),                  // width
+        static_cast<int>(playerEdge)                   // height
     };
     SDL_RenderFillRect(renderer, &player);
 
