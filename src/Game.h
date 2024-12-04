@@ -33,7 +33,7 @@ private:
 
     SDL_Window* window;
 
-    SDL_Renderer* renderer;
+    SDL_GLContext context;
 
     EntityManager entityManager;
 
