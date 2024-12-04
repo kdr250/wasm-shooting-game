@@ -32,6 +32,12 @@ public:
         position(p), velocity(v), scale(sc), speed(sp)
     {
     }
+
+    void ResetVelocity()
+    {
+        velocity.x = 0.0f;
+        velocity.y = 0.0f;
+    }
 };
 
 class RectComponent : public Component
@@ -52,6 +58,14 @@ public:
     bool down  = false;
 
     InputComponent() {}
+
+    void Reset()
+    {
+        up    = false;
+        left  = false;
+        right = false;
+        down  = false;
+    }
 };
 
 enum State

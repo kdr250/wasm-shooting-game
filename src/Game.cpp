@@ -125,26 +125,24 @@ void Game::ProcessInput()
         isRunning = false;
     }
 
-    auto& playerTransform = player->GetComponent<TransformComponent>();
-
-    playerTransform.velocity.x = 0.0f;
-    playerTransform.velocity.y = 0.0f;
+    auto& input = player->GetComponent<InputComponent>();
+    input.Reset();
 
     if (state[SDL_SCANCODE_A])
     {
-        playerTransform.velocity.x = -playerTransform.speed;
+        input.left = true;
     }
     if (state[SDL_SCANCODE_D])
     {
-        playerTransform.velocity.x = playerTransform.speed;
+        input.right = true;
     }
     if (state[SDL_SCANCODE_W])
     {
-        playerTransform.velocity.y = -playerTransform.speed;
+        input.up = true;
     }
     if (state[SDL_SCANCODE_S])
     {
-        playerTransform.velocity.y = playerTransform.speed;
+        input.down = true;
     }
 }
 
@@ -161,8 +159,29 @@ void Game::UpdateGame()
 
     tickCount = SDL_GetTicks64();
 
+    auto& input           = player->GetComponent<InputComponent>();
     auto& playerTransform = player->GetComponent<TransformComponent>();
-    float playerEdge      = player->GetComponent<RectComponent>().edge;
+
+    playerTransform.ResetVelocity();
+
+    if (input.left)
+    {
+        playerTransform.velocity.x = -playerTransform.speed;
+    }
+    if (input.right)
+    {
+        playerTransform.velocity.x = playerTransform.speed;
+    }
+    if (input.up)
+    {
+        playerTransform.velocity.y = -playerTransform.speed;
+    }
+    if (input.down)
+    {
+        playerTransform.velocity.y = playerTransform.speed;
+    }
+
+    float playerEdge = player->GetComponent<RectComponent>().edge;
 
     playerTransform.position += playerTransform.velocity * deltaTime;
     playerTransform.position.x =
