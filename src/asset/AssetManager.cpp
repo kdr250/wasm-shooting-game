@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-AssetManager::AssetManager() {}
+AssetManager::AssetManager() : spriteVertex(nullptr) {}
 
 bool AssetManager::LoadTexture(const std::string& name, const std::string& path)
 {
@@ -103,6 +103,11 @@ bool AssetManager::LoadShader(const std::string& name,
 Shader& AssetManager::GetShader(const std::string& name)
 {
     return shaders[name];
+}
+
+void AssetManager::CreateSpriteVertex()
+{
+    spriteVertex = new VertexArray();
 }
 
 bool AssetManager::ReadFile(const std::string& path, std::string& outContents)

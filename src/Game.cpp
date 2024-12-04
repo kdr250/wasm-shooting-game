@@ -1,5 +1,4 @@
 #include "Game.h"
-#include <GL/glew.h>
 #include <algorithm>
 
 #ifdef __EMSCRIPTEN__
@@ -73,17 +72,32 @@ bool Game::Initialize()
 
     glGetError();  // On some platforms, GLEW will emit a benign error code, so clear it
 
-    float playerEdge = 100.0f;
+    std::string shaderName  = "sprite";
+    std::string textureName = "example";
+
+    if (!game->assetManager.LoadShader(shaderName, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
+    {
+        SDL_Log("Failed to load shader");
+        return false;
+    }
+
+    game->assetManager.CreateSpriteVertex();
+
+    if (!game->assetManager.LoadTexture(textureName, PLAYER_TEXTURE))
+    {
+        SDL_Log("Failed to load texture");
+        return false;
+    }
 
     auto player = game->entityManager.AddEntity("player");
     player->AddComponent<StateComponent>();
     player->AddComponent<TransformComponent>(
-        glm::vec2 {WINDOW_WIDTH / 2.0 - playerEdge, WINDOW_HEIGHT / 2.0 - playerEdge},  // position
-        2.0f,                                                                           // scale
-        200.0f                                                                          // speed
+        glm::vec2 {WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0},  // position
+        10.0f,                                                // scale
+        200.0f                                                // speed
     );
     player->AddComponent<InputComponent>();
-    player->AddComponent<RectComponent>(playerEdge);
+    player->AddComponent<SpriteComponent>(shaderName, textureName);
     game->player = player;
 
     return true;
@@ -215,14 +229,27 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);  // set the clear color to blue
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);  // Set the clear color to grey
     glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
 
     // draw player
     auto& playerTransform = player->GetComponent<TransformComponent>();
-    float playerEdge      = player->GetComponent<RectComponent>().edge;
+    auto& playerSprite    = player->GetComponent<SpriteComponent>();
 
-    // TODO
+    auto& spriteShader = assetManager.GetShader(playerSprite.shaderName);
+    auto& spriteVertex = assetManager.GetSpriteVertex();
+    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
+
+    spriteShader.SetActive();
+    spriteVertex.SetActive();
+
+    spriteShader.SetVector2Uniform("uWindowSize", WINDOW_WIDTH, WINDOW_HEIGHT);
+    spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
+    spriteShader.SetVector2Uniform("uTexturePosition", playerTransform.position);
+    spriteShader.SetFloatUniform("uTextureScale", playerTransform.scale);
+
+    texture.SetActive();
+    glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 
     // swap the buffers
     SDL_GL_SwapWindow(window);

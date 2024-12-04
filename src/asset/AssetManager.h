@@ -4,6 +4,7 @@
 #include <string>
 #include "Shader.h"
 #include "Texture.h"
+#include "VertexArray.h"
 
 class AssetManager
 {
@@ -18,9 +19,17 @@ public:
                     const std::string& fragPath);
     Shader& GetShader(const std::string& name);
 
+    void CreateSpriteVertex();
+    VertexArray& GetSpriteVertex()
+    {
+        return *spriteVertex;
+    }
+
 private:
     bool ReadFile(const std::string& path, std::string& outContents);
 
     std::map<std::string, Texture> textures;
     std::map<std::string, Shader> shaders;
+
+    VertexArray* spriteVertex;
 };

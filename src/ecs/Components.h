@@ -40,6 +40,19 @@ public:
     }
 };
 
+class SpriteComponent : public Component
+{
+public:
+    std::string shaderName;
+    std::string textureName;
+
+    SpriteComponent() {};
+    SpriteComponent(const std::string& shaName, const std::string& texName) :
+        shaderName(shaName), textureName(texName)
+    {
+    }
+};
+
 class RectComponent : public Component
 {
 public:

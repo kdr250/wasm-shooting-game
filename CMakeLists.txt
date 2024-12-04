@@ -43,7 +43,7 @@ if (EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS ${USE_FLAGS})
     set_target_properties(main PROPERTIES SUFFIX ".js")
 
-    file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR}/resources)
+    file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
     file(COPY "index.html" DESTINATION ${CMAKE_BINARY_DIR})
 
     target_link_libraries(
