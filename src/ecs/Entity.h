@@ -6,7 +6,8 @@
 
 class EntityManager;
 
-using ComponentTuple = std::tuple<TransformComponent, InputComponent, StateComponent>;
+using ComponentTuple =
+    std::tuple<TransformComponent, RectComponent, InputComponent, StateComponent>;
 
 class Entity
 {

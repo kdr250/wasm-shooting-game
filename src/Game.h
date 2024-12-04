@@ -1,8 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-#define GLM_FORCE_PURE
-#include <glm/vec2.hpp>
+#include "ecs/EntityManager.h"
 
 class Game
 {
@@ -36,12 +35,11 @@ private:
 
     SDL_Renderer* renderer;
 
+    EntityManager entityManager;
+
     bool isRunning;
 
     Uint64 tickCount;
 
-    glm::vec2 playerPosition;
-    glm::vec2 playerVelocity;
-    float playerEdge  = 100.0f;
-    float playerSpeed = 200.0f;
+    std::shared_ptr<Entity> player;
 };
