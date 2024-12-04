@@ -1,6 +1,8 @@
 #include "Texture.h"
 #include <GL/glew.h>
 
+Texture::Texture() {}
+
 Texture::Texture(int format, int width, int height, const void *pixels) :
     width(width), height(height)
 {

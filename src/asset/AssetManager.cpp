@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <png.h>
+#include <fstream>
+#include <sstream>
 
 AssetManager::AssetManager() {}
 
@@ -79,4 +81,43 @@ bool AssetManager::LoadTexture(const std::string& name, const std::string& path)
 Texture& AssetManager::GetTexture(const std::string& name)
 {
     return textures[name];
+}
+
+bool AssetManager::LoadShader(const std::string& name,
+                              const std::string& vertPath,
+                              const std::string& fragPath)
+{
+    std::string vertContents;
+    std::string fragContents;
+    if (!ReadFile(vertPath, vertContents) || !ReadFile(fragPath, fragContents))
+    {
+        return false;
+    }
+
+    Shader shader(vertContents, fragContents);
+    shaders.emplace(name, shader);
+
+    return true;
+}
+
+Shader& AssetManager::GetShader(const std::string& name)
+{
+    return shaders[name];
+}
+
+bool AssetManager::ReadFile(const std::string& path, std::string& outContents)
+{
+    // Open file
+    std::ifstream file(path);
+    if (file.is_open())
+    {
+        // Read all the text into a string
+        std::stringstream sstream;
+        sstream << file.rdbuf();
+        outContents = sstream.str();
+        return true;
+    }
+
+    SDL_Log("file not found: %s", path.c_str());
+    return false;
 }

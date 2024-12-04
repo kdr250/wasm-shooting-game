@@ -5,6 +5,7 @@
 class Texture
 {
 public:
+    Texture();
     Texture(int format, int width, int height, const void *pixels);
 
     void SetActive();
