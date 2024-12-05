@@ -3,6 +3,8 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 
+class Texture;
+
 class Font
 {
 public:
@@ -12,8 +14,10 @@ public:
 
     void Unload();
 
-    class Texture* RenderText(const std::string& text);  // FIXME: color, size
+    Texture RenderText(const std::string& text);  // FIXME: color, size
 
 private:
+    int NextPowerOfTwo(int value);
+
     TTF_Font* font;
 };

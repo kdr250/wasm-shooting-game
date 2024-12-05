@@ -78,6 +78,11 @@ bool AssetManager::LoadTexture(const std::string& name, const std::string& path)
     return true;
 }
 
+void AssetManager::AddTexture(const std::string& name, const Texture& texture)
+{
+    textures.emplace(name, texture);
+}
+
 Texture& AssetManager::GetTexture(const std::string& name)
 {
     return textures[name];

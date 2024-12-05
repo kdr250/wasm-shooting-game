@@ -8,7 +8,6 @@ class Texture
 public:
     Texture();
     Texture(int format, int width, int height, const void* pixels);
-    Texture(SDL_Surface* surface);
 
     void SetActive();
 

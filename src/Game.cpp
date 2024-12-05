@@ -96,6 +96,9 @@ bool Game::Initialize()
     }
 
     game->assetManager.LoadFont(FONT_NAME, FONT_PATH);
+    auto& font       = game->assetManager.GetFont(FONT_NAME);
+    auto fontTexture = font.RenderText("Hello World !!");
+    game->assetManager.AddTexture("title", fontTexture);
 
     auto player = game->entityManager.AddEntity("player");
     player->AddComponent<StateComponent>();
@@ -240,6 +243,9 @@ void Game::GenerateOutput()
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f);  // Set the clear color to grey
     glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // draw player
     auto& playerTransform = player->GetComponent<TransformComponent>();
     auto& playerSprite    = player->GetComponent<SpriteComponent>();
@@ -260,19 +266,13 @@ void Game::GenerateOutput()
     glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 
     // draw text
-    auto& font       = assetManager.GetFont(FONT_NAME);
-    auto fontTexture = font.RenderText("Hello World !!");
-    spriteShader.SetVector2Uniform("uTextureSize",
-                                   fontTexture->GetWidth(),
-                                   fontTexture->GetHeight());
+    auto& fontTexture = assetManager.GetTexture("title");
+    spriteShader.SetVector2Uniform("uTextureSize", fontTexture.GetWidth(), fontTexture.GetHeight());
     spriteShader.SetVector2Uniform("uTexturePosition",
-                                   glm::vec2 {WINDOW_WIDTH / 2.0f, fontTexture->GetHeight()});
+                                   glm::vec2 {WINDOW_WIDTH / 2.0f, fontTexture.GetHeight()});
     spriteShader.SetFloatUniform("uTextureScale", 3.0f);
-    fontTexture->SetActive();
+    fontTexture.SetActive();
     glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // swap the buffers
     SDL_GL_SwapWindow(window);

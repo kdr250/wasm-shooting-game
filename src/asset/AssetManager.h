@@ -13,6 +13,7 @@ public:
     AssetManager();
 
     bool LoadTexture(const std::string& name, const std::string& path);
+    void AddTexture(const std::string& name, const Texture& texture);
     Texture& GetTexture(const std::string& name);
 
     bool LoadShader(const std::string& name,
