@@ -97,7 +97,7 @@ bool Game::Initialize()
 
     game->assetManager.LoadFont(FONT_NAME, FONT_PATH);
     auto& font       = game->assetManager.GetFont(FONT_NAME);
-    auto fontTexture = font.RenderText("Hello World !!");
+    auto fontTexture = font.RenderText("Hello World !!", Font::DEFAULT_COLOR_WHITE, 40);
     game->assetManager.AddTexture("title", fontTexture);
 
     auto player = game->entityManager.AddEntity("player");

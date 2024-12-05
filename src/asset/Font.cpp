@@ -1,33 +1,56 @@
 #include "Font.h"
 
 #include <GL/glew.h>
+#include <vector>
 #include "Texture.h"
 
 Font::Font() {}
 
-Font::Font(TTF_Font* f) : font(f) {}
-
 Font::Font(const std::string& path)
 {
-    font = TTF_OpenFont(path.c_str(), 24);
+    std::vector<int> fontSizes = {8,  9,  10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+                                  34, 36, 38, 40, 42, 44, 46, 48, 52, 56, 60, 64, 68, 72};
+
+    for (auto& size : fontSizes)
+    {
+        TTF_Font* font = TTF_OpenFont(path.c_str(), size);
+        if (!font)
+        {
+            SDL_Log("Failed to load Font %s , size %d", path.c_str(), size);
+            exit(EXIT_FAILURE);
+        }
+        fonts.emplace(size, font);
+    }
 }
 
 void Font::Unload()
 {
-    TTF_CloseFont(font);
+    for (auto& font : fonts)
+    {
+        TTF_CloseFont(font.second);
+    }
 }
 
-Texture Font::RenderText(const std::string& text)
+Texture Font::RenderText(const std::string& text, const SDL_Color& color, int size)
 {
-    // Convert to SDL_Color
-    SDL_Color sdlColor;
-    sdlColor.r = static_cast<Uint8>(255);
-    sdlColor.g = static_cast<Uint8>(255);
-    sdlColor.b = static_cast<Uint8>(255);
-    sdlColor.a = 255;
+    // Find the font data for this point size
+    auto iter = fonts.find(size);
+    if (iter == fonts.end())
+    {
+        SDL_Log("Point size %d is unsupported, so use default %d size", size, DEFAULT_SIZE_30);
+        iter = fonts.find(DEFAULT_SIZE_30);
+    }
+
+    TTF_Font* font = iter->second;
+
+    SDL_Color backColor = color;
+    backColor.r++;
+    Uint32 colorBit      = (Uint32)((color.b << 16) + (color.g << 8) + (color.r << 0));
+    Uint32 colorBitAlpha = (Uint32)(0xff000000 + (color.b << 16) + (color.g << 8) + (color.r << 0));
+    Uint32 backColorBit  = (Uint32)((backColor.b << 16) + (backColor.g << 8) + (backColor.r << 0));
 
     // Draw this to a surface
-    SDL_Surface* textImage8Bit = TTF_RenderText_Solid(font, text.c_str(), sdlColor);
+    SDL_Surface* textImage8Bit = TTF_RenderUTF8_Shaded(font, text.c_str(), color, backColor);
 
     // Convert surface from 8 to 32 bit for GL
     SDL_Surface* textImage = SDL_ConvertSurfaceFormat(textImage8Bit, SDL_PIXELFORMAT_RGBA8888, 0);
@@ -41,7 +64,7 @@ Texture Font::RenderText(const std::string& text)
                                                 0,
                                                 0,
                                                 0);
-    memset(texture->pixels, 0x0, texture->w * texture->h * texture->format->BytesPerPixel);
+    memset(texture->pixels, backColorBit, texture->w * texture->h * texture->format->BytesPerPixel);
     SDL_Rect destRect = {(texture->w - textImage->w) / 2,
                          texture->h - textImage->h - 1,
                          textImage->w + 1,
@@ -54,9 +77,17 @@ Texture Font::RenderText(const std::string& text)
     unsigned int* pixels = (unsigned int*)texture->pixels;
     for (int i = 0; i < texture->w * texture->h; ++i)
     {
-        if (pixels[i] != 0)
+        if (pixels[i] == colorBitAlpha)
+        {
+            continue;
+        }
+        if (pixels[i] == colorBit)
         {
             pixels[i] |= 0xff000000;
+        }
+        else
+        {
+            pixels[i] = 0;
         }
     }
 
