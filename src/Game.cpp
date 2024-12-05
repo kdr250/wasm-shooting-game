@@ -89,6 +89,14 @@ bool Game::Initialize()
         return false;
     }
 
+    if (TTF_Init() != 0)
+    {
+        SDL_Log("Failed to initialize SDL_ttf");
+        return false;
+    }
+
+    game->assetManager.LoadFont(FONT_NAME, FONT_PATH);
+
     auto player = game->entityManager.AddEntity("player");
     player->AddComponent<StateComponent>();
     player->AddComponent<TransformComponent>(
@@ -250,6 +258,21 @@ void Game::GenerateOutput()
 
     texture.SetActive();
     glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+
+    // draw text
+    auto& font       = assetManager.GetFont(FONT_NAME);
+    auto fontTexture = font.RenderText("Hello World !!");
+    spriteShader.SetVector2Uniform("uTextureSize",
+                                   fontTexture->GetWidth(),
+                                   fontTexture->GetHeight());
+    spriteShader.SetVector2Uniform("uTexturePosition",
+                                   glm::vec2 {WINDOW_WIDTH / 2.0f, fontTexture->GetHeight()});
+    spriteShader.SetFloatUniform("uTextureScale", 3.0f);
+    fontTexture->SetActive();
+    glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // swap the buffers
     SDL_GL_SwapWindow(window);

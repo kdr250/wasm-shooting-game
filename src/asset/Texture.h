@@ -1,12 +1,14 @@
 #pragma once
 
+#include <SDL2/SDL_surface.h>
 #include <memory>
 
 class Texture
 {
 public:
     Texture();
-    Texture(int format, int width, int height, const void *pixels);
+    Texture(int format, int width, int height, const void* pixels);
+    Texture(SDL_Surface* surface);
 
     void SetActive();
 

@@ -105,6 +105,18 @@ Shader& AssetManager::GetShader(const std::string& name)
     return shaders[name];
 }
 
+bool AssetManager::LoadFont(const std::string& name, const std::string& path)
+{
+    Font font(path);
+    fonts.emplace(name, font);
+    return true;
+}
+
+Font& AssetManager::GetFont(const std::string& name)
+{
+    return fonts[name];
+}
+
 void AssetManager::CreateSpriteVertex()
 {
     spriteVertex = new VertexArray();

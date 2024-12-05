@@ -5,6 +5,10 @@
             "platform": "!wasm32"
         },
         {
+            "name": "sdl2-ttf",
+            "platform": "!wasm32"
+        },
+        {
             "name": "glew",
             "platform": "!wasm32"
         },
