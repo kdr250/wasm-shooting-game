@@ -20,6 +20,8 @@ public:
 #endif
 
     inline static const std::string PLAYER_TEXTURE = "resources/texture/example.png";
+    inline static const std::string FONT_PATH      = "resources/font/Roboto-Bold.ttf";
+    inline static const std::string FONT_NAME      = "Roboto-Bold";
 
     // Initailize game
     static bool Initialize();

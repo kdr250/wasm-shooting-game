@@ -16,7 +16,8 @@ project(main VERSION 1.0)
 if (EMSCRIPTEN)
     set(VCPKG_TARGET_TRIPLET "wasm32-emscripten")
 else()
-    find_package(sdl2 CONFIG REQUIRED)
+    find_package(SDL2 CONFIG REQUIRED)
+    find_package(SDL2_ttf CONFIG REQUIRED)
     find_package(GLEW REQUIRED)
     find_package(PNG REQUIRED)
 endif()
@@ -39,7 +40,7 @@ add_executable(
 
 if (EMSCRIPTEN)
 
-    set(USE_FLAGS "-s USE_SDL=2 -s USE_LIBPNG=1 --preload-file resources/")
+    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_LIBPNG=1 --preload-file resources/")
     set(CMAKE_CXX_FLAGS ${USE_FLAGS})
     set_target_properties(main PROPERTIES SUFFIX ".js")
 
@@ -57,6 +58,7 @@ else()
         main PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
         GLEW::GLEW
         PNG::PNG
         glm::glm

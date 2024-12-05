@@ -78,6 +78,11 @@ bool AssetManager::LoadTexture(const std::string& name, const std::string& path)
     return true;
 }
 
+void AssetManager::AddTexture(const std::string& name, const Texture& texture)
+{
+    textures.emplace(name, texture);
+}
+
 Texture& AssetManager::GetTexture(const std::string& name)
 {
     return textures[name];
@@ -103,6 +108,18 @@ bool AssetManager::LoadShader(const std::string& name,
 Shader& AssetManager::GetShader(const std::string& name)
 {
     return shaders[name];
+}
+
+bool AssetManager::LoadFont(const std::string& name, const std::string& path)
+{
+    Font font(path);
+    fonts.emplace(name, font);
+    return true;
+}
+
+Font& AssetManager::GetFont(const std::string& name)
+{
+    return fonts[name];
 }
 
 void AssetManager::CreateSpriteVertex()
