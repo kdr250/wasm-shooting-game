@@ -127,6 +127,31 @@ void Game::RunLoop()
 #endif
 }
 
+Game& Game::GetGame()
+{
+    return *game;
+}
+
+AssetManager& Game::GetAssetManager()
+{
+    return assetManager;
+}
+
+EntityManager& Game::GetEntityManger()
+{
+    return entityManager;
+}
+
+SDL_Window* Game::GetWindow()
+{
+    return window;
+}
+
+void Game::Stop()
+{
+    isRunning = false;
+}
+
 void Game::Loop()
 {
 #ifdef __EMSCRIPTEN__

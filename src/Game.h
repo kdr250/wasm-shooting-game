@@ -29,6 +29,16 @@ public:
     // Runs the game loop until the game is over
     static void RunLoop();
 
+    static Game& GetGame();
+
+    AssetManager& GetAssetManager();
+
+    EntityManager& GetEntityManger();
+
+    SDL_Window* GetWindow();
+
+    void Stop();
+
 private:
     // Shutdown the game
     static void Shutdown();
