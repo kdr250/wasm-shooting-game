@@ -1,6 +1,6 @@
 #include "Game.h"
 #include <algorithm>
-#include "scene/ScenePlay.h"
+#include "scene/SceneMenu.h"
 
 #ifdef __EMSCRIPTEN__
     #include <SDL2/SDL_opengles2.h>
@@ -79,7 +79,7 @@ bool Game::Initialize()
         return false;
     }
 
-    game->ChangeScene("PLAY", std::make_shared<ScenePlay>(1));
+    game->ChangeScene("MENU", std::make_shared<SceneMenu>());
 
     return true;
 }

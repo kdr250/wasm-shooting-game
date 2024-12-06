@@ -88,10 +88,25 @@ Texture& AssetManager::GetTexture(const std::string& name)
     return textures[name];
 }
 
+void AssetManager::RemoveTexture(const std::string& name)
+{
+    auto iter = textures.find(name);
+    if (iter != textures.end())
+    {
+        iter->second.Unload();
+        textures.erase(iter);
+    }
+}
+
 bool AssetManager::LoadShader(const std::string& name,
                               const std::string& vertPath,
                               const std::string& fragPath)
 {
+    if (shaders.contains(name))
+    {
+        return true;
+    }
+
     std::string vertContents;
     std::string fragContents;
     if (!ReadFile(vertPath, vertContents) || !ReadFile(fragPath, fragContents))
@@ -112,6 +127,11 @@ Shader& AssetManager::GetShader(const std::string& name)
 
 bool AssetManager::LoadFont(const std::string& name, const std::string& path)
 {
+    if (fonts.contains(name))
+    {
+        return true;
+    }
+
     Font font(path);
     fonts.emplace(name, font);
     return true;
@@ -124,7 +144,10 @@ Font& AssetManager::GetFont(const std::string& name)
 
 void AssetManager::CreateSpriteVertex()
 {
-    spriteVertex = new VertexArray();
+    if (!spriteVertex)
+    {
+        spriteVertex = new VertexArray();
+    }
 }
 
 bool AssetManager::ReadFile(const std::string& path, std::string& outContents)

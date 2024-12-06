@@ -54,7 +54,6 @@ void ScenePlay::Update(float deltaTime)
     Game::GetGame().GetEntityManger().Update();
 
     MoveEntities(deltaTime);
-    Render();
 }
 
 void ScenePlay::OnEnd()
