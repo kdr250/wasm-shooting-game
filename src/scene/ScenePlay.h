@@ -11,14 +11,14 @@ public:
     ScenePlay(const int sceneId);
 
     virtual void Update(float deltaTime) override;
-    virtual void OnEnd() override;
     virtual void DoAction(const Action& action) override;
+    void Render() override;
+
+    virtual void OnEnd() override;
 
     void MoveEntities(float deltaTime);
-    void Render();
 
 private:
-    int id;
     std::shared_ptr<Entity> player;
 
 #ifdef __EMSCRIPTEN__

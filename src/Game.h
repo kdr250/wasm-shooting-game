@@ -1,9 +1,14 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-#include <string_view>
+#include <map>
+#include <memory>
+#include <string>
 #include "asset/AssetManager.h"
 #include "ecs/EntityManager.h"
+#include "scene/Action.h"
+
+class Scene;
 
 class Game
 {
@@ -39,6 +44,10 @@ public:
 
     void Stop();
 
+    void ChangeScene(const std::string& sceneName,
+                     std::shared_ptr<Scene> scene,
+                     bool endCurrentScene = false);
+
 private:
     // Shutdown the game
     static void Shutdown();
@@ -66,5 +75,8 @@ private:
 
     Uint64 tickCount;
 
-    std::shared_ptr<Entity> player;
+    Action action;
+
+    std::map<std::string, std::shared_ptr<Scene>> sceneMap;
+    std::string currentSceneName;
 };

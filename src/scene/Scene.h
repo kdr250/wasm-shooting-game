@@ -9,6 +9,7 @@ class Scene
 {
 public:
     Scene();
+    Scene(const int sceneId);
 
     virtual void Update(float deltaTime)        = 0;
     virtual void DoAction(const Action& action) = 0;
@@ -21,5 +22,6 @@ public:
 protected:
     virtual void OnEnd() = 0;
 
+    int id = 0;
     ActionMap actionMap;
 };

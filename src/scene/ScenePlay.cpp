@@ -3,7 +3,7 @@
 #include "../Game.h"
 #include "Action.h"
 
-ScenePlay::ScenePlay(const int sceneId) : id(sceneId)
+ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
@@ -25,6 +25,11 @@ ScenePlay::ScenePlay(const int sceneId) : id(sceneId)
         SDL_Log("Failed to load texture");
         exit(EXIT_FAILURE);
     }
+
+    assetManager.LoadFont(FONT_NAME, FONT_PATH);
+    auto& font       = assetManager.GetFont(FONT_NAME);
+    auto fontTexture = font.RenderText("Hello World !!", Font::DEFAULT_COLOR_WHITE, 40);
+    assetManager.AddTexture("title", fontTexture);
 
     player = entityManager.AddEntity("player");
     player->AddComponent<StateComponent>();
@@ -54,53 +59,51 @@ void ScenePlay::Update(float deltaTime)
 
 void ScenePlay::OnEnd()
 {
-    // FIXME
     Game::GetGame().Stop();
 }
 
 void ScenePlay::DoAction(const Action& action)
 {
     auto& input = player->GetComponent<InputComponent>();
-    input.Reset();
 
-    if (action.GetType() == "START")
+    if (action.type == "START")
     {
-        if (action.GetName() == "QUIT")
+        if (action.name == "QUIT")
         {
             OnEnd();
         }
-        else if (action.GetName() == "UP")
+        else if (action.name == "UP")
         {
             input.up = true;
         }
-        else if (action.GetName() == "LEFT")
+        else if (action.name == "LEFT")
         {
             input.left = true;
         }
-        else if (action.GetName() == "DOWN")
+        else if (action.name == "DOWN")
         {
             input.down = true;
         }
-        else if (action.GetName() == "RIGHT")
+        else if (action.name == "RIGHT")
         {
             input.right = true;
         }
     }
-    else if (action.GetType() == "END")
+    else if (action.type == "END")
     {
-        if (action.GetName() == "UP")
+        if (action.name == "UP")
         {
             input.up = false;
         }
-        else if (action.GetName() == "LEFT")
+        else if (action.name == "LEFT")
         {
             input.left = false;
         }
-        else if (action.GetName() == "DOWN")
+        else if (action.name == "DOWN")
         {
             input.down = false;
         }
-        else if (action.GetName() == "RIGHT")
+        else if (action.name == "RIGHT")
         {
             input.right = false;
         }
