@@ -14,6 +14,7 @@ public:
 
     bool LoadTexture(const std::string& name, const std::string& path);
     void AddTexture(const std::string& name, const Texture& texture);
+    void RemoveTexture(const std::string& name);
     Texture& GetTexture(const std::string& name);
 
     bool LoadShader(const std::string& name,
