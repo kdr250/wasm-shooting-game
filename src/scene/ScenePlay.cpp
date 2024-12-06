@@ -133,11 +133,19 @@ void ScenePlay::MoveEntities(float deltaTime)
         playerTransform.velocity.y = playerTransform.speed;
     }
 
+    auto& assetManager = Game::GetGame().GetAssetManager();
+    auto& playerSprite = player->GetComponent<SpriteComponent>();
+    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
+    float scale        = player->GetComponent<TransformComponent>().scale;
+
     playerTransform.position += playerTransform.velocity * deltaTime;
-    playerTransform.position.x =
-        std::clamp(playerTransform.position.x, 0.0f, static_cast<float>(Game::WINDOW_WIDTH));
+    playerTransform.position.x = std::clamp(playerTransform.position.x,
+                                            texture.GetWidth() * scale / 4.0f,
+                                            Game::WINDOW_WIDTH - texture.GetWidth() * scale / 4.0f);
     playerTransform.position.y =
-        std::clamp(playerTransform.position.y, 0.0f, static_cast<float>(Game::WINDOW_HEIGHT));
+        std::clamp(playerTransform.position.y,
+                   texture.GetHeight() * scale / 4.0f,
+                   Game::WINDOW_HEIGHT - texture.GetHeight() * scale / 4.0f);
 }
 
 void ScenePlay::Render()
