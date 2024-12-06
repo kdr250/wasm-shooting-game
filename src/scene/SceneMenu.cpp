@@ -2,16 +2,12 @@
 #include "../Game.h"
 #include "ScenePlay.h"
 
-// FIXME
-std::string shaderName = "sprite";
-std::string title      = "title";
-
 SceneMenu::SceneMenu()
 {
     auto& game         = Game::GetGame();
     auto& assetManager = game.GetAssetManager();
 
-    if (!assetManager.LoadShader(shaderName, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
+    if (!assetManager.LoadShader(SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
     {
         SDL_Log("Failed to load shader");
         exit(EXIT_FAILURE);
@@ -22,7 +18,7 @@ SceneMenu::SceneMenu()
     assetManager.LoadFont(FONT_NAME, FONT_PATH);
     auto& font       = assetManager.GetFont(FONT_NAME);
     auto fontTexture = font.RenderText("Press Enter To Start!", SDL_Color {0, 255, 0, 255}, 40);
-    assetManager.AddTexture(title, fontTexture);
+    assetManager.AddTexture(TITLE, fontTexture);
 
     RegisterAction(SDL_SCANCODE_RETURN, "PLAY_GAME");
     RegisterAction(SDL_SCANCODE_RETURN2, "PLAY_GAME");
@@ -53,14 +49,14 @@ void SceneMenu::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto& spriteShader = assetManager.GetShader(shaderName);
+    auto& spriteShader = assetManager.GetShader(SHADER_NAME);
     auto& spriteVertex = assetManager.GetSpriteVertex();
 
     spriteShader.SetActive();
     spriteVertex.SetActive();
 
     // draw text
-    auto& fontTexture = assetManager.GetTexture(title);
+    auto& fontTexture = assetManager.GetTexture(TITLE);
     spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
     spriteShader.SetVector2Uniform("uTextureSize", fontTexture.GetWidth(), fontTexture.GetHeight());
     spriteShader.SetVector2Uniform(
@@ -79,6 +75,6 @@ void SceneMenu::OnEnd()
     auto& game         = Game::GetGame();
     auto& assetManager = game.GetAssetManager();
 
-    assetManager.RemoveTexture(title);
+    assetManager.RemoveTexture(TITLE);
     game.ChangeScene("PLAY", std::make_shared<ScenePlay>(id + 1));
 }
