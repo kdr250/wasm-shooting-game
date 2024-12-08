@@ -9,10 +9,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
 
-    std::string shaderName  = "sprite";
-    std::string textureName = "example";
+    std::string PLAYER_TEXTURE_NAME = "example";
 
-    if (!assetManager.LoadShader(shaderName, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
+    if (!assetManager.LoadShader(SPRITE_SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG)
+        || !assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
     {
         SDL_Log("Failed to load shader");
         exit(EXIT_FAILURE);
@@ -20,7 +20,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     assetManager.CreateSpriteVertex();
 
-    if (!assetManager.LoadTexture(textureName, PLAYER_TEXTURE))
+    if (!assetManager.LoadTexture(PLAYER_TEXTURE_NAME, PLAYER_TEXTURE))
     {
         SDL_Log("Failed to load texture");
         exit(EXIT_FAILURE);
@@ -39,12 +39,13 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         200.0f                                                            // speed
     );
     player->AddComponent<InputComponent>();
-    player->AddComponent<SpriteComponent>(shaderName, textureName);
+    player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
     RegisterAction(SDL_SCANCODE_S, "DOWN");
     RegisterAction(SDL_SCANCODE_D, "RIGHT");
+    RegisterAction(SDL_SCANCODE_SPACE, "SHOOT");
     RegisterAction(SDL_SCANCODE_P, "PAUSE");
     RegisterAction(SDL_SCANCODE_ESCAPE, "QUIT");
 }
@@ -87,6 +88,10 @@ void ScenePlay::DoAction(const Action& action)
         {
             input.right = true;
         }
+        else if (action.name == "SHOOT")
+        {
+            input.shoot = true;
+        }
     }
     else if (action.type == "END")
     {
@@ -105,6 +110,10 @@ void ScenePlay::DoAction(const Action& action)
         else if (action.name == "RIGHT")
         {
             input.right = false;
+        }
+        else if (action.name == "SHOOT")
+        {
+            input.shoot = false;
         }
     }
 }
@@ -135,7 +144,7 @@ void ScenePlay::MoveEntities(float deltaTime)
 
     auto& assetManager = Game::GetGame().GetAssetManager();
     auto& playerSprite = player->GetComponent<SpriteComponent>();
-    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
+    auto& texture      = assetManager.GetTexture(playerSprite.shaderName);
     float scale        = player->GetComponent<TransformComponent>().scale;
 
     playerTransform.position += playerTransform.velocity * deltaTime;
@@ -153,22 +162,32 @@ void ScenePlay::Render()
     auto& game         = Game::GetGame();
     auto& assetManager = game.GetAssetManager();
 
-    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);  // Set the clear color to grey
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set the clear color to black
     glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    auto& vertexArray = assetManager.GetSpriteVertex();
+
+    // Draw Bullet
+    auto& bulletShader = assetManager.GetShader(BULLET_SHADER_NAME);
+    bulletShader.SetActive();
+    vertexArray.SetActive();
+    bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
+    bulletShader.SetVector2Uniform("uBulletPosition", 200.0f, 300.0f);
+    bulletShader.SetVector2Uniform("uBulletSize", 200.0f, 200.0f);
+    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 
     // draw player
     auto& playerTransform = player->GetComponent<TransformComponent>();
     auto& playerSprite    = player->GetComponent<SpriteComponent>();
 
     auto& spriteShader = assetManager.GetShader(playerSprite.shaderName);
-    auto& spriteVertex = assetManager.GetSpriteVertex();
     auto& texture      = assetManager.GetTexture(playerSprite.textureName);
 
     spriteShader.SetActive();
-    spriteVertex.SetActive();
+    vertexArray.SetActive();
 
     spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
     spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
@@ -176,7 +195,7 @@ void ScenePlay::Render()
     spriteShader.SetFloatUniform("uTextureScale", playerTransform.scale);
 
     texture.SetActive();
-    glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 
     // draw text
     auto& fontTexture = assetManager.GetTexture("title");
@@ -185,7 +204,7 @@ void ScenePlay::Render()
                                    glm::vec2 {Game::WINDOW_WIDTH / 2.0f, fontTexture.GetHeight()});
     spriteShader.SetFloatUniform("uTextureScale", 3.0f);
     fontTexture.SetActive();
-    glDrawElements(GL_TRIANGLES, spriteVertex.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 
     // swap the buffers
     SDL_GL_SwapWindow(game.GetWindow());

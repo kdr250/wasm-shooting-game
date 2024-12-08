@@ -69,6 +69,7 @@ public:
     bool left  = false;
     bool right = false;
     bool down  = false;
+    bool shoot = false;
 
     InputComponent() {}
 
@@ -78,6 +79,7 @@ public:
         left  = false;
         right = false;
         down  = false;
+        shoot = false;
     }
 };
 
