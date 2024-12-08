@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLM_FORCE_PURE
+#include <glm/vec2.hpp>
 #include "Scene.h"
 
 class Entity;
@@ -17,6 +19,8 @@ public:
 
 private:
     void OnEnd() override;
+
+    void SpawnBullet(const glm::vec2& position, const float size = 200.0f);
 
     std::shared_ptr<Entity> player;
 

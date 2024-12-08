@@ -81,15 +81,28 @@ public:
     bool down  = false;
     bool shoot = false;
 
+    float maxShootInterval = 0.5f;
+    float shootInterval    = maxShootInterval;
+
     InputComponent() {}
+    InputComponent(const float maxInterval) :
+        maxShootInterval(maxInterval), shootInterval(maxInterval)
+    {
+    }
 
     void Reset()
     {
-        up    = false;
-        left  = false;
-        right = false;
-        down  = false;
-        shoot = false;
+        up            = false;
+        left          = false;
+        right         = false;
+        down          = false;
+        shoot         = false;
+        shootInterval = maxShootInterval;
+    }
+
+    void ResetShootInterval()
+    {
+        shootInterval = maxShootInterval;
     }
 };
 

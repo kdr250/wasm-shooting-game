@@ -40,12 +40,6 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     player->AddComponent<InputComponent>();
     player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
 
-    // spawn bullet
-    auto bullet = entityManager.AddEntity("bullet");
-    bullet->AddComponent<TransformComponent>(glm::vec2 {200.0f, 300.0f});
-    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME);
-    bullet->AddComponent<RectComponent>(200.0f);
-
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
     RegisterAction(SDL_SCANCODE_S, "DOWN");
@@ -65,6 +59,15 @@ void ScenePlay::Update(float deltaTime)
 void ScenePlay::OnEnd()
 {
     Game::GetGame().Stop();
+}
+
+void ScenePlay::SpawnBullet(const glm::vec2& position, const float size)
+{
+    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto bullet         = entityManager.AddEntity("bullet");
+    bullet->AddComponent<TransformComponent>(position);
+    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME);
+    bullet->AddComponent<RectComponent>(size);
 }
 
 void ScenePlay::DoAction(const Action& action)
@@ -125,6 +128,7 @@ void ScenePlay::DoAction(const Action& action)
 
 void ScenePlay::MoveEntities(float deltaTime)
 {
+    // player
     auto& input           = player->GetComponent<InputComponent>();
     auto& playerTransform = player->GetComponent<TransformComponent>();
 
@@ -160,6 +164,17 @@ void ScenePlay::MoveEntities(float deltaTime)
         std::clamp(playerTransform.position.y,
                    texture.GetHeight() * scale / 4.0f,
                    Game::WINDOW_HEIGHT - texture.GetHeight() * scale / 4.0f);
+
+    // bullet
+    if (input.shoot && input.shootInterval <= 0.0f)
+    {
+        SpawnBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f});
+        input.ResetShootInterval();
+    }
+    else
+    {
+        input.shootInterval -= deltaTime;
+    }
 }
 
 void ScenePlay::Render()
