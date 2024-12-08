@@ -38,5 +38,5 @@ private:
     std::map<std::string, Shader> shaders;
     std::map<std::string, Font> fonts;
 
-    VertexArray* spriteVertex;
+    VertexArray* spriteVertex = nullptr;
 };

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-AssetManager::AssetManager() : spriteVertex(nullptr) {}
+AssetManager::AssetManager() {}
 
 bool AssetManager::LoadTexture(const std::string& name, const std::string& path)
 {
