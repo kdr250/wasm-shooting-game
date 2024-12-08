@@ -45,6 +45,7 @@ private:
 #endif
     inline static const std::string SPRITE_SHADER_NAME = "sprite";
     inline static const std::string BULLET_SHADER_NAME = "bullet";
+    inline static const std::string TITLE              = "title";
 
     inline static const std::string PLAYER_TEXTURE_NAME = "example";
     inline static const std::string PLAYER_TEXTURE      = "resources/texture/example.png";

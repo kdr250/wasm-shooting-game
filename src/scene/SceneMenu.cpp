@@ -23,6 +23,7 @@ SceneMenu::SceneMenu()
     RegisterAction(SDL_SCANCODE_RETURN, "PLAY_GAME");
     RegisterAction(SDL_SCANCODE_RETURN2, "PLAY_GAME");
     RegisterAction(SDL_SCANCODE_KP_ENTER, "PLAY_GAME");
+    RegisterAction(SDL_SCANCODE_ESCAPE, "QUIT");
 }
 
 void SceneMenu::Update(float deltaTime) {}
@@ -34,6 +35,10 @@ void SceneMenu::DoAction(const Action& action)
         if (action.name == "PLAY_GAME")
         {
             OnEnd();
+        }
+        else if (action.name == "QUIT")
+        {
+            Game::GetGame().Stop();
         }
     }
 }
@@ -76,5 +81,5 @@ void SceneMenu::OnEnd()
     auto& assetManager = game.GetAssetManager();
 
     assetManager.RemoveTexture(TITLE);
-    game.ChangeScene("PLAY", std::make_shared<ScenePlay>(id + 1));
+    game.ChangeScene("PLAY", std::make_shared<ScenePlay>(id + 1), true);
 }

@@ -2,6 +2,7 @@
 #include <SDL2/SDL_scancode.h>
 #include "../Game.h"
 #include "Action.h"
+#include "SceneMenu.h"
 
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
@@ -27,7 +28,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     assetManager.LoadFont(FONT_NAME, FONT_PATH);
     auto& font       = assetManager.GetFont(FONT_NAME);
     auto fontTexture = font.RenderText("Hello World !!", Font::DEFAULT_COLOR_WHITE, 40);
-    assetManager.AddTexture("title", fontTexture);
+    assetManager.AddTexture(TITLE, fontTexture);
 
     // spawn player
     player = entityManager.AddEntity("player");
@@ -62,7 +63,21 @@ void ScenePlay::Update(float deltaTime)
 
 void ScenePlay::OnEnd()
 {
-    Game::GetGame().Stop();
+    auto& game          = Game::GetGame();
+    auto& assetManager  = game.GetAssetManager();
+    auto& entityManager = game.GetEntityManger();
+
+    assetManager.RemoveTexture(PLAYER_TEXTURE_NAME);
+    assetManager.RemoveTexture(TITLE);
+
+    auto& entities = entityManager.GetEntities();
+    for (auto& entity : entities)
+    {
+        entity->Destroy();
+    }
+    entityManager.Update();
+
+    game.ChangeScene("MENU", std::make_shared<SceneMenu>(), true);
 }
 
 void ScenePlay::ProcessPause()
@@ -275,7 +290,7 @@ void ScenePlay::Render()
     glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 
     // draw text
-    auto& fontTexture = assetManager.GetTexture("title");
+    auto& fontTexture = assetManager.GetTexture(TITLE);
     spriteShader.SetVector2Uniform("uTextureSize", fontTexture.GetWidth(), fontTexture.GetHeight());
     spriteShader.SetVector2Uniform("uTexturePosition",
                                    glm::vec2 {Game::WINDOW_WIDTH / 2.0f, fontTexture.GetHeight()});
