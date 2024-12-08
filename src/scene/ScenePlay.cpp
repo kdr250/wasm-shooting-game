@@ -9,8 +9,6 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
 
-    std::string PLAYER_TEXTURE_NAME = "example";
-
     if (!assetManager.LoadShader(SPRITE_SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG)
         || !assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
     {
@@ -31,6 +29,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     auto fontTexture = font.RenderText("Hello World !!", Font::DEFAULT_COLOR_WHITE, 40);
     assetManager.AddTexture("title", fontTexture);
 
+    // spawn player
     player = entityManager.AddEntity("player");
     player->AddComponent<StateComponent>();
     player->AddComponent<TransformComponent>(
@@ -40,6 +39,12 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     );
     player->AddComponent<InputComponent>();
     player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
+
+    // spawn bullet
+    auto bullet = entityManager.AddEntity("bullet");
+    bullet->AddComponent<TransformComponent>(glm::vec2 {200.0f, 300.0f});
+    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME);
+    bullet->AddComponent<RectComponent>(200.0f);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -159,8 +164,9 @@ void ScenePlay::MoveEntities(float deltaTime)
 
 void ScenePlay::Render()
 {
-    auto& game         = Game::GetGame();
-    auto& assetManager = game.GetAssetManager();
+    auto& game          = Game::GetGame();
+    auto& assetManager  = game.GetAssetManager();
+    auto& entityManager = game.GetEntityManger();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set the clear color to black
     glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
@@ -171,13 +177,21 @@ void ScenePlay::Render()
     auto& vertexArray = assetManager.GetSpriteVertex();
 
     // Draw Bullet
-    auto& bulletShader = assetManager.GetShader(BULLET_SHADER_NAME);
-    bulletShader.SetActive();
-    vertexArray.SetActive();
-    bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-    bulletShader.SetVector2Uniform("uBulletPosition", 200.0f, 300.0f);
-    bulletShader.SetVector2Uniform("uBulletSize", 200.0f, 200.0f);
-    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    auto bullets = entityManager.GetEntities("bullet");
+    for (auto& bullet : bullets)
+    {
+        auto& draw      = bullet->GetComponent<DrawComponent>();
+        auto& transform = bullet->GetComponent<TransformComponent>();
+        float edge      = bullet->GetComponent<RectComponent>().edge;
+
+        auto& bulletShader = assetManager.GetShader(draw.shaderName);
+        bulletShader.SetActive();
+        vertexArray.SetActive();
+        bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
+        bulletShader.SetVector2Uniform("uBulletPosition", transform.position);
+        bulletShader.SetVector2Uniform("uBulletSize", edge, edge);
+        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    }
 
     // draw player
     auto& playerTransform = player->GetComponent<TransformComponent>();

@@ -19,6 +19,7 @@ public:
     float speed        = 0.0f;
 
     TransformComponent() {}
+    TransformComponent(const glm::vec2& p) : position(p) {}
     TransformComponent(const glm::vec2& p, const float sc) : position(p), scale(sc) {}
     TransformComponent(const glm::vec2& p, const float sc, const float sp) :
         position(p), scale(sc), speed(sp)
@@ -46,11 +47,20 @@ public:
     std::string shaderName;
     std::string textureName;
 
-    SpriteComponent() {};
+    SpriteComponent() {}
     SpriteComponent(const std::string& shaName, const std::string& texName) :
         shaderName(shaName), textureName(texName)
     {
     }
+};
+
+class DrawComponent : public Component
+{
+public:
+    std::string shaderName;
+
+    DrawComponent() {}
+    DrawComponent(const std::string& shaName) : shaderName(shaName) {}
 };
 
 class RectComponent : public Component
