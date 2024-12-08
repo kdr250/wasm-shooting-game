@@ -14,8 +14,6 @@ public:
 private:
     void OnEnd() override;
 
-    bool pressEnter = false;
-
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
     inline static const std::string SPRITE_SHADER_FRAG = "resources/shader/Sprite.frag";

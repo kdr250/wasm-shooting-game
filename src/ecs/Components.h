@@ -19,6 +19,8 @@ public:
     float speed        = 0.0f;
 
     TransformComponent() {}
+    TransformComponent(const glm::vec2& p) : position(p) {}
+    TransformComponent(const glm::vec2& p, const glm::vec2& v) : position(p), velocity(v) {}
     TransformComponent(const glm::vec2& p, const float sc) : position(p), scale(sc) {}
     TransformComponent(const glm::vec2& p, const float sc, const float sp) :
         position(p), scale(sc), speed(sp)
@@ -46,11 +48,20 @@ public:
     std::string shaderName;
     std::string textureName;
 
-    SpriteComponent() {};
+    SpriteComponent() {}
     SpriteComponent(const std::string& shaName, const std::string& texName) :
         shaderName(shaName), textureName(texName)
     {
     }
+};
+
+class DrawComponent : public Component
+{
+public:
+    std::string shaderName;
+
+    DrawComponent() {}
+    DrawComponent(const std::string& shaName) : shaderName(shaName) {}
 };
 
 class RectComponent : public Component
@@ -69,15 +80,32 @@ public:
     bool left  = false;
     bool right = false;
     bool down  = false;
+    bool shoot = false;
+
+    float maxShootInterval = 0.1f;
+    float shootInterval    = 0.0f;
+
+    bool pause = false;
 
     InputComponent() {}
+    InputComponent(const float maxInterval) :
+        maxShootInterval(maxInterval), shootInterval(maxInterval)
+    {
+    }
 
     void Reset()
     {
-        up    = false;
-        left  = false;
-        right = false;
-        down  = false;
+        up            = false;
+        left          = false;
+        right         = false;
+        down          = false;
+        shoot         = false;
+        shootInterval = maxShootInterval;
+    }
+
+    void ResetShootInterval()
+    {
+        shootInterval = maxShootInterval;
     }
 };
 
@@ -95,4 +123,14 @@ public:
 
     StateComponent() {}
     StateComponent(const State& s) : state(s) {}
+};
+
+class LifespanComponent : public Component
+{
+public:
+    float maxLifespan = 1.0f;
+    float lifespan    = maxLifespan;
+
+    LifespanComponent() {}
+    LifespanComponent(const float maxLife) : maxLifespan(maxLife), lifespan(maxLife) {}
 };
