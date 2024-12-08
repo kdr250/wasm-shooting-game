@@ -181,8 +181,8 @@ void ScenePlay::MoveEntities(float deltaTime)
 
     auto& assetManager = Game::GetGame().GetAssetManager();
     auto& playerSprite = player->GetComponent<SpriteComponent>();
-    auto& texture      = assetManager.GetTexture(playerSprite.shaderName);
-    float scale        = player->GetComponent<TransformComponent>().scale;
+    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
+    float scale        = playerTransform.scale;
 
     playerTransform.position += playerTransform.velocity * deltaTime;
     playerTransform.position.x = std::clamp(playerTransform.position.x,
@@ -240,7 +240,7 @@ void ScenePlay::Render()
     auto& vertexArray = assetManager.GetSpriteVertex();
 
     // Draw Bullet
-    auto bullets = entityManager.GetEntities("bullet");
+    auto& bullets = entityManager.GetEntities("bullet");
     for (auto& bullet : bullets)
     {
         auto& draw      = bullet->GetComponent<DrawComponent>();
