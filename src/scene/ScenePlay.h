@@ -21,7 +21,9 @@ public:
 private:
     void OnEnd() override;
 
-    void SpawnBullet(const glm::vec2& position, const float size = 200.0f);
+    void SpawnBullet(const glm::vec2& position,
+                     const glm::vec2& velocity = glm::vec2 {0.0f, -600.0f},
+                     const float size          = 200.0f);
 
     std::shared_ptr<Entity> player;
 

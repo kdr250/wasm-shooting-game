@@ -62,14 +62,14 @@ void ScenePlay::OnEnd()
     Game::GetGame().Stop();
 }
 
-void ScenePlay::SpawnBullet(const glm::vec2& position, const float size)
+void ScenePlay::SpawnBullet(const glm::vec2& position, const glm::vec2& velocity, const float size)
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
     auto bullet         = entityManager.AddEntity("bullet");
-    bullet->AddComponent<TransformComponent>(position);
+    bullet->AddComponent<TransformComponent>(position, velocity);
     bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME);
     bullet->AddComponent<RectComponent>(size);
-    bullet->AddComponent<LifespanComponent>(1.5f);
+    bullet->AddComponent<LifespanComponent>(3.0f);
 }
 
 void ScenePlay::DoAction(const Action& action)
@@ -173,6 +173,14 @@ void ScenePlay::MoveEntities(float deltaTime)
     {
         SpawnBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f});
         input.ResetShootInterval();
+    }
+
+    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto& bullets       = entityManager.GetEntities("bullet");
+    for (auto& bullet : bullets)
+    {
+        auto& transform = bullet->GetComponent<TransformComponent>();
+        transform.position += transform.velocity * deltaTime;
     }
 }
 

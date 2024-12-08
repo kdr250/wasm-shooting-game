@@ -20,6 +20,7 @@ public:
 
     TransformComponent() {}
     TransformComponent(const glm::vec2& p) : position(p) {}
+    TransformComponent(const glm::vec2& p, const glm::vec2& v) : position(p), velocity(v) {}
     TransformComponent(const glm::vec2& p, const float sc) : position(p), scale(sc) {}
     TransformComponent(const glm::vec2& p, const float sc, const float sp) :
         position(p), scale(sc), speed(sp)
@@ -81,8 +82,8 @@ public:
     bool down  = false;
     bool shoot = false;
 
-    float maxShootInterval = 0.5f;
-    float shootInterval    = maxShootInterval;
+    float maxShootInterval = 0.1f;
+    float shootInterval    = 0.0f;
 
     InputComponent() {}
     InputComponent(const float maxInterval) :
