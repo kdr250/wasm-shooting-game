@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #define GLM_FORCE_PURE
 #include <glm/vec2.hpp>
 #include "Scene.h"
