@@ -121,3 +121,13 @@ public:
     StateComponent() {}
     StateComponent(const State& s) : state(s) {}
 };
+
+class LifespanComponent : public Component
+{
+public:
+    float maxLifespan = 1.0f;
+    float lifespan    = maxLifespan;
+
+    LifespanComponent() {}
+    LifespanComponent(const float maxLife) : maxLifespan(maxLife), lifespan(maxLife) {}
+};

@@ -16,6 +16,7 @@ public:
     void Render() override;
 
     void MoveEntities(float deltaTime);
+    void ProcessLifespan(float deltaTime);
 
 private:
     void OnEnd() override;

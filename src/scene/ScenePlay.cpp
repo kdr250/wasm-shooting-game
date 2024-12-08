@@ -54,6 +54,7 @@ void ScenePlay::Update(float deltaTime)
     Game::GetGame().GetEntityManger().Update();
 
     MoveEntities(deltaTime);
+    ProcessLifespan(deltaTime);
 }
 
 void ScenePlay::OnEnd()
@@ -68,6 +69,7 @@ void ScenePlay::SpawnBullet(const glm::vec2& position, const float size)
     bullet->AddComponent<TransformComponent>(position);
     bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME);
     bullet->AddComponent<RectComponent>(size);
+    bullet->AddComponent<LifespanComponent>(1.5f);
 }
 
 void ScenePlay::DoAction(const Action& action)
@@ -166,14 +168,26 @@ void ScenePlay::MoveEntities(float deltaTime)
                    Game::WINDOW_HEIGHT - texture.GetHeight() * scale / 4.0f);
 
     // bullet
+    input.shootInterval -= deltaTime;
     if (input.shoot && input.shootInterval <= 0.0f)
     {
         SpawnBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f});
         input.ResetShootInterval();
     }
-    else
+}
+
+void ScenePlay::ProcessLifespan(float deltaTime)
+{
+    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto entities       = entityManager.GetEntities();
+    for (auto& entity : entities)
     {
-        input.shootInterval -= deltaTime;
+        auto& lifespan = entity->GetComponent<LifespanComponent>();
+        lifespan.lifespan -= deltaTime;
+        if (lifespan.lifespan <= 0.0f)
+        {
+            entity->Destroy();
+        }
     }
 }
 

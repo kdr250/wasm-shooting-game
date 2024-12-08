@@ -11,7 +11,8 @@ using ComponentTuple = std::tuple<TransformComponent,
                                   DrawComponent,
                                   RectComponent,
                                   InputComponent,
-                                  StateComponent>;
+                                  StateComponent,
+                                  LifespanComponent>;
 
 class Entity
 {
