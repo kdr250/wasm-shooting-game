@@ -85,6 +85,8 @@ public:
     float maxShootInterval = 0.1f;
     float shootInterval    = 0.0f;
 
+    bool pause = false;
+
     InputComponent() {}
     InputComponent(const float maxInterval) :
         maxShootInterval(maxInterval), shootInterval(maxInterval)

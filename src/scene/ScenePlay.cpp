@@ -53,6 +53,9 @@ void ScenePlay::Update(float deltaTime)
 {
     Game::GetGame().GetEntityManger().Update();
 
+    if (paused)
+        return;
+
     MoveEntities(deltaTime);
     ProcessLifespan(deltaTime);
 }
@@ -60,6 +63,21 @@ void ScenePlay::Update(float deltaTime)
 void ScenePlay::OnEnd()
 {
     Game::GetGame().Stop();
+}
+
+void ScenePlay::ProcessPause()
+{
+    auto& input = player->GetComponent<InputComponent>();
+    if (!input.pause)
+    {
+        SetPause(!paused);
+    }
+    input.pause = true;
+}
+
+void ScenePlay::SetPause(bool pause)
+{
+    paused = pause;
 }
 
 void ScenePlay::SpawnBullet(const glm::vec2& position, const glm::vec2& velocity, const float size)
@@ -81,6 +99,10 @@ void ScenePlay::DoAction(const Action& action)
         if (action.name == "QUIT")
         {
             OnEnd();
+        }
+        else if (action.name == "PAUSE")
+        {
+            ProcessPause();
         }
         else if (action.name == "UP")
         {
@@ -105,7 +127,11 @@ void ScenePlay::DoAction(const Action& action)
     }
     else if (action.type == "END")
     {
-        if (action.name == "UP")
+        if (action.name == "PAUSE")
+        {
+            input.pause = false;
+        }
+        else if (action.name == "UP")
         {
             input.up = false;
         }
