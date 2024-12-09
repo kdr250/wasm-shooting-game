@@ -232,11 +232,14 @@ void ScenePlay::ProcessLifespan(float deltaTime)
     auto entities       = entityManager.GetEntities();
     for (auto& entity : entities)
     {
+        if (entity->HasComponent<LifespanComponent>())
+    {
         auto& lifespan = entity->GetComponent<LifespanComponent>();
         lifespan.lifespan -= deltaTime;
         if (lifespan.lifespan <= 0.0f)
         {
             entity->Destroy();
+            }
         }
     }
 }
