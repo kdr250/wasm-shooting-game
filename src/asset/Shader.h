@@ -4,6 +4,7 @@
 #include <string>
 #define GLM_FORCE_PURE
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 class Shader
 {
@@ -18,6 +19,10 @@ public:
     void SetVector2Uniform(const std::string& name, const glm::vec2& value);
 
     void SetVector2Uniform(const std::string& name, const float v1, const float v2);
+
+    void SetVector3Uniform(const std::string& name, const glm::vec3& value);
+
+    void SetVector3Uniform(const std::string& name, const float v1, const float v2, const float v3);
 
     void Unload();
 

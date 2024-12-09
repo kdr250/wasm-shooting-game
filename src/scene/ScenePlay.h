@@ -29,6 +29,11 @@ private:
                      const glm::vec2& velocity = glm::vec2 {0.0f, -600.0f},
                      const float size          = 200.0f);
 
+    void SpawnExplosionBullets(const glm::vec2& position,
+                               const int bulletsNum,
+                               const float speed = 200.0f,
+                               const float size  = 200.0f);
+
     std::shared_ptr<Entity> player;
 
     bool paused = false;

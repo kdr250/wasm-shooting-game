@@ -1,9 +1,12 @@
 #include "ScenePlay.h"
 #include <SDL2/SDL_scancode.h>
 #include <algorithm>
+#include <cmath>
 #include "../Game.h"
 #include "Action.h"
 #include "SceneMenu.h"
+
+float PI = 3.1415926535f;
 
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
@@ -50,6 +53,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                             200.0f                       // speed
     );
     enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
+    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position, 18);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -111,9 +115,34 @@ void ScenePlay::SpawnBullet(const glm::vec2& position, const glm::vec2& velocity
     auto& entityManager = Game::GetGame().GetEntityManger();
     auto bullet         = entityManager.AddEntity("bullet");
     bullet->AddComponent<TransformComponent>(position, velocity);
-    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME);
+    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, glm::vec3 {0.0, 1.0, 0.0});
     bullet->AddComponent<RectComponent>(size);
     bullet->AddComponent<LifespanComponent>(3.0f);
+}
+
+void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
+                                      const int bulletsNum,
+                                      const float speed,
+                                      const float size)
+{
+    auto& entityManager = Game::GetGame().GetEntityManger();
+
+    float degree        = 360.0f / bulletsNum;
+    float currentDegree = 0.0f;
+    for (int i = 0; i < bulletsNum; ++i)
+    {
+        float radian = currentDegree / 180.0f * PI;
+        glm::vec2 velocity {0.0f, 0.0f};
+        velocity.x = std::cosf(radian) * speed;
+        velocity.y = std::sinf(radian) * speed;
+        currentDegree += degree;
+
+        auto bullet = entityManager.AddEntity("bullet");
+        bullet->AddComponent<TransformComponent>(position, velocity);
+        bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, glm::vec3 {1.0, 0.0, 0.0});
+        bullet->AddComponent<RectComponent>(size);
+        bullet->AddComponent<LifespanComponent>(10.0f);
+    }
 }
 
 void ScenePlay::DoAction(const Action& action)
@@ -282,6 +311,7 @@ void ScenePlay::Render()
         bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
         bulletShader.SetVector2Uniform("uBulletPosition", transform.position);
         bulletShader.SetVector2Uniform("uBulletSize", edge, edge);
+        bulletShader.SetVector3Uniform("uBulletColor", draw.color);
         glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
     }
 

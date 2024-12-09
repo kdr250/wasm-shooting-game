@@ -50,6 +50,21 @@ void Shader::SetVector2Uniform(const std::string& name, const float v1, const fl
     glUniform2f(locationId, v1, v2);
 }
 
+void Shader::SetVector3Uniform(const std::string& name, const glm::vec3& value)
+{
+    GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
+    glUniform3fv(locationId, 1, glm::value_ptr(value));
+}
+
+void Shader::SetVector3Uniform(const std::string& name,
+                               const float v1,
+                               const float v2,
+                               const float v3)
+{
+    GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
+    glUniform3f(locationId, v1, v2, v3);
+}
+
 void Shader::Unload()
 {
     // Delete the program and shaders
