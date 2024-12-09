@@ -6,7 +6,9 @@
 #include "Action.h"
 #include "SceneMenu.h"
 
-float PI = 3.1415926535f;
+const float PI        = 3.1415926535f;
+const glm::vec3 GREEN = {0.0f, 1.0f, 0.0f};
+const glm::vec3 RED   = {1.0f, 0.0f, 0.0f};
 
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
@@ -53,7 +55,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                             200.0f                       // speed
     );
     enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
-    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position, 18);
+    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position, RED, 18);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -110,7 +112,10 @@ void ScenePlay::SetPause(bool pause)
     paused = pause;
 }
 
-void ScenePlay::SpawnBullet(const glm::vec2& position, const glm::vec2& velocity, const float size)
+void ScenePlay::SpawnDirectionalBullet(const glm::vec2& position,
+                                       const glm::vec2& velocity,
+                                       const glm::vec3& color,
+                                       const float size)
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
     auto bullet         = entityManager.AddEntity("bullet");
@@ -121,6 +126,7 @@ void ScenePlay::SpawnBullet(const glm::vec2& position, const glm::vec2& velocity
 }
 
 void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
+                                      const glm::vec3& color,
                                       const int bulletsNum,
                                       const float speed,
                                       const float size)
@@ -252,7 +258,9 @@ void ScenePlay::MoveEntities(float deltaTime)
     input.shootInterval -= deltaTime;
     if (input.shoot && input.shootInterval <= 0.0f)
     {
-        SpawnBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f});
+        SpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
+                               glm::vec2 {0.0f, -600.0f},
+                               GREEN);
         input.ResetShootInterval();
     }
 
