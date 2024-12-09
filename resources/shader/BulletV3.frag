@@ -2,6 +2,7 @@
 
 in vec2 windowSize;
 in vec2 centerPos;
+in vec3 bulletColor;
 
 const float radius = 8.0;
 
@@ -13,6 +14,7 @@ void main()
     fragCoord.y = windowSize.y - fragCoord.y;
     float dist = distance(centerPos, fragCoord);
 
-    float color = radius / dist;
-    outColor = vec4(0.0, color, 0.0, color);
+    float strength = radius / dist;
+    vec3 color = bulletColor * strength;
+    outColor = vec4(color, strength);
 }

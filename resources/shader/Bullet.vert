@@ -1,12 +1,14 @@
 uniform vec2 uWindowSize;
 uniform vec2 uBulletPosition;
 uniform vec2 uBulletSize;
+uniform vec3 uBulletColor;
 
 attribute vec3 inPosition;
 attribute vec2 inTexCoord;
 
 varying vec2 windowSize;
 varying vec2 centerPos;
+varying vec3 bulletColor;
 
 void main()
 {
@@ -20,4 +22,5 @@ void main()
     gl_Position = vec4(finalPosition, inPosition.z, 1.0);
     centerPos = uBulletPosition.xy;
     windowSize = uWindowSize;
+    bulletColor = uBulletColor;
 }

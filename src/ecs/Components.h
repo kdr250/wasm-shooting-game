@@ -2,6 +2,7 @@
 
 #define GLM_FORCE_PURE
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 class Component
 {
@@ -59,9 +60,13 @@ class DrawComponent : public Component
 {
 public:
     std::string shaderName;
+    glm::vec3 color = {0.0f, 0.0f, 0.0f};
 
     DrawComponent() {}
-    DrawComponent(const std::string& shaName) : shaderName(shaName) {}
+    DrawComponent(const std::string& shaName, const glm::vec3& drawColor) :
+        shaderName(shaName), color(drawColor)
+    {
+    }
 };
 
 class RectComponent : public Component
