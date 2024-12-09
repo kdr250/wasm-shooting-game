@@ -47,6 +47,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     );
     player->AddComponent<InputComponent>();
     player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
+    auto& playerTexture = assetManager.GetTexture(PLAYER_TEXTURE_NAME);
+    player->AddComponent<BoxCollisionComponent>(
+        glm::vec2 {playerTexture.GetWidth() * 2.5f, playerTexture.GetHeight() * 2.5f},
+        std::vector {player->GetTag()});
 
     // spawn enemy
     auto enemy = entityManager.AddEntity("enemy");
@@ -55,7 +59,15 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                             200.0f                       // speed
     );
     enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
-    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position, RED, 18);
+    auto& enemyTexture = assetManager.GetTexture(ENEMY_TEXTURE_NAME);
+    enemy->AddComponent<BoxCollisionComponent>(
+        glm::vec2 {enemyTexture.GetWidth() * 2.5f, enemyTexture.GetHeight() * 2.5f},
+        std::vector {enemy->GetTag()});
+
+    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
+                          RED,
+                          18,
+                          enemy->GetTag());
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -75,6 +87,7 @@ void ScenePlay::Update(float deltaTime)
 
     MoveEntities(deltaTime);
     ProcessLifespan(deltaTime);
+    ProcessCollision();
 }
 
 void ScenePlay::OnEnd()
@@ -115,19 +128,23 @@ void ScenePlay::SetPause(bool pause)
 void ScenePlay::SpawnDirectionalBullet(const glm::vec2& position,
                                        const glm::vec2& velocity,
                                        const glm::vec3& color,
+                                       const std::string& ownerTag,
                                        const float size)
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
     auto bullet         = entityManager.AddEntity("bullet");
+    std::vector<std::string> tags {bullet->GetTag(), ownerTag};
     bullet->AddComponent<TransformComponent>(position, velocity);
-    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, glm::vec3 {0.0, 1.0, 0.0});
+    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
     bullet->AddComponent<RectComponent>(size);
     bullet->AddComponent<LifespanComponent>(3.0f);
+    bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
 }
 
 void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
                                       const glm::vec3& color,
                                       const int bulletsNum,
+                                      const std::string& ownerTag,
                                       const float speed,
                                       const float size)
 {
@@ -144,10 +161,12 @@ void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
         currentDegree += degree;
 
         auto bullet = entityManager.AddEntity("bullet");
+        std::vector<std::string> tags {bullet->GetTag(), ownerTag};
         bullet->AddComponent<TransformComponent>(position, velocity);
-        bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, glm::vec3 {1.0, 0.0, 0.0});
+        bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
         bullet->AddComponent<RectComponent>(size);
         bullet->AddComponent<LifespanComponent>(10.0f);
+        bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
     }
 }
 
@@ -260,7 +279,8 @@ void ScenePlay::MoveEntities(float deltaTime)
     {
         SpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
                                glm::vec2 {0.0f, -600.0f},
-                               GREEN);
+                               GREEN,
+                               player->GetTag());
         input.ResetShootInterval();
     }
 
@@ -287,6 +307,33 @@ void ScenePlay::ProcessLifespan(float deltaTime)
             {
                 entity->Destroy();
             }
+        }
+    }
+}
+
+void ScenePlay::ProcessCollision()
+{
+    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto& enemies       = entityManager.GetEntities("enemy");
+    auto& bullets       = entityManager.GetEntities("bullet");
+
+    for (auto& bullet : bullets)
+    {
+        for (auto& enemy : enemies)
+        {
+            bool isOverlap = Physics::IsOverlap(bullet, enemy);
+            if (isOverlap)
+            {
+                enemy->Destroy();
+                bullet->Destroy();
+                continue;
+            }
+        }
+
+        bool isOverlap = Physics::IsOverlap(bullet, player);
+        if (isOverlap)
+        {
+            OnEnd();
         }
     }
 }

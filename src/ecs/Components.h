@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+#include <vector>
 #define GLM_FORCE_PURE
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -138,4 +140,20 @@ public:
 
     LifespanComponent() {}
     LifespanComponent(const float maxLife) : maxLifespan(maxLife), lifespan(maxLife) {}
+};
+
+class BoxCollisionComponent : public Component
+{
+public:
+    glm::vec2 size;
+    glm::vec2 halfSize;
+    std::vector<std::string> excludeTags;
+
+    BoxCollisionComponent() {}
+    BoxCollisionComponent(const glm::vec2& s) : size(s), halfSize(s.x / 2.0f, s.y / 2.0f) {}
+    BoxCollisionComponent(const glm::vec2& s, const std::vector<std::string> excludes) :
+        size(s), halfSize(s.x / 2.0f, s.y / 2.0f)
+    {
+        excludeTags = excludes;
+    }
 };

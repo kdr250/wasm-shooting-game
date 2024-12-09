@@ -19,6 +19,7 @@ public:
 
     void MoveEntities(float deltaTime);
     void ProcessLifespan(float deltaTime);
+    void ProcessCollision();
 
 private:
     void OnEnd() override;
@@ -29,11 +30,13 @@ private:
     void SpawnDirectionalBullet(const glm::vec2& position,
                                 const glm::vec2& velocity,
                                 const glm::vec3& color,
+                                const std::string& ownerTag,
                                 const float size = 200.0f);
 
     void SpawnExplosionBullets(const glm::vec2& position,
                                const glm::vec3& color,
                                const int bulletsNum,
+                               const std::string& ownerTag,
                                const float speed = 200.0f,
                                const float size  = 200.0f);
 

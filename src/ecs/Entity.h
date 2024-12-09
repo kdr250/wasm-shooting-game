@@ -12,7 +12,8 @@ using ComponentTuple = std::tuple<TransformComponent,
                                   RectComponent,
                                   InputComponent,
                                   StateComponent,
-                                  LifespanComponent>;
+                                  LifespanComponent,
+                                  BoxCollisionComponent>;
 
 class Entity
 {
