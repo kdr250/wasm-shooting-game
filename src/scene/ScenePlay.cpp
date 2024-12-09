@@ -20,7 +20,8 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     assetManager.CreateSpriteVertex();
 
-    if (!assetManager.LoadTexture(PLAYER_TEXTURE_NAME, PLAYER_TEXTURE))
+    if (!assetManager.LoadTexture(PLAYER_TEXTURE_NAME, PLAYER_TEXTURE)
+        || !assetManager.LoadTexture(ENEMY_TEXTURE_NAME, ENEMY_TEXTURE))
     {
         SDL_Log("Failed to load texture");
         exit(EXIT_FAILURE);
@@ -41,6 +42,14 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     );
     player->AddComponent<InputComponent>();
     player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
+
+    // spawn enemy
+    auto enemy = entityManager.AddEntity("enemy");
+    enemy->AddComponent<TransformComponent>(glm::vec2 {200.0f, 300.0f},  // position
+                                            10.0f,                       // scale
+                                            200.0f                       // speed
+    );
+    enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -69,6 +78,7 @@ void ScenePlay::OnEnd()
     auto& entityManager = game.GetEntityManger();
 
     assetManager.RemoveTexture(PLAYER_TEXTURE_NAME);
+    assetManager.RemoveTexture(ENEMY_TEXTURE_NAME);
     assetManager.RemoveTexture(TITLE);
 
     auto& entities = entityManager.GetEntities();
@@ -233,12 +243,12 @@ void ScenePlay::ProcessLifespan(float deltaTime)
     for (auto& entity : entities)
     {
         if (entity->HasComponent<LifespanComponent>())
-    {
-        auto& lifespan = entity->GetComponent<LifespanComponent>();
-        lifespan.lifespan -= deltaTime;
-        if (lifespan.lifespan <= 0.0f)
         {
-            entity->Destroy();
+            auto& lifespan = entity->GetComponent<LifespanComponent>();
+            lifespan.lifespan -= deltaTime;
+            if (lifespan.lifespan <= 0.0f)
+            {
+                entity->Destroy();
             }
         }
     }
@@ -272,6 +282,28 @@ void ScenePlay::Render()
         bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
         bulletShader.SetVector2Uniform("uBulletPosition", transform.position);
         bulletShader.SetVector2Uniform("uBulletSize", edge, edge);
+        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    }
+
+    // draw enemy
+    auto& enemies = entityManager.GetEntities("enemy");
+    for (auto& enemy : enemies)
+    {
+        auto& enemyTransform = enemy->GetComponent<TransformComponent>();
+        auto& enemySprite    = enemy->GetComponent<SpriteComponent>();
+
+        auto& spriteShader = assetManager.GetShader(enemySprite.shaderName);
+        auto& texture      = assetManager.GetTexture(enemySprite.textureName);
+
+        spriteShader.SetActive();
+        vertexArray.SetActive();
+
+        spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
+        spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
+        spriteShader.SetVector2Uniform("uTexturePosition", enemyTransform.position);
+        spriteShader.SetFloatUniform("uTextureScale", enemyTransform.scale);
+
+        texture.SetActive();
         glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
     }
 

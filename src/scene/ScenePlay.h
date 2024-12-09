@@ -51,6 +51,9 @@ private:
     inline static const std::string PLAYER_TEXTURE_NAME = "example";
     inline static const std::string PLAYER_TEXTURE      = "resources/texture/example.png";
 
+    inline static const std::string ENEMY_TEXTURE_NAME = "example_enemy";
+    inline static const std::string ENEMY_TEXTURE      = "resources/texture/example_enemy.png";
+
     inline static const std::string FONT_PATH = "resources/font/Roboto-Bold.ttf";
     inline static const std::string FONT_NAME = "Roboto-Bold";
 };
