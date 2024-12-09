@@ -10,6 +10,11 @@ namespace Physics
 {
     inline bool IsOverlap(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b)
     {
+        if (!a->IsActive() || !b->IsActive())
+        {
+            return false;
+        }
+
         if (!a->HasComponent<TransformComponent>() || !a->HasComponent<BoxCollisionComponent>()
             || !b->HasComponent<TransformComponent>() || !b->HasComponent<BoxCollisionComponent>())
         {
