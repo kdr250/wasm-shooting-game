@@ -54,20 +54,26 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     // spawn enemy
     auto enemy = entityManager.AddEntity("enemy");
-    enemy->AddComponent<TransformComponent>(glm::vec2 {200.0f, 300.0f},  // position
-                                            10.0f,                       // scale
-                                            200.0f                       // speed
-    );
     enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
     auto& enemyTexture = assetManager.GetTexture(ENEMY_TEXTURE_NAME);
     enemy->AddComponent<BoxCollisionComponent>(
         glm::vec2 {enemyTexture.GetWidth() * 2.5f, enemyTexture.GetHeight() * 2.5f},
         std::vector {enemy->GetTag()});
+    auto& aiMove = enemy->AddComponent<AIMoveComponent>(
+        std::vector {
+            glm::vec2 {100.0f, 100.0f},
+            glm::vec2 {800.0f, 100.0f},
+            glm::vec2 {800.0f, 600.0f},
+            glm::vec2 {100.0f, 600.0f},
+        },
+        200.0f);
+    enemy->AddComponent<TransformComponent>(aiMove.CurrentPoint(), 10.0f);
 
     SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
                           RED,
                           18,
-                          enemy->GetTag());
+                          enemy->GetTag(),
+                          300.0f);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -290,6 +296,17 @@ void ScenePlay::MoveEntities(float deltaTime)
     {
         auto& transform = bullet->GetComponent<TransformComponent>();
         transform.position += transform.velocity * deltaTime;
+    }
+
+    // enemy
+    for (auto& enemy : entityManager.GetEntities("enemy"))
+    {
+        if (enemy->HasComponent<AIMoveComponent>())
+        {
+            auto& transform    = enemy->GetComponent<TransformComponent>();
+            auto& aiMove       = enemy->GetComponent<AIMoveComponent>();
+            transform.position = aiMove.Lerp(deltaTime);
+        }
     }
 }
 
