@@ -85,6 +85,7 @@ void ScenePlay::DoAction(const Action& action)
         if (action.name == "QUIT")
         {
             OnEnd();
+            return;
         }
         else if (action.name == "PAUSE" && Player::NeedsPause())
         {
