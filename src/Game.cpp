@@ -142,11 +142,6 @@ long Game::SceneElapsedTimeMillisecond()
     return sceneMap[currentSceneName]->ElapsedTimeMillisecond();
 }
 
-Uint64 Game::GetTickCount()
-{
-    return tickCount;
-}
-
 void Game::Stop()
 {
     isRunning = false;

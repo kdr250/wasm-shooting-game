@@ -42,7 +42,6 @@ public:
 
     SDL_Window* GetWindow();
 
-    Uint64 GetTickCount();
     float GetDeltaTime();
     long ElapsedTimeSecond();
     long ElapsedTimeMillisecond();
