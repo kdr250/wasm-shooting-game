@@ -6,6 +6,7 @@
 #include "../actor/Bullet.h"
 #include "../actor/Enemy.h"
 #include "../actor/Player.h"
+#include "../actor/TextActor.h"
 #include "Action.h"
 #include "SceneMenu.h"
 
@@ -35,15 +36,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         exit(EXIT_FAILURE);
     }
 
-    assetManager.LoadFont(FONT_NAME, FONT_PATH);
-    auto& font       = assetManager.GetFont(FONT_NAME);
-    auto fontTexture = font.RenderText("Hello World !!", Font::DEFAULT_COLOR_WHITE, 40);
-    assetManager.AddTexture(TITLE, fontTexture);
+    TextActor::Spawn("Hello World !!", glm::vec2 {Game::WINDOW_WIDTH / 2.0f, 50.0f});
 
-    // spawn player
     auto player = Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
-    // spawn enemy
     std::vector<glm::vec2> points = std::vector {
         glm::vec2 {100.0f, 100.0f},
         glm::vec2 {800.0f, 100.0f},
@@ -159,10 +155,6 @@ void ScenePlay::ProcessCollision()
 
 void ScenePlay::Render()
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
-
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set the clear color to black
     glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
 
@@ -172,19 +164,8 @@ void ScenePlay::Render()
     Bullet::Draw();
     Enemy::Draw();
     Player::Draw();
-
-    auto& vertexArray  = assetManager.GetSpriteVertex();
-    auto& spriteShader = assetManager.GetShader(SPRITE_SHADER_NAME);
-
-    // draw text
-    auto& fontTexture = assetManager.GetTexture(TITLE);
-    spriteShader.SetVector2Uniform("uTextureSize", fontTexture.GetWidth(), fontTexture.GetHeight());
-    spriteShader.SetVector2Uniform("uTexturePosition",
-                                   glm::vec2 {Game::WINDOW_WIDTH / 2.0f, fontTexture.GetHeight()});
-    spriteShader.SetFloatUniform("uTextureScale", 3.0f);
-    fontTexture.SetActive();
-    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    TextActor::Draw();
 
     // swap the buffers
-    SDL_GL_SwapWindow(game.GetWindow());
+    SDL_GL_SwapWindow(Game::GetGame().GetWindow());
 }
