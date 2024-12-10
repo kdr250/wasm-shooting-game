@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
+#include "../actor/Enemy.h"
 #include "../actor/Player.h"
 #include "Action.h"
 #include "SceneMenu.h"
@@ -42,21 +43,13 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     auto player = Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
     // spawn enemy
-    auto enemy = entityManager.AddEntity("enemy");
-    enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
-    auto& enemyTexture = assetManager.GetTexture(ENEMY_TEXTURE_NAME);
-    enemy->AddComponent<BoxCollisionComponent>(
-        glm::vec2 {enemyTexture.GetWidth() * 2.5f, enemyTexture.GetHeight() * 2.5f},
-        std::vector {enemy->GetTag()});
-    auto& aiMove = enemy->AddComponent<AIMoveComponent>(
-        std::vector {
-            glm::vec2 {100.0f, 100.0f},
-            glm::vec2 {800.0f, 100.0f},
-            glm::vec2 {800.0f, 600.0f},
-            glm::vec2 {100.0f, 600.0f},
-        },
-        200.0f);
-    enemy->AddComponent<TransformComponent>(aiMove.CurrentPoint(), 10.0f);
+    std::vector<glm::vec2> points = std::vector {
+        glm::vec2 {100.0f, 100.0f},
+        glm::vec2 {800.0f, 100.0f},
+        glm::vec2 {800.0f, 600.0f},
+        glm::vec2 {100.0f, 600.0f},
+    };
+    auto enemy = Enemy::Spawn(points);
 
     SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
                           RED,
@@ -201,15 +194,7 @@ void ScenePlay::MoveEntities(float deltaTime)
     }
 
     // enemy
-    for (auto& enemy : entityManager.GetEntities("enemy"))
-    {
-        if (enemy->HasComponent<AIMoveComponent>())
-        {
-            auto& transform    = enemy->GetComponent<TransformComponent>();
-            auto& aiMove       = enemy->GetComponent<AIMoveComponent>();
-            transform.position = aiMove.Lerp(deltaTime);
-        }
-    }
+    Enemy::Move(deltaTime);
 }
 
 void ScenePlay::ProcessLifespan(float deltaTime)
@@ -231,23 +216,7 @@ void ScenePlay::ProcessLifespan(float deltaTime)
 
 void ScenePlay::ProcessCollision()
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto& enemies       = entityManager.GetEntities("enemy");
-    auto& bullets       = entityManager.GetEntities("bullet");
-
-    for (auto& bullet : bullets)
-    {
-        for (auto& enemy : enemies)
-        {
-            bool isOverlap = Physics::IsOverlap(bullet, enemy);
-            if (isOverlap)
-            {
-                enemy->Destroy();
-                bullet->Destroy();
-                continue;
-            }
-        }
-    }
+    Enemy::Collide();
 
     if (Player::IsCollide())
     {
@@ -288,26 +257,7 @@ void ScenePlay::Render()
     }
 
     // draw enemy
-    auto& enemies = entityManager.GetEntities("enemy");
-    for (auto& enemy : enemies)
-    {
-        auto& enemyTransform = enemy->GetComponent<TransformComponent>();
-        auto& enemySprite    = enemy->GetComponent<SpriteComponent>();
-
-        auto& spriteShader = assetManager.GetShader(enemySprite.shaderName);
-        auto& texture      = assetManager.GetTexture(enemySprite.textureName);
-
-        spriteShader.SetActive();
-        vertexArray.SetActive();
-
-        spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-        spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
-        spriteShader.SetVector2Uniform("uTexturePosition", enemyTransform.position);
-        spriteShader.SetFloatUniform("uTextureScale", enemyTransform.scale);
-
-        texture.SetActive();
-        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
-    }
+    Enemy::Draw();
 
     // draw player
     Player::Draw();
