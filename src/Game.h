@@ -42,6 +42,12 @@ public:
 
     SDL_Window* GetWindow();
 
+    float GetDeltaTime();
+    long ElapsedTimeSecond();
+    long ElapsedTimeMillisecond();
+    long SceneElapsedTimeSecond();
+    long SceneElapsedTimeMillisecond();
+
     void Stop();
 
     void ChangeScene(const std::string& sceneName,
@@ -74,6 +80,7 @@ private:
     bool isRunning;
 
     Uint64 tickCount;
+    float deltaTime;
 
     Action action;
 

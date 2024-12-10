@@ -17,20 +17,57 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
     std::vector<glm::vec2> points = {
-        glm::vec2 {100.0f, 100.0f},
-        glm::vec2 {800.0f, 100.0f},
-        glm::vec2 {800.0f, 600.0f},
-        glm::vec2 {100.0f, 600.0f},
+        glm::vec2 {200.0f, 200.0f},
+        // glm::vec2 {100.0f, 100.0f},
+        // glm::vec2 {800.0f, 100.0f},
+        // glm::vec2 {800.0f, 600.0f},
+        // glm::vec2 {100.0f, 600.0f},
     };
     auto enemy = Enemy::Spawn(points);
 
-    Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                                  Bullet::RED,
-                                  18,               // number of bullets
-                                  enemy->GetTag(),  // owner tag
-                                  300.0f,           // speed
-                                  200.0f            // size
-    );
+    std::vector<std::function<bool(long, int)>> events = {
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            long fromPreviousSecond = fromPreviousMilli / 1000;
+            if (executionCount < 1 && fromPreviousSecond >= 1)
+            {
+                Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
+                                              Bullet::RED,
+                                              18,               // number of bullets
+                                              enemy->GetTag(),  // owner tag
+                                              300.0f,           // speed
+                                              200.0f            // size
+                );
+                return true;
+            }
+            return false;
+        },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            long fromPreviousSecond = fromPreviousMilli / 1000;
+            auto& transform         = enemy->GetComponent<TransformComponent>();
+            int divide              = 36;
+            int bulletsNum          = divide * 2;
+            float degree            = 360.0f / divide;
+            float currentDegree     = degree * executionCount;
+            float radian            = currentDegree / 180.0f * Bullet::PI;
+            float speed             = 200.0f;
+            glm::vec2 velocity {std::cosf(radian) * speed, std::sinf(radian) * speed};
+            if ((executionCount == 0 && fromPreviousSecond >= 5)
+                || (executionCount > 0 && executionCount < bulletsNum && fromPreviousMilli >= 50))
+            {
+                Bullet::SpawnDirectionalBullet(transform.position,  // position
+                                               velocity,            // velocity
+                                               Bullet::RED,         // color
+                                               enemy->GetTag(),     // owner tag
+                                               200.0f               // size
+                );
+                return true;
+            }
+            return false;
+        }};
+
+    enemy->AddComponent<EventComponent>(events);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");

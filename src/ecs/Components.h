@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 #define GLM_FORCE_PURE
@@ -196,5 +197,51 @@ public:
         size(s), halfSize(s.x / 2.0f, s.y / 2.0f)
     {
         excludeTags = excludes;
+    }
+};
+
+class EventComponent : public Component
+{
+public:
+    std::vector<std::function<bool(long, int)>> events;
+    std::vector<long> previousTimes;
+    std::vector<int> executionCounts;
+    long elapsedTimeMilli = 0;
+
+    EventComponent() {}
+    EventComponent(const std::vector<std::function<bool(long, int)>>& ev) :
+        previousTimes(ev.size(), 0), executionCounts(ev.size(), 0)
+    {
+        events = ev;
+    }
+
+    void Add(const std::function<bool(long, int)>& event)
+    {
+        events.push_back(event);
+        previousTimes.push_back(0);
+        executionCounts.push_back(0);
+    }
+
+    void Execute(float deltaTime)
+    {
+        elapsedTimeMilli += deltaTime * 1000;
+
+        int index = 0;
+        auto iter = events.begin();
+        while (iter != events.end())
+        {
+            auto event         = *iter;
+            long previousTime  = previousTimes[index];
+            long previous      = elapsedTimeMilli - previousTime;
+            int executionCount = executionCounts[index];
+            bool isExecuted    = event(previous, executionCount);
+            if (isExecuted)
+            {
+                previousTimes[index] = elapsedTimeMilli;
+                executionCounts[index]++;
+            }
+            ++iter;
+            ++index;
+        }
     }
 };

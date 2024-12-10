@@ -14,7 +14,8 @@ using ComponentTuple = std::tuple<TransformComponent,
                                   AIMoveComponent,
                                   StateComponent,
                                   LifespanComponent,
-                                  BoxCollisionComponent>;
+                                  BoxCollisionComponent,
+                                  EventComponent>;
 
 class Entity
 {
