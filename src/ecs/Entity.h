@@ -11,6 +11,7 @@ using ComponentTuple = std::tuple<TransformComponent,
                                   DrawComponent,
                                   RectComponent,
                                   InputComponent,
+                                  AIMoveComponent,
                                   StateComponent,
                                   LifespanComponent,
                                   BoxCollisionComponent>;

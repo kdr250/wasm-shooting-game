@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 #define GLM_FORCE_PURE
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 
 class Component
 {
@@ -113,6 +112,48 @@ public:
     void ResetShootInterval()
     {
         shootInterval = maxShootInterval;
+    }
+};
+
+class AIMoveComponent : public Component
+{
+public:
+    std::vector<glm::vec2> points;
+    int current = 0;
+    float speed = 0.0f;
+    float t     = 0.0f;
+
+    AIMoveComponent() {}
+    AIMoveComponent(const std::vector<glm::vec2>& movePoints, const float sp) : speed(sp)
+    {
+        points = movePoints;
+    }
+
+    glm::vec2 Lerp(float deltaTime)
+    {
+        int next                = (current + 1) % points.size();
+        glm::vec2 currentToNext = points[next] - points[current];
+        t += speed * deltaTime / glm::length(currentToNext);
+
+        if (t >= 1.0f)
+        {
+            t       = 0.0f;
+            current = next;
+            return points[next];
+        }
+        glm::vec2 result = points[current] + t * currentToNext;
+        return result;
+    }
+
+    const glm::vec2& CurrentPoint()
+    {
+        return points[current];
+    }
+
+    const glm::vec2& NextPoint()
+    {
+        int next = (current + 1) % points.size();
+        return points[next];
     }
 };
 
