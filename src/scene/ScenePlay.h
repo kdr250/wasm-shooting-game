@@ -24,7 +24,6 @@ public:
 private:
     void OnEnd() override;
 
-    void ProcessPause();
     void SetPause(bool pause);
 
     void SpawnDirectionalBullet(const glm::vec2& position,
@@ -39,8 +38,6 @@ private:
                                const std::string& ownerTag,
                                const float speed = 200.0f,
                                const float size  = 200.0f);
-
-    std::shared_ptr<Entity> player;
 
     bool paused = false;
 

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
+#include "../actor/Player.h"
 #include "Action.h"
 #include "SceneMenu.h"
 
@@ -38,19 +39,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     assetManager.AddTexture(TITLE, fontTexture);
 
     // spawn player
-    player = entityManager.AddEntity("player");
-    player->AddComponent<StateComponent>();
-    player->AddComponent<TransformComponent>(
-        glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0},  // position
-        10.0f,                                                            // scale
-        200.0f                                                            // speed
-    );
-    player->AddComponent<InputComponent>();
-    player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
-    auto& playerTexture = assetManager.GetTexture(PLAYER_TEXTURE_NAME);
-    player->AddComponent<BoxCollisionComponent>(
-        glm::vec2 {playerTexture.GetWidth() * 2.5f, playerTexture.GetHeight() * 2.5f},
-        std::vector {player->GetTag()});
+    auto player = Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
     // spawn enemy
     auto enemy = entityManager.AddEntity("enemy");
@@ -116,16 +105,6 @@ void ScenePlay::OnEnd()
     game.ChangeScene("MENU", std::make_shared<SceneMenu>(), true);
 }
 
-void ScenePlay::ProcessPause()
-{
-    auto& input = player->GetComponent<InputComponent>();
-    if (!input.pause)
-    {
-        SetPause(!paused);
-    }
-    input.pause = true;
-}
-
 void ScenePlay::SetPause(bool pause)
 {
     paused = pause;
@@ -178,108 +157,32 @@ void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
 
 void ScenePlay::DoAction(const Action& action)
 {
-    auto& input = player->GetComponent<InputComponent>();
-
     if (action.type == "START")
     {
         if (action.name == "QUIT")
         {
             OnEnd();
         }
-        else if (action.name == "PAUSE")
+        else if (action.name == "PAUSE" && Player::NeedsPause())
         {
-            ProcessPause();
-        }
-        else if (action.name == "UP")
-        {
-            input.up = true;
-        }
-        else if (action.name == "LEFT")
-        {
-            input.left = true;
-        }
-        else if (action.name == "DOWN")
-        {
-            input.down = true;
-        }
-        else if (action.name == "RIGHT")
-        {
-            input.right = true;
-        }
-        else if (action.name == "SHOOT")
-        {
-            input.shoot = true;
+            SetPause(true);
         }
     }
-    else if (action.type == "END")
-    {
-        if (action.name == "PAUSE")
-        {
-            input.pause = false;
-        }
-        else if (action.name == "UP")
-        {
-            input.up = false;
-        }
-        else if (action.name == "LEFT")
-        {
-            input.left = false;
-        }
-        else if (action.name == "DOWN")
-        {
-            input.down = false;
-        }
-        else if (action.name == "RIGHT")
-        {
-            input.right = false;
-        }
-        else if (action.name == "SHOOT")
-        {
-            input.shoot = false;
-        }
-    }
+
+    Player::ProcessAction(action);
 }
 
 void ScenePlay::MoveEntities(float deltaTime)
 {
     // player
-    auto& input           = player->GetComponent<InputComponent>();
-    auto& playerTransform = player->GetComponent<TransformComponent>();
+    Player::Move(deltaTime);
 
-    playerTransform.ResetVelocity();
-
-    if (input.left)
-    {
-        playerTransform.velocity.x = -playerTransform.speed;
-    }
-    if (input.right)
-    {
-        playerTransform.velocity.x = playerTransform.speed;
-    }
-    if (input.up)
-    {
-        playerTransform.velocity.y = -playerTransform.speed;
-    }
-    if (input.down)
-    {
-        playerTransform.velocity.y = playerTransform.speed;
-    }
-
-    auto& assetManager = Game::GetGame().GetAssetManager();
-    auto& playerSprite = player->GetComponent<SpriteComponent>();
-    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
-    float scale        = playerTransform.scale;
-
-    playerTransform.position += playerTransform.velocity * deltaTime;
-    playerTransform.position.x = std::clamp(playerTransform.position.x,
-                                            texture.GetWidth() * scale / 4.0f,
-                                            Game::WINDOW_WIDTH - texture.GetWidth() * scale / 4.0f);
-    playerTransform.position.y =
-        std::clamp(playerTransform.position.y,
-                   texture.GetHeight() * scale / 4.0f,
-                   Game::WINDOW_HEIGHT - texture.GetHeight() * scale / 4.0f);
+    auto& entityManager = Game::GetGame().GetEntityManger();
 
     // bullet
+    auto& player          = entityManager.GetEntities("player")[0];  // FIXME
+    auto& input           = player->GetComponent<InputComponent>();
+    auto& playerTransform = player->GetComponent<TransformComponent>();
     input.shootInterval -= deltaTime;
     if (input.shoot && input.shootInterval <= 0.0f)
     {
@@ -290,8 +193,7 @@ void ScenePlay::MoveEntities(float deltaTime)
         input.ResetShootInterval();
     }
 
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto& bullets       = entityManager.GetEntities("bullet");
+    auto& bullets = entityManager.GetEntities("bullet");
     for (auto& bullet : bullets)
     {
         auto& transform = bullet->GetComponent<TransformComponent>();
@@ -313,8 +215,7 @@ void ScenePlay::MoveEntities(float deltaTime)
 void ScenePlay::ProcessLifespan(float deltaTime)
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
-    auto entities       = entityManager.GetEntities();
-    for (auto& entity : entities)
+    for (auto& entity : entityManager.GetEntities())
     {
         if (entity->HasComponent<LifespanComponent>())
         {
@@ -346,12 +247,11 @@ void ScenePlay::ProcessCollision()
                 continue;
             }
         }
+    }
 
-        bool isOverlap = Physics::IsOverlap(bullet, player);
-        if (isOverlap)
-        {
-            OnEnd();
-        }
+    if (Player::IsCollide())
+    {
+        OnEnd();
     }
 }
 
@@ -410,22 +310,9 @@ void ScenePlay::Render()
     }
 
     // draw player
-    auto& playerTransform = player->GetComponent<TransformComponent>();
-    auto& playerSprite    = player->GetComponent<SpriteComponent>();
+    Player::Draw();
 
-    auto& spriteShader = assetManager.GetShader(playerSprite.shaderName);
-    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
-
-    spriteShader.SetActive();
-    vertexArray.SetActive();
-
-    spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-    spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
-    spriteShader.SetVector2Uniform("uTexturePosition", playerTransform.position);
-    spriteShader.SetFloatUniform("uTextureScale", playerTransform.scale);
-
-    texture.SetActive();
-    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    auto& spriteShader = assetManager.GetShader(SPRITE_SHADER_NAME);
 
     // draw text
     auto& fontTexture = assetManager.GetTexture(TITLE);
