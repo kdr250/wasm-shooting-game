@@ -24,13 +24,25 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     };
     auto enemy = Enemy::Spawn(points);
 
-    Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                                  Bullet::RED,
-                                  18,               // number of bullets
-                                  enemy->GetTag(),  // owner tag
-                                  300.0f,           // speed
-                                  200.0f            // size
-    );
+    std::vector<std::function<bool()>> events = {
+        [enemy]()
+        {
+            auto& game = Game::GetGame();
+            if (game.SceneElapsedTimeSecond() >= 3)
+            {
+                Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
+                                              Bullet::RED,
+                                              18,               // number of bullets
+                                              enemy->GetTag(),  // owner tag
+                                              300.0f,           // speed
+                                              200.0f            // size
+                );
+                return true;
+            }
+            return false;
+        }};
+
+    enemy->AddComponent<EventComponent>(events);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");

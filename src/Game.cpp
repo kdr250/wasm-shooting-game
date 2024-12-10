@@ -10,7 +10,7 @@
 
 Game* Game::game = nullptr;
 
-Game::Game() : window(nullptr), isRunning(true), tickCount(0) {}
+Game::Game() : window(nullptr), isRunning(true), tickCount(0), deltaTime(0.0f) {}
 
 bool Game::Initialize()
 {
@@ -117,6 +117,36 @@ SDL_Window* Game::GetWindow()
     return window;
 }
 
+float Game::GetDeltaTime()
+{
+    return deltaTime;
+}
+
+long Game::ElapsedTimeSecond()
+{
+    return tickCount / 1000;
+}
+
+long Game::ElapsedTimeMillisecond()
+{
+    return tickCount;
+}
+
+long Game::SceneElapsedTimeSecond()
+{
+    return sceneMap[currentSceneName]->ElapsedTimeSecond();
+}
+
+long Game::SceneElapsedTimeMillisecond()
+{
+    return sceneMap[currentSceneName]->ElapsedTimeMillisecond();
+}
+
+Uint64 Game::GetTickCount()
+{
+    return tickCount;
+}
+
 void Game::Stop()
 {
     isRunning = false;
@@ -197,10 +227,9 @@ void Game::UpdateGame()
         ;
 #endif
 
-    float deltaTime = (SDL_GetTicks64() - tickCount) / 1000.0f;
-    deltaTime       = std::min(deltaTime, 0.05f);
-
-    tickCount = SDL_GetTicks64();
+    float delta = (SDL_GetTicks64() - tickCount) / 1000.0f;
+    deltaTime   = std::min(delta, 0.05f);
+    tickCount   = SDL_GetTicks64();
 
     auto& scene = sceneMap[currentSceneName];
     scene->Update(deltaTime);

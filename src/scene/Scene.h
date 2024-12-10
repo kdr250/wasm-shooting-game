@@ -19,9 +19,14 @@ public:
 
     const ActionMap& GetActionMap() const;
 
+    long ElapsedTimeSecond();
+    long ElapsedTimeMillisecond();
+
 protected:
     virtual void OnEnd() = 0;
 
     int id = 0;
     ActionMap actionMap;
+
+    long startTimeMillis;
 };

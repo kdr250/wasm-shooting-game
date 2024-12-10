@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 #define GLM_FORCE_PURE
@@ -196,5 +197,37 @@ public:
         size(s), halfSize(s.x / 2.0f, s.y / 2.0f)
     {
         excludeTags = excludes;
+    }
+};
+
+class EventComponent : public Component
+{
+public:
+    std::vector<std::function<bool()>> events;
+
+    EventComponent() {}
+    EventComponent(const std::vector<std::function<bool()>>& ev)
+    {
+        events = ev;
+    }
+
+    void Add(const std::function<bool()>& event)
+    {
+        events.push_back(event);
+    }
+
+    void Execute()
+    {
+        auto iter = events.begin();
+        while (iter != events.end())
+        {
+            auto event = *iter;
+            if (event())
+            {
+                iter = events.erase(iter);
+                continue;
+            }
+            ++iter;
+        }
     }
 };
