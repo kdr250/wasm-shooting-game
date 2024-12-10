@@ -12,6 +12,7 @@ class Entity;
 class Bullet
 {
 public:
+    static constexpr float PI        = 3.1415926535f;
     static constexpr glm::vec3 GREEN = {0.0f, 1.0f, 0.0f};
     static constexpr glm::vec3 RED   = {1.0f, 0.0f, 0.0f};
 
@@ -34,8 +35,6 @@ public:
     static const std::vector<std::shared_ptr<Entity>>& GetBullets();
 
 private:
-    static constexpr float PI = 3.1415926535f;
-
 #ifdef __EMSCRIPTEN__
     inline static const std::string BULLET_SHADER_VERT = "resources/shader/Bullet.vert";
     inline static const std::string BULLET_SHADER_FRAG = "resources/shader/Bullet.frag";

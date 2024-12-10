@@ -203,31 +203,45 @@ public:
 class EventComponent : public Component
 {
 public:
-    std::vector<std::function<bool()>> events;
+    std::vector<std::function<bool(long, int)>> events;
+    std::vector<long> previousTimes;
+    std::vector<int> executionCounts;
+    long elapsedTimeMilli = 0;
 
     EventComponent() {}
-    EventComponent(const std::vector<std::function<bool()>>& ev)
+    EventComponent(const std::vector<std::function<bool(long, int)>>& ev) :
+        previousTimes(ev.size(), 0), executionCounts(ev.size(), 0)
     {
         events = ev;
     }
 
-    void Add(const std::function<bool()>& event)
+    void Add(const std::function<bool(long, int)>& event)
     {
         events.push_back(event);
+        previousTimes.push_back(0);
+        executionCounts.push_back(0);
     }
 
-    void Execute()
+    void Execute(float deltaTime)
     {
+        elapsedTimeMilli += deltaTime * 1000;
+
+        int index = 0;
         auto iter = events.begin();
         while (iter != events.end())
         {
-            auto event = *iter;
-            if (event())
+            auto event         = *iter;
+            long previousTime  = previousTimes[index];
+            long previous      = elapsedTimeMilli - previousTime;
+            int executionCount = executionCounts[index];
+            bool isExecuted    = event(previous, executionCount);
+            if (isExecuted)
             {
-                iter = events.erase(iter);
-                continue;
+                previousTimes[index] = elapsedTimeMilli;
+                executionCounts[index]++;
             }
             ++iter;
+            ++index;
         }
     }
 };

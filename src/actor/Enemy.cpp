@@ -51,7 +51,7 @@ void Enemy::Move(float deltaTime)
         if (enemy->HasComponent<EventComponent>())
         {
             auto& eventComponent = enemy->GetComponent<EventComponent>();
-            eventComponent.Execute();
+            eventComponent.Execute(deltaTime);
         }
     }
 }
