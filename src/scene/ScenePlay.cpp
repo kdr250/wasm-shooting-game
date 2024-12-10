@@ -3,77 +3,34 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
+#include "../actor/Bullet.h"
+#include "../actor/Enemy.h"
+#include "../actor/Player.h"
+#include "../actor/TextActor.h"
 #include "Action.h"
 #include "SceneMenu.h"
 
-const float PI        = 3.1415926535f;
-const glm::vec3 GREEN = {0.0f, 1.0f, 0.0f};
-const glm::vec3 RED   = {1.0f, 0.0f, 0.0f};
-
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
+    TextActor::Spawn("Hello World !!", glm::vec2 {Game::WINDOW_WIDTH / 2.0f, 50.0f});
 
-    if (!assetManager.LoadShader(SPRITE_SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG)
-        || !assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
-    {
-        SDL_Log("Failed to load shader");
-        exit(EXIT_FAILURE);
-    }
+    Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
-    assetManager.CreateSpriteVertex();
+    std::vector<glm::vec2> points = {
+        glm::vec2 {100.0f, 100.0f},
+        glm::vec2 {800.0f, 100.0f},
+        glm::vec2 {800.0f, 600.0f},
+        glm::vec2 {100.0f, 600.0f},
+    };
+    auto enemy = Enemy::Spawn(points);
 
-    if (!assetManager.LoadTexture(PLAYER_TEXTURE_NAME, PLAYER_TEXTURE)
-        || !assetManager.LoadTexture(ENEMY_TEXTURE_NAME, ENEMY_TEXTURE))
-    {
-        SDL_Log("Failed to load texture");
-        exit(EXIT_FAILURE);
-    }
-
-    assetManager.LoadFont(FONT_NAME, FONT_PATH);
-    auto& font       = assetManager.GetFont(FONT_NAME);
-    auto fontTexture = font.RenderText("Hello World !!", Font::DEFAULT_COLOR_WHITE, 40);
-    assetManager.AddTexture(TITLE, fontTexture);
-
-    // spawn player
-    player = entityManager.AddEntity("player");
-    player->AddComponent<StateComponent>();
-    player->AddComponent<TransformComponent>(
-        glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0},  // position
-        10.0f,                                                            // scale
-        200.0f                                                            // speed
+    Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
+                                  Bullet::RED,
+                                  18,               // number of bullets
+                                  enemy->GetTag(),  // owner tag
+                                  300.0f,           // speed
+                                  200.0f            // size
     );
-    player->AddComponent<InputComponent>();
-    player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
-    auto& playerTexture = assetManager.GetTexture(PLAYER_TEXTURE_NAME);
-    player->AddComponent<BoxCollisionComponent>(
-        glm::vec2 {playerTexture.GetWidth() * 2.5f, playerTexture.GetHeight() * 2.5f},
-        std::vector {player->GetTag()});
-
-    // spawn enemy
-    auto enemy = entityManager.AddEntity("enemy");
-    enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
-    auto& enemyTexture = assetManager.GetTexture(ENEMY_TEXTURE_NAME);
-    enemy->AddComponent<BoxCollisionComponent>(
-        glm::vec2 {enemyTexture.GetWidth() * 2.5f, enemyTexture.GetHeight() * 2.5f},
-        std::vector {enemy->GetTag()});
-    auto& aiMove = enemy->AddComponent<AIMoveComponent>(
-        std::vector {
-            glm::vec2 {100.0f, 100.0f},
-            glm::vec2 {800.0f, 100.0f},
-            glm::vec2 {800.0f, 600.0f},
-            glm::vec2 {100.0f, 600.0f},
-        },
-        200.0f);
-    enemy->AddComponent<TransformComponent>(aiMove.CurrentPoint(), 10.0f);
-
-    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                          RED,
-                          18,
-                          enemy->GetTag(),
-                          300.0f);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -102,9 +59,9 @@ void ScenePlay::OnEnd()
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
 
-    assetManager.RemoveTexture(PLAYER_TEXTURE_NAME);
-    assetManager.RemoveTexture(ENEMY_TEXTURE_NAME);
-    assetManager.RemoveTexture(TITLE);
+    Player::Unload();
+    Enemy::Unload();
+    TextActor::Unload();
 
     auto& entities = entityManager.GetEntities();
     for (auto& entity : entities)
@@ -116,205 +73,40 @@ void ScenePlay::OnEnd()
     game.ChangeScene("MENU", std::make_shared<SceneMenu>(), true);
 }
 
-void ScenePlay::ProcessPause()
-{
-    auto& input = player->GetComponent<InputComponent>();
-    if (!input.pause)
-    {
-        SetPause(!paused);
-    }
-    input.pause = true;
-}
-
 void ScenePlay::SetPause(bool pause)
 {
     paused = pause;
 }
 
-void ScenePlay::SpawnDirectionalBullet(const glm::vec2& position,
-                                       const glm::vec2& velocity,
-                                       const glm::vec3& color,
-                                       const std::string& ownerTag,
-                                       const float size)
-{
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto bullet         = entityManager.AddEntity("bullet");
-    std::vector<std::string> tags {bullet->GetTag(), ownerTag};
-    bullet->AddComponent<TransformComponent>(position, velocity);
-    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
-    bullet->AddComponent<RectComponent>(size);
-    bullet->AddComponent<LifespanComponent>(3.0f);
-    bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
-}
-
-void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
-                                      const glm::vec3& color,
-                                      const int bulletsNum,
-                                      const std::string& ownerTag,
-                                      const float speed,
-                                      const float size)
-{
-    auto& entityManager = Game::GetGame().GetEntityManger();
-
-    float degree        = 360.0f / bulletsNum;
-    float currentDegree = 0.0f;
-    for (int i = 0; i < bulletsNum; ++i)
-    {
-        float radian = currentDegree / 180.0f * PI;
-        glm::vec2 velocity {0.0f, 0.0f};
-        velocity.x = std::cosf(radian) * speed;
-        velocity.y = std::sinf(radian) * speed;
-        currentDegree += degree;
-
-        auto bullet = entityManager.AddEntity("bullet");
-        std::vector<std::string> tags {bullet->GetTag(), ownerTag};
-        bullet->AddComponent<TransformComponent>(position, velocity);
-        bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
-        bullet->AddComponent<RectComponent>(size);
-        bullet->AddComponent<LifespanComponent>(10.0f);
-        bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
-    }
-}
-
 void ScenePlay::DoAction(const Action& action)
 {
-    auto& input = player->GetComponent<InputComponent>();
-
     if (action.type == "START")
     {
         if (action.name == "QUIT")
         {
             OnEnd();
+            return;
         }
-        else if (action.name == "PAUSE")
+        else if (action.name == "PAUSE" && Player::NeedsPause())
         {
-            ProcessPause();
-        }
-        else if (action.name == "UP")
-        {
-            input.up = true;
-        }
-        else if (action.name == "LEFT")
-        {
-            input.left = true;
-        }
-        else if (action.name == "DOWN")
-        {
-            input.down = true;
-        }
-        else if (action.name == "RIGHT")
-        {
-            input.right = true;
-        }
-        else if (action.name == "SHOOT")
-        {
-            input.shoot = true;
+            SetPause(!paused);
         }
     }
-    else if (action.type == "END")
-    {
-        if (action.name == "PAUSE")
-        {
-            input.pause = false;
-        }
-        else if (action.name == "UP")
-        {
-            input.up = false;
-        }
-        else if (action.name == "LEFT")
-        {
-            input.left = false;
-        }
-        else if (action.name == "DOWN")
-        {
-            input.down = false;
-        }
-        else if (action.name == "RIGHT")
-        {
-            input.right = false;
-        }
-        else if (action.name == "SHOOT")
-        {
-            input.shoot = false;
-        }
-    }
+
+    Player::ProcessAction(action);
 }
 
 void ScenePlay::MoveEntities(float deltaTime)
 {
-    // player
-    auto& input           = player->GetComponent<InputComponent>();
-    auto& playerTransform = player->GetComponent<TransformComponent>();
-
-    playerTransform.ResetVelocity();
-
-    if (input.left)
-    {
-        playerTransform.velocity.x = -playerTransform.speed;
-    }
-    if (input.right)
-    {
-        playerTransform.velocity.x = playerTransform.speed;
-    }
-    if (input.up)
-    {
-        playerTransform.velocity.y = -playerTransform.speed;
-    }
-    if (input.down)
-    {
-        playerTransform.velocity.y = playerTransform.speed;
-    }
-
-    auto& assetManager = Game::GetGame().GetAssetManager();
-    auto& playerSprite = player->GetComponent<SpriteComponent>();
-    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
-    float scale        = playerTransform.scale;
-
-    playerTransform.position += playerTransform.velocity * deltaTime;
-    playerTransform.position.x = std::clamp(playerTransform.position.x,
-                                            texture.GetWidth() * scale / 4.0f,
-                                            Game::WINDOW_WIDTH - texture.GetWidth() * scale / 4.0f);
-    playerTransform.position.y =
-        std::clamp(playerTransform.position.y,
-                   texture.GetHeight() * scale / 4.0f,
-                   Game::WINDOW_HEIGHT - texture.GetHeight() * scale / 4.0f);
-
-    // bullet
-    input.shootInterval -= deltaTime;
-    if (input.shoot && input.shootInterval <= 0.0f)
-    {
-        SpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
-                               glm::vec2 {0.0f, -600.0f},
-                               GREEN,
-                               player->GetTag());
-        input.ResetShootInterval();
-    }
-
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto& bullets       = entityManager.GetEntities("bullet");
-    for (auto& bullet : bullets)
-    {
-        auto& transform = bullet->GetComponent<TransformComponent>();
-        transform.position += transform.velocity * deltaTime;
-    }
-
-    // enemy
-    for (auto& enemy : entityManager.GetEntities("enemy"))
-    {
-        if (enemy->HasComponent<AIMoveComponent>())
-        {
-            auto& transform    = enemy->GetComponent<TransformComponent>();
-            auto& aiMove       = enemy->GetComponent<AIMoveComponent>();
-            transform.position = aiMove.Lerp(deltaTime);
-        }
-    }
+    Player::Move(deltaTime);
+    Bullet::Move(deltaTime);
+    Enemy::Move(deltaTime);
 }
 
 void ScenePlay::ProcessLifespan(float deltaTime)
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
-    auto entities       = entityManager.GetEntities();
-    for (auto& entity : entities)
+    for (auto& entity : entityManager.GetEntities())
     {
         if (entity->HasComponent<LifespanComponent>())
         {
@@ -330,112 +122,27 @@ void ScenePlay::ProcessLifespan(float deltaTime)
 
 void ScenePlay::ProcessCollision()
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto& enemies       = entityManager.GetEntities("enemy");
-    auto& bullets       = entityManager.GetEntities("bullet");
+    Enemy::Collide();
 
-    for (auto& bullet : bullets)
+    if (Player::IsCollide())
     {
-        for (auto& enemy : enemies)
-        {
-            bool isOverlap = Physics::IsOverlap(bullet, enemy);
-            if (isOverlap)
-            {
-                enemy->Destroy();
-                bullet->Destroy();
-                continue;
-            }
-        }
-
-        bool isOverlap = Physics::IsOverlap(bullet, player);
-        if (isOverlap)
-        {
-            OnEnd();
-        }
+        OnEnd();
     }
 }
 
 void ScenePlay::Render()
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
-
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set the clear color to black
     glClear(GL_COLOR_BUFFER_BIT);          // Clear the color buffer
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto& vertexArray = assetManager.GetSpriteVertex();
-
-    // Draw Bullet
-    auto& bullets = entityManager.GetEntities("bullet");
-    for (auto& bullet : bullets)
-    {
-        auto& draw      = bullet->GetComponent<DrawComponent>();
-        auto& transform = bullet->GetComponent<TransformComponent>();
-        float edge      = bullet->GetComponent<RectComponent>().edge;
-
-        auto& bulletShader = assetManager.GetShader(draw.shaderName);
-        bulletShader.SetActive();
-        vertexArray.SetActive();
-        bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-        bulletShader.SetVector2Uniform("uBulletPosition", transform.position);
-        bulletShader.SetVector2Uniform("uBulletSize", edge, edge);
-        bulletShader.SetVector3Uniform("uBulletColor", draw.color);
-        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
-    }
-
-    // draw enemy
-    auto& enemies = entityManager.GetEntities("enemy");
-    for (auto& enemy : enemies)
-    {
-        auto& enemyTransform = enemy->GetComponent<TransformComponent>();
-        auto& enemySprite    = enemy->GetComponent<SpriteComponent>();
-
-        auto& spriteShader = assetManager.GetShader(enemySprite.shaderName);
-        auto& texture      = assetManager.GetTexture(enemySprite.textureName);
-
-        spriteShader.SetActive();
-        vertexArray.SetActive();
-
-        spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-        spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
-        spriteShader.SetVector2Uniform("uTexturePosition", enemyTransform.position);
-        spriteShader.SetFloatUniform("uTextureScale", enemyTransform.scale);
-
-        texture.SetActive();
-        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
-    }
-
-    // draw player
-    auto& playerTransform = player->GetComponent<TransformComponent>();
-    auto& playerSprite    = player->GetComponent<SpriteComponent>();
-
-    auto& spriteShader = assetManager.GetShader(playerSprite.shaderName);
-    auto& texture      = assetManager.GetTexture(playerSprite.textureName);
-
-    spriteShader.SetActive();
-    vertexArray.SetActive();
-
-    spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-    spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
-    spriteShader.SetVector2Uniform("uTexturePosition", playerTransform.position);
-    spriteShader.SetFloatUniform("uTextureScale", playerTransform.scale);
-
-    texture.SetActive();
-    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
-
-    // draw text
-    auto& fontTexture = assetManager.GetTexture(TITLE);
-    spriteShader.SetVector2Uniform("uTextureSize", fontTexture.GetWidth(), fontTexture.GetHeight());
-    spriteShader.SetVector2Uniform("uTexturePosition",
-                                   glm::vec2 {Game::WINDOW_WIDTH / 2.0f, fontTexture.GetHeight()});
-    spriteShader.SetFloatUniform("uTextureScale", 3.0f);
-    fontTexture.SetActive();
-    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    Bullet::Draw();
+    Enemy::Draw();
+    Player::Draw();
+    TextActor::Draw();
 
     // swap the buffers
-    SDL_GL_SwapWindow(game.GetWindow());
+    SDL_GL_SwapWindow(Game::GetGame().GetWindow());
 }
