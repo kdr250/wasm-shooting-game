@@ -14,9 +14,9 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
     TextActor::Spawn("Hello World !!", glm::vec2 {Game::WINDOW_WIDTH / 2.0f, 50.0f});
 
-    auto player = Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
+    Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
-    std::vector<glm::vec2> points = std::vector {
+    std::vector<glm::vec2> points = {
         glm::vec2 {100.0f, 100.0f},
         glm::vec2 {800.0f, 100.0f},
         glm::vec2 {800.0f, 600.0f},
@@ -26,7 +26,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
                                   Bullet::RED,
-                                  18,               // bumber of bullets
+                                  18,               // number of bullets
                                   enemy->GetTag(),  // owner tag
                                   300.0f,           // speed
                                   200.0f            // size
