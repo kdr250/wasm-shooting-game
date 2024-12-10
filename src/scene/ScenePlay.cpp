@@ -10,32 +10,8 @@
 #include "Action.h"
 #include "SceneMenu.h"
 
-const float PI        = 3.1415926535f;
-const glm::vec3 GREEN = {0.0f, 1.0f, 0.0f};
-const glm::vec3 RED   = {1.0f, 0.0f, 0.0f};
-
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
-
-    if (!assetManager.LoadShader(SPRITE_SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG)
-        || !assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
-    {
-        SDL_Log("Failed to load shader");
-        exit(EXIT_FAILURE);
-    }
-
-    assetManager.CreateSpriteVertex();
-
-    if (!assetManager.LoadTexture(PLAYER_TEXTURE_NAME, PLAYER_TEXTURE)
-        || !assetManager.LoadTexture(ENEMY_TEXTURE_NAME, ENEMY_TEXTURE))
-    {
-        SDL_Log("Failed to load texture");
-        exit(EXIT_FAILURE);
-    }
-
     TextActor::Spawn("Hello World !!", glm::vec2 {Game::WINDOW_WIDTH / 2.0f, 50.0f});
 
     auto player = Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
@@ -49,7 +25,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     auto enemy = Enemy::Spawn(points);
 
     Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                                  RED,
+                                  Bullet::RED,
                                   18,               // bumber of bullets
                                   enemy->GetTag(),  // owner tag
                                   300.0f,           // speed
@@ -83,9 +59,9 @@ void ScenePlay::OnEnd()
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
 
-    assetManager.RemoveTexture(PLAYER_TEXTURE_NAME);
-    assetManager.RemoveTexture(ENEMY_TEXTURE_NAME);
-    assetManager.RemoveTexture(TITLE);
+    Player::Unload();
+    Enemy::Unload();
+    TextActor::Unload();
 
     auto& entities = entityManager.GetEntities();
     for (auto& entity : entities)

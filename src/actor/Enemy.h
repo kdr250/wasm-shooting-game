@@ -16,6 +16,8 @@ public:
     static void Collide();
     static void Draw();
 
+    static void Unload();
+
     static const std::vector<std::shared_ptr<Entity>>& GetEnemies();
 
 private:

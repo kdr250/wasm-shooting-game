@@ -211,6 +211,14 @@ void Player::Draw()
     glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 }
 
+void Player::Unload()
+{
+    auto& assetManager = Game::GetGame().GetAssetManager();
+    auto& player       = GetPlayer();
+    auto& sprite       = player->GetComponent<SpriteComponent>();
+    assetManager.RemoveTexture(sprite.textureName);
+}
+
 std::shared_ptr<Entity>& Player::GetPlayer()
 {
     auto& entityManager = Game::GetGame().GetEntityManger();

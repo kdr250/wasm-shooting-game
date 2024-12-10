@@ -52,3 +52,19 @@ void TextActor::Draw()
         glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
     }
 }
+
+void TextActor::Unload()
+{
+    auto& assetManager = Game::GetGame().GetAssetManager();
+    for (auto& textActor : GetTextActors())
+    {
+        auto& sprite = textActor->GetComponent<SpriteComponent>();
+        assetManager.RemoveTexture(sprite.textureName);
+    }
+}
+
+const std::vector<std::shared_ptr<Entity>>& TextActor::GetTextActors()
+{
+    auto& entityManager = Game::GetGame().GetEntityManger();
+    return entityManager.GetEntities(TEXT_TAG);
+}

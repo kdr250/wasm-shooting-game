@@ -7,8 +7,19 @@ void Bullet::SpawnDirectionalBullet(const glm::vec2& position,
                                     const std::string& ownerTag,
                                     const float size)
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto bullet         = entityManager.AddEntity(BULLET_TAG);
+    auto& game          = Game::GetGame();
+    auto& assetManager  = game.GetAssetManager();
+    auto& entityManager = game.GetEntityManger();
+
+    if (!assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
+    {
+        SDL_Log("Failed to load shader");
+        exit(EXIT_FAILURE);
+    }
+
+    assetManager.CreateSpriteVertex();
+
+    auto bullet = entityManager.AddEntity(BULLET_TAG);
     std::vector<std::string> tags {bullet->GetTag(), ownerTag};
     bullet->AddComponent<TransformComponent>(position, velocity);
     bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
@@ -24,7 +35,17 @@ void Bullet::SpawnExplosionBullets(const glm::vec2& position,
                                    const float speed,
                                    const float size)
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto& game          = Game::GetGame();
+    auto& assetManager  = game.GetAssetManager();
+    auto& entityManager = game.GetEntityManger();
+
+    if (!assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
+    {
+        SDL_Log("Failed to load shader");
+        exit(EXIT_FAILURE);
+    }
+
+    assetManager.CreateSpriteVertex();
 
     float degree        = 360.0f / bulletsNum;
     float currentDegree = 0.0f;

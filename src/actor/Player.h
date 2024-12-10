@@ -18,6 +18,8 @@ public:
     static bool IsCollide();
     static void Draw();
 
+    static void Unload();
+
 private:
     static std::shared_ptr<Entity>& GetPlayer();
 

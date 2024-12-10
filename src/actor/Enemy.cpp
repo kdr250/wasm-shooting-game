@@ -95,6 +95,16 @@ void Enemy::Draw()
     }
 }
 
+void Enemy::Unload()
+{
+    auto& assetManager = Game::GetGame().GetAssetManager();
+    for (auto& enemy : GetEnemies())
+    {
+        auto& sprite = enemy->GetComponent<SpriteComponent>();
+        assetManager.RemoveTexture(sprite.textureName);
+    }
+}
+
 const std::vector<std::shared_ptr<Entity>>& Enemy::GetEnemies()
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
