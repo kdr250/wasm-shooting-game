@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
+#include "../actor/Bullet.h"
 #include "../actor/Enemy.h"
 #include "../actor/Player.h"
 #include "Action.h"
@@ -51,11 +52,13 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     };
     auto enemy = Enemy::Spawn(points);
 
-    SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                          RED,
-                          18,
-                          enemy->GetTag(),
-                          300.0f);
+    Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
+                                  RED,
+                                  18,               // bumber of bullets
+                                  enemy->GetTag(),  // owner tag
+                                  300.0f,           // speed
+                                  200.0f            // size
+    );
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -103,51 +106,6 @@ void ScenePlay::SetPause(bool pause)
     paused = pause;
 }
 
-void ScenePlay::SpawnDirectionalBullet(const glm::vec2& position,
-                                       const glm::vec2& velocity,
-                                       const glm::vec3& color,
-                                       const std::string& ownerTag,
-                                       const float size)
-{
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    auto bullet         = entityManager.AddEntity("bullet");
-    std::vector<std::string> tags {bullet->GetTag(), ownerTag};
-    bullet->AddComponent<TransformComponent>(position, velocity);
-    bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
-    bullet->AddComponent<RectComponent>(size);
-    bullet->AddComponent<LifespanComponent>(3.0f);
-    bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
-}
-
-void ScenePlay::SpawnExplosionBullets(const glm::vec2& position,
-                                      const glm::vec3& color,
-                                      const int bulletsNum,
-                                      const std::string& ownerTag,
-                                      const float speed,
-                                      const float size)
-{
-    auto& entityManager = Game::GetGame().GetEntityManger();
-
-    float degree        = 360.0f / bulletsNum;
-    float currentDegree = 0.0f;
-    for (int i = 0; i < bulletsNum; ++i)
-    {
-        float radian = currentDegree / 180.0f * PI;
-        glm::vec2 velocity {0.0f, 0.0f};
-        velocity.x = std::cosf(radian) * speed;
-        velocity.y = std::sinf(radian) * speed;
-        currentDegree += degree;
-
-        auto bullet = entityManager.AddEntity("bullet");
-        std::vector<std::string> tags {bullet->GetTag(), ownerTag};
-        bullet->AddComponent<TransformComponent>(position, velocity);
-        bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
-        bullet->AddComponent<RectComponent>(size);
-        bullet->AddComponent<LifespanComponent>(10.0f);
-        bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
-    }
-}
-
 void ScenePlay::DoAction(const Action& action)
 {
     if (action.type == "START")
@@ -167,33 +125,8 @@ void ScenePlay::DoAction(const Action& action)
 
 void ScenePlay::MoveEntities(float deltaTime)
 {
-    // player
     Player::Move(deltaTime);
-
-    auto& entityManager = Game::GetGame().GetEntityManger();
-
-    // bullet
-    auto& player          = entityManager.GetEntities("player")[0];  // FIXME
-    auto& input           = player->GetComponent<InputComponent>();
-    auto& playerTransform = player->GetComponent<TransformComponent>();
-    input.shootInterval -= deltaTime;
-    if (input.shoot && input.shootInterval <= 0.0f)
-    {
-        SpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
-                               glm::vec2 {0.0f, -600.0f},
-                               GREEN,
-                               player->GetTag());
-        input.ResetShootInterval();
-    }
-
-    auto& bullets = entityManager.GetEntities("bullet");
-    for (auto& bullet : bullets)
-    {
-        auto& transform = bullet->GetComponent<TransformComponent>();
-        transform.position += transform.velocity * deltaTime;
-    }
-
-    // enemy
+    Bullet::Move(deltaTime);
     Enemy::Move(deltaTime);
 }
 
@@ -236,32 +169,11 @@ void ScenePlay::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto& vertexArray = assetManager.GetSpriteVertex();
-
-    // Draw Bullet
-    auto& bullets = entityManager.GetEntities("bullet");
-    for (auto& bullet : bullets)
-    {
-        auto& draw      = bullet->GetComponent<DrawComponent>();
-        auto& transform = bullet->GetComponent<TransformComponent>();
-        float edge      = bullet->GetComponent<RectComponent>().edge;
-
-        auto& bulletShader = assetManager.GetShader(draw.shaderName);
-        bulletShader.SetActive();
-        vertexArray.SetActive();
-        bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-        bulletShader.SetVector2Uniform("uBulletPosition", transform.position);
-        bulletShader.SetVector2Uniform("uBulletSize", edge, edge);
-        bulletShader.SetVector3Uniform("uBulletColor", draw.color);
-        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
-    }
-
-    // draw enemy
+    Bullet::Draw();
     Enemy::Draw();
-
-    // draw player
     Player::Draw();
 
+    auto& vertexArray  = assetManager.GetSpriteVertex();
     auto& spriteShader = assetManager.GetShader(SPRITE_SHADER_NAME);
 
     // draw text

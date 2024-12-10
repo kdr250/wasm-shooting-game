@@ -1,6 +1,8 @@
 #include "Player.h"
 #include <algorithm>
 #include "../Game.h"
+#include "Bullet.h"
+#include "Enemy.h"
 
 std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
 {
@@ -81,7 +83,17 @@ void Player::Move(float deltaTime)
                    texture.GetHeight() * scale / 4.0f,
                    Game::WINDOW_HEIGHT - texture.GetHeight() * scale / 4.0f);
 
-    // TODO: spawn bullet
+    input.shootInterval -= deltaTime;
+    if (input.shoot && input.shootInterval <= 0.0f)
+    {
+        Bullet::SpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
+                                       glm::vec2 {0.0f, -600.0f},  // velocity
+                                       Bullet::GREEN,              // color
+                                       player->GetTag(),           // owner tag
+                                       200.0f                      // size
+        );
+        input.ResetShootInterval();
+    }
 }
 
 void Player::ProcessAction(const Action& action)
@@ -153,7 +165,7 @@ bool Player::IsCollide()
     auto& entityManager = Game::GetGame().GetEntityManger();
     auto& player        = GetPlayer();
 
-    for (auto& enemy : entityManager.GetEntities("enemy"))  // FIXME
+    for (auto& enemy : Enemy::GetEnemies())
     {
         if (Physics::IsOverlap(enemy, player))
         {
@@ -161,7 +173,7 @@ bool Player::IsCollide()
         }
     }
 
-    for (auto& bullet : entityManager.GetEntities("bullet"))  // FIXME
+    for (auto& bullet : Bullet::GetBullets())
     {
         if (Physics::IsOverlap(bullet, player))
         {

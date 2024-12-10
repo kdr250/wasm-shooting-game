@@ -1,9 +1,5 @@
 #pragma once
 
-#include <memory>
-#define GLM_FORCE_PURE
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 #include "Scene.h"
 
 class Entity;
@@ -25,19 +21,6 @@ private:
     void OnEnd() override;
 
     void SetPause(bool pause);
-
-    void SpawnDirectionalBullet(const glm::vec2& position,
-                                const glm::vec2& velocity,
-                                const glm::vec3& color,
-                                const std::string& ownerTag,
-                                const float size = 200.0f);
-
-    void SpawnExplosionBullets(const glm::vec2& position,
-                               const glm::vec3& color,
-                               const int bulletsNum,
-                               const std::string& ownerTag,
-                               const float speed = 200.0f,
-                               const float size  = 200.0f);
 
     bool paused = false;
 
