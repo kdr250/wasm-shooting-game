@@ -145,7 +145,7 @@ bool Player::NeedsPause()
 {
     auto& player = GetPlayer();
     auto& input  = player->GetComponent<InputComponent>();
-    return input.pause;
+    return !input.pause;
 }
 
 bool Player::IsCollide()

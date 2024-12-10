@@ -165,7 +165,7 @@ void ScenePlay::DoAction(const Action& action)
         }
         else if (action.name == "PAUSE" && Player::NeedsPause())
         {
-            SetPause(true);
+            SetPause(!paused);
         }
     }
 
