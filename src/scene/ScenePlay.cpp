@@ -89,6 +89,37 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
             }
             return false;
         },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            long fromPreviousSecond = fromPreviousMilli / 1000;
+            auto& transform         = enemy->GetComponent<TransformComponent>();
+            auto& player            = Player::GetPlayer();
+            auto& playerTransform   = player->GetComponent<TransformComponent>();
+            float speed             = 200.0f;
+            int loopNum             = 100;
+            glm::vec2 enemyToPlayer = playerTransform.position - transform.position;
+            glm::vec2 normalized    = glm::normalize(enemyToPlayer);
+            float baseRadian        = std::atan2f(normalized.y, normalized.x);
+            if ((executionCount == 0 && fromPreviousSecond >= 16)
+                || (executionCount > 0 && executionCount < loopNum && fromPreviousMilli >= 50))
+            {
+                for (int i = -3; i < 3; ++i)
+                {
+                    float radianToAdd =
+                        baseRadian + (executionCount + i * 30 + 15) / 180.0f * Bullet::PI;
+                    glm::vec2 velocity {std::cosf(radianToAdd) * speed,
+                                        std::sinf(radianToAdd) * speed};
+                    Bullet::SpawnDirectionalBullet(transform.position,  // position
+                                                   velocity,            // velocity
+                                                   Bullet::RED,         // color
+                                                   enemy->GetTag(),     // owner tag
+                                                   200.0f               // size
+                    );
+                }
+                return true;
+            }
+            return false;
+        },
     };
 
     enemy->AddComponent<EventComponent>(events);
