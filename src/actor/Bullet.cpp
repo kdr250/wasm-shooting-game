@@ -7,17 +7,9 @@ void Bullet::SpawnDirectionalBullet(const glm::vec2& position,
                                     const std::string& ownerTag,
                                     const float size)
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
+    Initialize();
 
-    if (!assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
-    {
-        SDL_Log("Failed to load shader");
-        exit(EXIT_FAILURE);
-    }
-
-    assetManager.CreateSpriteVertex();
+    auto& entityManager = Game::GetGame().GetEntityManger();
 
     auto bullet = entityManager.AddEntity(BULLET_TAG);
     std::vector<std::string> tags {bullet->GetTag(), ownerTag};
@@ -35,17 +27,9 @@ void Bullet::SpawnExplosionBullets(const glm::vec2& position,
                                    const float speed,
                                    const float size)
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
+    Initialize();
 
-    if (!assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
-    {
-        SDL_Log("Failed to load shader");
-        exit(EXIT_FAILURE);
-    }
-
-    assetManager.CreateSpriteVertex();
+    auto& entityManager = Game::GetGame().GetEntityManger();
 
     float degree        = 360.0f / bulletsNum;
     float currentDegree = 0.0f;
@@ -102,4 +86,19 @@ const std::vector<std::shared_ptr<Entity>>& Bullet::GetBullets()
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
     return entityManager.GetEntities(BULLET_TAG);
+}
+
+void Bullet::Initialize()
+{
+    auto& game          = Game::GetGame();
+    auto& assetManager  = game.GetAssetManager();
+    auto& entityManager = game.GetEntityManger();
+
+    if (!assetManager.LoadShader(BULLET_SHADER_NAME, BULLET_SHADER_VERT, BULLET_SHADER_FRAG))
+    {
+        SDL_Log("Failed to load shader");
+        exit(EXIT_FAILURE);
+    }
+
+    assetManager.CreateSpriteVertex();
 }

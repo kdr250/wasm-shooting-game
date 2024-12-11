@@ -35,6 +35,8 @@ public:
     static const std::vector<std::shared_ptr<Entity>>& GetBullets();
 
 private:
+    static void Initialize();
+
 #ifdef __EMSCRIPTEN__
     inline static const std::string BULLET_SHADER_VERT = "resources/shader/Bullet.vert";
     inline static const std::string BULLET_SHADER_FRAG = "resources/shader/Bullet.frag";
