@@ -17,6 +17,7 @@ public:
     std::shared_ptr<Entity> AddEntity(const std::string& tag);
     EntityVector& GetEntities();
     EntityVector& GetEntities(const std::string& tag);
+    bool HasEntities(const std::string& tag);
 
 private:
     void RemoveDeadEntities(EntityVector& vec);
