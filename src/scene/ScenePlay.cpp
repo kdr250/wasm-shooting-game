@@ -65,7 +65,31 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                 return true;
             }
             return false;
-        }};
+        },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            long fromPreviousSecond = fromPreviousMilli / 1000;
+            auto& transform         = enemy->GetComponent<TransformComponent>();
+            auto& player            = Player::GetPlayer();
+            auto& playerTransform   = player->GetComponent<TransformComponent>();
+            float speed             = 200.0f;
+            int bulletsNum          = 10;
+            glm::vec2 enemyToPlayer = playerTransform.position - transform.position;
+            glm::vec2 velocity      = glm::normalize(enemyToPlayer) * speed;
+            if ((executionCount == 0 && fromPreviousSecond >= 12)
+                || (executionCount > 0 && executionCount < bulletsNum && fromPreviousMilli >= 50))
+            {
+                Bullet::SpawnDirectionalBullet(transform.position,  // position
+                                               velocity,            // velocity
+                                               Bullet::RED,         // color
+                                               enemy->GetTag(),     // owner tag
+                                               200.0f               // size
+                );
+                return true;
+            }
+            return false;
+        },
+    };
 
     enemy->AddComponent<EventComponent>(events);
 
