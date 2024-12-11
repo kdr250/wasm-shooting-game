@@ -41,13 +41,6 @@ void Enemy::Move(float deltaTime)
 {
     for (auto& enemy : GetEnemies())
     {
-        if (enemy->HasComponent<AIMoveComponent>())
-        {
-            auto& transform    = enemy->GetComponent<TransformComponent>();
-            auto& aiMove       = enemy->GetComponent<AIMoveComponent>();
-            transform.position = aiMove.Lerp(deltaTime);
-        }
-
         if (enemy->HasComponent<EventComponent>())
         {
             auto& eventComponent = enemy->GetComponent<EventComponent>();

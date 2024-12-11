@@ -19,19 +19,22 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     Bullet::Initialize();
 
     std::vector<glm::vec2> points = {
-        glm::vec2 {200.0f, 200.0f},
-        // glm::vec2 {100.0f, 100.0f},
-        // glm::vec2 {800.0f, 100.0f},
-        // glm::vec2 {800.0f, 600.0f},
-        // glm::vec2 {100.0f, 600.0f},
+        glm::vec2 {100.0f, 100.0f},
+        glm::vec2 {800.0f, 100.0f},
+        glm::vec2 {800.0f, 300.0f},
+        glm::vec2 {100.0f, 300.0f},
     };
     auto enemy = Enemy::Spawn(points);
 
-    std::vector<std::function<bool(long, int)>> events = {
+    std::vector<std::function<Result(long, int)>> events = {
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount < 1 && fromPreviousSecond >= 1)
+            if (executionCount == 1 && fromPreviousSecond >= 3)
+            {
+                return Result::COMPLETED;
+            }
+            if (executionCount < 1)
             {
                 Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
                                               Bullet::RED,
@@ -40,14 +43,31 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                               300.0f,           // speed
                                               200.0f            // size
                 );
-                return true;
+                return Result::CONTINUE;
             }
-            return false;
+            return Result::NONE;
+        },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            float deltaTime = Game::GetGame().GetDeltaTime();
+            if (enemy->HasComponent<AIMoveComponent>())
+            {
+                auto& transform = enemy->GetComponent<TransformComponent>();
+                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
+                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
+                return result;
+            }
+            return Result::COMPLETED;
         },
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 0 && fromPreviousSecond >= 5)
+            if (executionCount == 1 && fromPreviousSecond >= 4)
+            {
+                return Result::COMPLETED;
+            }
+            if (executionCount < 1)
             {
                 auto& transform = enemy->GetComponent<TransformComponent>();
                 Bullet::SpawnRollBullets(transform.position,  // position
@@ -57,14 +77,31 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                          200.0f,              // speed
                                          200.0f               // size
                 );
-                return true;
+                return Result::CONTINUE;
             }
-            return false;
+            return Result::NONE;
+        },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            float deltaTime = Game::GetGame().GetDeltaTime();
+            if (enemy->HasComponent<AIMoveComponent>())
+            {
+                auto& transform = enemy->GetComponent<TransformComponent>();
+                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
+                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
+                return result;
+            }
+            return Result::COMPLETED;
         },
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 0 && fromPreviousSecond >= 12)
+            if (executionCount == 1 && fromPreviousSecond >= 3)
+            {
+                return Result::COMPLETED;
+            }
+            if (executionCount < 1)
             {
                 auto& transform       = enemy->GetComponent<TransformComponent>();
                 auto& player          = Player::GetPlayer();
@@ -78,14 +115,31 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                                200.0f,                    // speed
                                                200.0f                     // size
                 );
-                return true;
+                return Result::CONTINUE;
             }
-            return false;
+            return Result::NONE;
+        },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            float deltaTime = Game::GetGame().GetDeltaTime();
+            if (enemy->HasComponent<AIMoveComponent>())
+            {
+                auto& transform = enemy->GetComponent<TransformComponent>();
+                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
+                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
+                return result;
+            }
+            return Result::COMPLETED;
         },
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 0 && fromPreviousSecond >= 16)
+            if (executionCount == 1 && fromPreviousSecond >= 5)
+            {
+                return Result::COMPLETED;
+            }
+            if (executionCount < 1)
             {
                 auto& transform       = enemy->GetComponent<TransformComponent>();
                 auto& player          = Player::GetPlayer();
@@ -99,9 +153,22 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
                                            200.0f,                    // speed
                                            200.0f                     // size
                 );
-                return true;
+                return Result::CONTINUE;
             }
-            return false;
+            return Result::NONE;
+        },
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            float deltaTime = Game::GetGame().GetDeltaTime();
+            if (enemy->HasComponent<AIMoveComponent>())
+            {
+                auto& transform = enemy->GetComponent<TransformComponent>();
+                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
+                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
+                return result;
+            }
+            return Result::COMPLETED;
         },
     };
 

@@ -69,26 +69,30 @@ void Bullet::SpawnRollBullets(const glm::vec2& position,
                               const float speed,
                               const float size)
 {
-    std::function<bool(long, int)> event =
+    std::function<Result(long, int)> event =
         [position, bulletsNum, speed, color, ownerTag](long fromPreviousMilli, int executionCount)
     {
-        long fromPreviousSecond = fromPreviousMilli / 1000;
-        int divide              = bulletsNum / 2;
-        float degree            = 360.0f / divide;
-        float currentDegree     = degree * executionCount;
-        float radian            = currentDegree / 180.0f * Bullet::PI;
-        glm::vec2 velocity {std::cosf(radian) * speed, std::sinf(radian) * speed};
+        if (executionCount == bulletsNum)
+        {
+            return Result::COMPLETED;
+        }
         if (executionCount < bulletsNum && fromPreviousMilli >= 50)
         {
+            int divide          = bulletsNum / 2;
+            float degree        = 360.0f / divide;
+            float currentDegree = degree * executionCount;
+            float radian        = currentDegree / 180.0f * Bullet::PI;
+            glm::vec2 velocity {std::cosf(radian) * speed, std::sinf(radian) * speed};
+
             SpawnDirectionalBullet(position,  // position
                                    velocity,  // velocity
                                    color,     // color
                                    ownerTag,  // owner tag
                                    200.0f     // size
             );
-            return true;
+            return Result::CONTINUE;
         }
-        return false;
+        return Result::NONE;
     };
 
     auto spawner         = GetSpawner();
@@ -104,24 +108,27 @@ void Bullet::SpawnSequentialBullets(const glm::vec2& position,
                                     const float speed,
                                     const float size)
 {
-    std::function<bool(long, int)> event =
+    std::function<Result(long, int)> event =
         [position, target, bulletsNum, speed, color, ownerTag](long fromPreviousMilli,
                                                                int executionCount)
     {
-        long fromPreviousSecond    = fromPreviousMilli / 1000;
-        glm::vec2 positionToTarget = target - position;
-        glm::vec2 velocity         = glm::normalize(positionToTarget) * speed;
+        if (executionCount == bulletsNum)
+        {
+            return Result::COMPLETED;
+        }
         if (executionCount < bulletsNum && fromPreviousMilli >= 50)
         {
+            glm::vec2 positionToTarget = target - position;
+            glm::vec2 velocity         = glm::normalize(positionToTarget) * speed;
             Bullet::SpawnDirectionalBullet(position,  // position
                                            velocity,  // velocity
                                            color,     // color
                                            ownerTag,  // owner tag
                                            200.0f     // size
             );
-            return true;
+            return Result::CONTINUE;
         }
-        return false;
+        return Result::NONE;
     };
 
     auto spawner         = GetSpawner();
@@ -137,16 +144,19 @@ void Bullet::SpawnWinderBullets(const glm::vec2& position,
                                 const float speed,
                                 const float size)
 {
-    std::function<bool(long, int)> event =
+    std::function<Result(long, int)> event =
         [position, target, loopNum, speed, color, ownerTag](long fromPreviousMilli,
                                                             int executionCount)
     {
-        long fromPreviousSecond    = fromPreviousMilli / 1000;
-        glm::vec2 positionToTarget = target - position;
-        glm::vec2 normalized       = glm::normalize(positionToTarget);
-        float baseRadian           = std::atan2f(normalized.y, normalized.x);
+        if (executionCount == loopNum)
+        {
+            return Result::COMPLETED;
+        }
         if (executionCount < loopNum && fromPreviousMilli >= 50)
         {
+            glm::vec2 positionToTarget = target - position;
+            glm::vec2 normalized       = glm::normalize(positionToTarget);
+            float baseRadian           = std::atan2f(normalized.y, normalized.x);
             for (int i = -3; i < 3; ++i)
             {
                 float radianToAdd =
@@ -159,9 +169,9 @@ void Bullet::SpawnWinderBullets(const glm::vec2& position,
                                                200.0f     // size
                 );
             }
-            return true;
+            return Result::CONTINUE;
         }
-        return false;
+        return Result::NONE;
     };
 
     auto spawner         = GetSpawner();

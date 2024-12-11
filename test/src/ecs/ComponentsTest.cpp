@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../../../src/ecs/Components.h"
 
-TEST(AIMoveComponent, LerpTest)
+TEST(AIMoveComponent, MoveTest)
 {
     glm::vec2 expected {100.0f, 0.0f};
 
@@ -13,13 +13,13 @@ TEST(AIMoveComponent, LerpTest)
     };
     AIMoveComponent aiMove(positions, 200.0f);
 
-    glm::vec2 actual = aiMove.Lerp(0.5);
+    glm::vec2 actual = aiMove.Move(0.5);
 
     EXPECT_EQ(expected.x, actual.x);
     EXPECT_EQ(expected.y, actual.y);
 }
 
-TEST(AIMoveComponent, LerpRotateTest)
+TEST(AIMoveComponent, MoveRotateTest)
 {
     glm::vec2 expected {100.0f, 0.0f};
 
@@ -34,7 +34,7 @@ TEST(AIMoveComponent, LerpRotateTest)
     glm::vec2 actual;
     for (int i = 0; i <= 8; ++i)
     {
-        actual = aiMove.Lerp(0.5);
+        actual = aiMove.Move(0.5);
     }
 
     EXPECT_EQ(expected.x, actual.x);

@@ -130,7 +130,7 @@ public:
         points = movePoints;
     }
 
-    glm::vec2 Lerp(float deltaTime)
+    glm::vec2 Move(float deltaTime)
     {
         int next                = (current + 1) % points.size();
         glm::vec2 currentToNext = points[next] - points[current];
@@ -144,6 +144,24 @@ public:
         }
         glm::vec2 result = points[current] + t * currentToNext;
         return result;
+    }
+
+    bool MoveToNext(float deltaTime, glm::vec2& outPosition)
+    {
+        int next                = (current + 1) % points.size();
+        glm::vec2 currentToNext = points[next] - points[current];
+        t += speed * deltaTime / glm::length(currentToNext);
+
+        if (t >= 1.0f)
+        {
+            t           = 0.0f;
+            current     = next;
+            outPosition = points[next];
+            return true;
+        }
+
+        outPosition = points[current] + t * currentToNext;
+        return false;
     }
 
     const glm::vec2& CurrentPoint()
@@ -200,29 +218,36 @@ public:
     }
 };
 
+enum Result
+{
+    NONE,
+    COMPLETED,
+    CONTINUE,
+};
+
 class EventComponent : public Component
 {
 public:
-    std::vector<std::function<bool(long, int)>> events;
+    std::vector<std::function<Result(long, int)>> events;
     std::vector<long> previousTimes;
     std::vector<int> executionCounts;
     long elapsedTimeMilli = 0;
 
     EventComponent() {}
-    EventComponent(const std::vector<std::function<bool(long, int)>>& ev) :
+    EventComponent(const std::vector<std::function<Result(long, int)>>& ev) :
         previousTimes(ev.size(), 0), executionCounts(ev.size(), 0)
     {
         events = ev;
     }
 
-    void Add(const std::function<bool(long, int)>& event)
+    void Add(const std::function<Result(long, int)>& event)
     {
         events.push_back(event);
         previousTimes.push_back(0);
         executionCounts.push_back(0);
     }
 
-    void Add(const std::vector<std::function<bool(long, int)>>& eventsToAdd)
+    void Add(const std::vector<std::function<Result(long, int)>>& eventsToAdd)
     {
         events.insert(events.end(), eventsToAdd.begin(), eventsToAdd.end());
     }
@@ -231,22 +256,32 @@ public:
     {
         elapsedTimeMilli += deltaTime * 1000;
 
-        int index = 0;
-        auto iter = events.begin();
-        while (iter != events.end())
+        if (events.empty())
         {
-            auto event         = *iter;
-            long previousTime  = previousTimes[index];
-            long previous      = elapsedTimeMilli - previousTime;
-            int executionCount = executionCounts[index];
-            bool isExecuted    = event(previous, executionCount);
-            if (isExecuted)
-            {
-                previousTimes[index] = elapsedTimeMilli;
-                executionCounts[index]++;
-            }
-            ++iter;
-            ++index;
+            return;
+        }
+
+        auto event         = events.front();
+        long previousTime  = previousTimes.front();
+        long previous      = elapsedTimeMilli - previousTime;
+        int executionCount = executionCounts.front();
+        Result result      = event(previous, executionCount);
+        switch (result)
+        {
+            case COMPLETED:
+                events.erase(events.begin());
+                previousTimes.erase(previousTimes.begin());
+                executionCounts.erase(executionCounts.begin());
+                break;
+
+            case CONTINUE:
+                previousTimes.front() = elapsedTimeMilli;
+                executionCounts.front()++;
+                break;
+
+            case NONE:
+            default:
+                break;
         }
     }
 };
