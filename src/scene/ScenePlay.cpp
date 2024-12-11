@@ -16,6 +16,8 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
+    Bullet::Initialize();
+
     std::vector<glm::vec2> points = {
         glm::vec2 {200.0f, 200.0f},
         // glm::vec2 {100.0f, 100.0f},
@@ -45,22 +47,15 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            auto& transform         = enemy->GetComponent<TransformComponent>();
-            int divide              = 36;
-            int bulletsNum          = divide * 2;
-            float degree            = 360.0f / divide;
-            float currentDegree     = degree * executionCount;
-            float radian            = currentDegree / 180.0f * Bullet::PI;
-            float speed             = 200.0f;
-            glm::vec2 velocity {std::cosf(radian) * speed, std::sinf(radian) * speed};
-            if ((executionCount == 0 && fromPreviousSecond >= 5)
-                || (executionCount > 0 && executionCount < bulletsNum && fromPreviousMilli >= 50))
+            if (executionCount == 0 && fromPreviousSecond >= 5)
             {
-                Bullet::SpawnDirectionalBullet(transform.position,  // position
-                                               velocity,            // velocity
-                                               Bullet::RED,         // color
-                                               enemy->GetTag(),     // owner tag
-                                               200.0f               // size
+                auto& transform = enemy->GetComponent<TransformComponent>();
+                Bullet::SpawnRollBullets(transform.position,  // position
+                                         Bullet::RED,         // color
+                                         36,                  // num of bullets
+                                         enemy->GetTag(),     // owner tag
+                                         200.0f,              // speed
+                                         200.0f               // size
                 );
                 return true;
             }
@@ -69,21 +64,19 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            auto& transform         = enemy->GetComponent<TransformComponent>();
-            auto& player            = Player::GetPlayer();
-            auto& playerTransform   = player->GetComponent<TransformComponent>();
-            float speed             = 200.0f;
-            int bulletsNum          = 10;
-            glm::vec2 enemyToPlayer = playerTransform.position - transform.position;
-            glm::vec2 velocity      = glm::normalize(enemyToPlayer) * speed;
-            if ((executionCount == 0 && fromPreviousSecond >= 12)
-                || (executionCount > 0 && executionCount < bulletsNum && fromPreviousMilli >= 50))
+            if (executionCount == 0 && fromPreviousSecond >= 12)
             {
-                Bullet::SpawnDirectionalBullet(transform.position,  // position
-                                               velocity,            // velocity
-                                               Bullet::RED,         // color
-                                               enemy->GetTag(),     // owner tag
-                                               200.0f               // size
+                auto& transform       = enemy->GetComponent<TransformComponent>();
+                auto& player          = Player::GetPlayer();
+                auto& playerTransform = player->GetComponent<TransformComponent>();
+
+                Bullet::SpawnSequentialBullets(transform.position,        // position
+                                               playerTransform.position,  // target
+                                               10,                        // num of bullets
+                                               Bullet::RED,               // color
+                                               enemy->GetTag(),           // owner tag
+                                               200.0f,                    // speed
+                                               200.0f                     // size
                 );
                 return true;
             }
@@ -92,30 +85,20 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            auto& transform         = enemy->GetComponent<TransformComponent>();
-            auto& player            = Player::GetPlayer();
-            auto& playerTransform   = player->GetComponent<TransformComponent>();
-            float speed             = 200.0f;
-            int loopNum             = 100;
-            glm::vec2 enemyToPlayer = playerTransform.position - transform.position;
-            glm::vec2 normalized    = glm::normalize(enemyToPlayer);
-            float baseRadian        = std::atan2f(normalized.y, normalized.x);
-            if ((executionCount == 0 && fromPreviousSecond >= 16)
-                || (executionCount > 0 && executionCount < loopNum && fromPreviousMilli >= 50))
+            if (executionCount == 0 && fromPreviousSecond >= 16)
             {
-                for (int i = -3; i < 3; ++i)
-                {
-                    float radianToAdd =
-                        baseRadian + (executionCount + i * 30 + 15) / 180.0f * Bullet::PI;
-                    glm::vec2 velocity {std::cosf(radianToAdd) * speed,
-                                        std::sinf(radianToAdd) * speed};
-                    Bullet::SpawnDirectionalBullet(transform.position,  // position
-                                                   velocity,            // velocity
-                                                   Bullet::RED,         // color
-                                                   enemy->GetTag(),     // owner tag
-                                                   200.0f               // size
-                    );
-                }
+                auto& transform       = enemy->GetComponent<TransformComponent>();
+                auto& player          = Player::GetPlayer();
+                auto& playerTransform = player->GetComponent<TransformComponent>();
+
+                Bullet::SpawnWinderBullets(transform.position,        // position
+                                           playerTransform.position,  // target
+                                           100,                       // num of loop
+                                           Bullet::RED,               // color
+                                           enemy->GetTag(),           // owner tag
+                                           200.0f,                    // speed
+                                           200.0f                     // size
+                );
                 return true;
             }
             return false;

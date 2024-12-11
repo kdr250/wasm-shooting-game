@@ -38,6 +38,11 @@ EntityVector& EntityManager::GetEntities(const std::string& tag)
     return entityMap[tag];
 }
 
+bool EntityManager::HasEntities(const std::string& tag)
+{
+    return entityMap.contains(tag) && !entityMap[tag].empty();
+}
+
 void EntityManager::RemoveDeadEntities(EntityVector& vec)
 {
     auto result = std::remove_if(vec.begin(),

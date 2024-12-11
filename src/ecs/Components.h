@@ -222,6 +222,11 @@ public:
         executionCounts.push_back(0);
     }
 
+    void Add(const std::vector<std::function<bool(long, int)>>& eventsToAdd)
+    {
+        events.insert(events.end(), eventsToAdd.begin(), eventsToAdd.end());
+    }
+
     void Execute(float deltaTime)
     {
         elapsedTimeMilli += deltaTime * 1000;
