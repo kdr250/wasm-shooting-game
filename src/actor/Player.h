@@ -20,9 +20,9 @@ public:
 
     static void Unload();
 
-private:
     static std::shared_ptr<Entity>& GetPlayer();
 
+private:
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
     inline static const std::string SPRITE_SHADER_FRAG = "resources/shader/Sprite.frag";
