@@ -32,6 +32,12 @@ void Shader::SetActive()
     glUseProgram(shaderProgramId);
 }
 
+void Shader::SetIntUniform(const std::string& name, const int value)
+{
+    GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
+    glUniform1i(locationId, value);
+}
+
 void Shader::SetFloatUniform(const std::string& name, const float value)
 {
     GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
@@ -50,6 +56,12 @@ void Shader::SetVector2Uniform(const std::string& name, const float v1, const fl
     glUniform2f(locationId, v1, v2);
 }
 
+void Shader::SetVector2Uniforms(const std::string& name, std::vector<glm::vec2>& values)
+{
+    GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
+    glUniform2fv(locationId, values.size(), reinterpret_cast<GLfloat*>(values.data()));
+}
+
 void Shader::SetVector3Uniform(const std::string& name, const glm::vec3& value)
 {
     GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
@@ -63,6 +75,12 @@ void Shader::SetVector3Uniform(const std::string& name,
 {
     GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
     glUniform3f(locationId, v1, v2, v3);
+}
+
+void Shader::SetVector3Uniforms(const std::string& name, std::vector<glm::vec3>& values)
+{
+    GLuint locationId = glGetUniformLocation(shaderProgramId, name.c_str());
+    glUniform3fv(locationId, values.size(), reinterpret_cast<GLfloat*>(values.data()));
 }
 
 void Shader::Unload()

@@ -197,21 +197,30 @@ void Bullet::Draw()
     auto& assetManager = Game::GetGame().GetAssetManager();
     auto& vertexArray  = assetManager.GetSpriteVertex();
 
-    for (auto& bullet : GetBullets())
+    auto& bullets = GetBullets();
+    std::vector<glm::vec2> positions;
+    std::vector<glm::vec2> sizes;
+    std::vector<glm::vec3> colors;
+    for (auto& bullet : bullets)
     {
         auto& draw      = bullet->GetComponent<DrawComponent>();
         auto& transform = bullet->GetComponent<TransformComponent>();
         float edge      = bullet->GetComponent<RectComponent>().edge;
 
-        auto& bulletShader = assetManager.GetShader(draw.shaderName);
-        bulletShader.SetActive();
-        vertexArray.SetActive();
-        bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-        bulletShader.SetVector2Uniform("uBulletPosition", transform.position);
-        bulletShader.SetVector2Uniform("uBulletSize", edge, edge);
-        bulletShader.SetVector3Uniform("uBulletColor", draw.color);
-        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+        positions.emplace_back(transform.position);
+        sizes.emplace_back(glm::vec2 {edge, edge});
+        colors.emplace_back(draw.color);
     }
+
+    auto& bulletShader = assetManager.GetShader(BULLET_SHADER_NAME);
+    bulletShader.SetActive();
+    vertexArray.SetActive();
+    bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
+    bulletShader.SetIntUniform("uBulletCount", bullets.size());
+    bulletShader.SetVector2Uniforms("uBulletPositions", positions);
+    bulletShader.SetVector2Uniforms("uBulletSizes", sizes);
+    bulletShader.SetVector3Uniforms("uBulletColors", colors);
+    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 }
 
 const std::vector<std::shared_ptr<Entity>>& Bullet::GetBullets()
