@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <vector>
 #define GLM_FORCE_PURE
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -14,15 +15,21 @@ public:
 
     void SetActive();
 
+    void SetIntUniform(const std::string& name, const int value);
+
     void SetFloatUniform(const std::string& name, const float value);
 
     void SetVector2Uniform(const std::string& name, const glm::vec2& value);
 
     void SetVector2Uniform(const std::string& name, const float v1, const float v2);
 
+    void SetVector2Uniforms(const std::string& name, std::vector<glm::vec2>& values);
+
     void SetVector3Uniform(const std::string& name, const glm::vec3& value);
 
     void SetVector3Uniform(const std::string& name, const float v1, const float v2, const float v3);
+
+    void SetVector3Uniforms(const std::string& name, std::vector<glm::vec3>& values);
 
     void Unload();
 

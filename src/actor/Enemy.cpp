@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "../Game.h"
 #include "Bullet.h"
+#include "Player.h"
 
 std::shared_ptr<Entity> Enemy::Spawn(const std::vector<glm::vec2>& movePoints)
 {
@@ -54,7 +55,7 @@ void Enemy::Collide()
     auto& entityManager = Game::GetGame().GetEntityManger();
     auto& enemies       = GetEnemies();
 
-    for (auto& bullet : Bullet::GetBullets())
+    for (auto& bullet : Bullet::GetBullets(Player::PLAYER_TAG))
     {
         for (auto& enemy : enemies)
         {

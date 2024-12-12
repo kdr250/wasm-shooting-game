@@ -173,7 +173,7 @@ bool Player::IsCollide()
         }
     }
 
-    for (auto& bullet : Bullet::GetBullets())
+    for (auto& bullet : Bullet::GetBullets(Enemy::ENEMY_TAG))
     {
         if (Physics::IsOverlap(bullet, player))
         {
