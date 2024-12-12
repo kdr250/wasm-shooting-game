@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
+#include "../actor/Background.h"
 #include "../actor/Bullet.h"
 #include "../actor/Enemy.h"
 #include "../actor/Player.h"
@@ -15,6 +16,8 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     TextActor::Spawn("Hello World !!", glm::vec2 {Game::WINDOW_WIDTH / 2.0f, 50.0f});
 
     Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
+
+    Background::Spawn();
 
     Bullet::Initialize();
 
@@ -280,6 +283,7 @@ void ScenePlay::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    Background::Draw();
     Bullet::Draw();
     Enemy::Draw();
     Player::Draw();
