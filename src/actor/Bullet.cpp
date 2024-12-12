@@ -1,5 +1,7 @@
 #include "Bullet.h"
 #include "../Game.h"
+#include "Enemy.h"
+#include "Player.h"
 
 void Bullet::Initialize()
 {
@@ -24,13 +26,15 @@ void Bullet::SpawnDirectionalBullet(const glm::vec2& position,
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
 
-    auto bullet = entityManager.AddEntity(BULLET_TAG);
-    std::vector<std::string> tags {bullet->GetTag(), ownerTag};
+    std::string tag = GenerateTagName(ownerTag);
+
+    auto bullet = entityManager.AddEntity(tag);
+    std::vector<std::string> excludes {bullet->GetTag(), ownerTag};
     bullet->AddComponent<TransformComponent>(position, velocity);
     bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
     bullet->AddComponent<RectComponent>(size);
     bullet->AddComponent<LifespanComponent>(3.0f);
-    bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
+    bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, excludes);
 }
 
 void Bullet::SpawnExplosionBullets(const glm::vec2& position,
@@ -42,6 +46,8 @@ void Bullet::SpawnExplosionBullets(const glm::vec2& position,
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
 
+    std::string tag = GenerateTagName(ownerTag);
+
     float degree        = 360.0f / bulletsNum;
     float currentDegree = 0.0f;
     for (int i = 0; i < bulletsNum; ++i)
@@ -52,13 +58,13 @@ void Bullet::SpawnExplosionBullets(const glm::vec2& position,
         velocity.y = std::sinf(radian) * speed;
         currentDegree += degree;
 
-        auto bullet = entityManager.AddEntity(BULLET_TAG);
-        std::vector<std::string> tags {bullet->GetTag(), ownerTag};
+        auto bullet = entityManager.AddEntity(tag);
+        std::vector<std::string> excludes {bullet->GetTag(), ownerTag};
         bullet->AddComponent<TransformComponent>(position, velocity);
         bullet->AddComponent<DrawComponent>(BULLET_SHADER_NAME, color);
         bullet->AddComponent<RectComponent>(size);
         bullet->AddComponent<LifespanComponent>(10.0f);
-        bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, tags);
+        bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, excludes);
     }
 }
 
@@ -185,10 +191,13 @@ void Bullet::Move(float deltaTime)
     auto& eventComponent = spawner->GetComponent<EventComponent>();
     eventComponent.Execute(deltaTime);
 
-    for (auto& bullet : GetBullets())
+    for (auto& tag : {Player::PLAYER_TAG, Enemy::ENEMY_TAG})
     {
-        auto& transform = bullet->GetComponent<TransformComponent>();
-        transform.position += transform.velocity * deltaTime;
+        for (auto& bullet : GetBullets(tag))
+        {
+            auto& transform = bullet->GetComponent<TransformComponent>();
+            transform.position += transform.velocity * deltaTime;
+        }
     }
 }
 
@@ -197,42 +206,50 @@ void Bullet::Draw()
     auto& assetManager = Game::GetGame().GetAssetManager();
     auto& vertexArray  = assetManager.GetSpriteVertex();
 
-    auto& bullets = GetBullets();
-
-    if (bullets.empty())
-    {
-        return;
-    }
-
     std::vector<glm::vec2> positions;
     std::vector<glm::vec2> sizes;
     std::vector<glm::vec3> colors;
-    for (auto& bullet : bullets)
+
+    for (auto& ownerTag : {Player::PLAYER_TAG, Enemy::ENEMY_TAG})
     {
-        auto& draw      = bullet->GetComponent<DrawComponent>();
-        auto& transform = bullet->GetComponent<TransformComponent>();
-        float edge      = bullet->GetComponent<RectComponent>().edge;
+        auto& bullets = GetBullets(ownerTag);
+        if (bullets.empty())
+        {
+            continue;
+        }
 
-        positions.emplace_back(transform.position);
-        sizes.emplace_back(glm::vec2 {edge, edge});
-        colors.emplace_back(draw.color);
+        for (auto& bullet : bullets)
+        {
+            auto& draw      = bullet->GetComponent<DrawComponent>();
+            auto& transform = bullet->GetComponent<TransformComponent>();
+            float edge      = bullet->GetComponent<RectComponent>().edge;
+
+            positions.emplace_back(transform.position);
+            sizes.emplace_back(glm::vec2 {edge, edge});
+            colors.emplace_back(draw.color);
+        }
+
+        auto& bulletShader = assetManager.GetShader(BULLET_SHADER_NAME);
+        bulletShader.SetActive();
+        vertexArray.SetActive();
+        bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
+        bulletShader.SetIntUniform("uBulletCount", bullets.size());
+        bulletShader.SetVector2Uniforms("uBulletPositions", positions);
+        bulletShader.SetVector2Uniforms("uBulletSizes", sizes);
+        bulletShader.SetVector3Uniforms("uBulletColors", colors);
+        glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+
+        positions.clear();
+        sizes.clear();
+        colors.clear();
     }
-
-    auto& bulletShader = assetManager.GetShader(BULLET_SHADER_NAME);
-    bulletShader.SetActive();
-    vertexArray.SetActive();
-    bulletShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-    bulletShader.SetIntUniform("uBulletCount", bullets.size());
-    bulletShader.SetVector2Uniforms("uBulletPositions", positions);
-    bulletShader.SetVector2Uniforms("uBulletSizes", sizes);
-    bulletShader.SetVector3Uniforms("uBulletColors", colors);
-    glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
 }
 
-const std::vector<std::shared_ptr<Entity>>& Bullet::GetBullets()
+const std::vector<std::shared_ptr<Entity>>& Bullet::GetBullets(const std::string& ownerTag)
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
-    return entityManager.GetEntities(BULLET_TAG);
+    std::string tag     = GenerateTagName(ownerTag);
+    return entityManager.GetEntities(tag);
 }
 
 std::shared_ptr<Entity> Bullet::GetSpawner()
@@ -247,4 +264,9 @@ std::shared_ptr<Entity> Bullet::GetSpawner()
     spawner->AddComponent<EventComponent>();
 
     return spawner;
+}
+
+std::string Bullet::GenerateTagName(const std::string& ownerTag)
+{
+    return BULLET_TAG_PREFIX + "_" + ownerTag;
 }

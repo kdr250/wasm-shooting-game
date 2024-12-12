@@ -22,6 +22,8 @@ public:
 
     static std::shared_ptr<Entity>& GetPlayer();
 
+    inline static const std::string PLAYER_TAG = "player";
+
 private:
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
@@ -34,6 +36,4 @@ private:
 
     inline static const std::string PLAYER_TEXTURE_NAME = "example";
     inline static const std::string PLAYER_TEXTURE      = "resources/texture/example.png";
-
-    inline static const std::string PLAYER_TAG = "player";
 };

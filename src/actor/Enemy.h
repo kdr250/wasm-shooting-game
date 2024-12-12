@@ -20,6 +20,8 @@ public:
 
     static const std::vector<std::shared_ptr<Entity>>& GetEnemies();
 
+    inline static const std::string ENEMY_TAG = "enemy";
+
 private:
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
@@ -33,6 +35,4 @@ private:
 
     inline static const std::string ENEMY_TEXTURE_NAME = "example_enemy";
     inline static const std::string ENEMY_TEXTURE      = "resources/texture/example_enemy.png";
-
-    inline static const std::string ENEMY_TAG = "enemy";
 };

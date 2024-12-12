@@ -57,10 +57,12 @@ public:
     static void Move(float deltaTime);
     static void Draw();
 
-    static const std::vector<std::shared_ptr<Entity>>& GetBullets();
+    static const std::vector<std::shared_ptr<Entity>>& GetBullets(const std::string& ownerTag);
 
 private:
     static std::shared_ptr<Entity> GetSpawner();
+
+    static std::string GenerateTagName(const std::string& ownerTag);
 
 #ifdef __EMSCRIPTEN__
     inline static const std::string BULLET_SHADER_VERT = "resources/shader/Bullet.vert";
@@ -72,6 +74,6 @@ private:
     inline static const std::string SPRITE_SHADER_NAME = "sprite";
     inline static const std::string BULLET_SHADER_NAME = "bullet";
 
-    inline static const std::string BULLET_TAG  = "bullet";
-    inline static const std::string SPAWNER_TAG = "bullet_spawner";
+    inline static const std::string BULLET_TAG_PREFIX = "bullet";
+    inline static const std::string SPAWNER_TAG       = "bullet_spawner";
 };
