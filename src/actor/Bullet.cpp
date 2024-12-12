@@ -198,6 +198,12 @@ void Bullet::Draw()
     auto& vertexArray  = assetManager.GetSpriteVertex();
 
     auto& bullets = GetBullets();
+
+    if (bullets.empty())
+    {
+        return;
+    }
+
     std::vector<glm::vec2> positions;
     std::vector<glm::vec2> sizes;
     std::vector<glm::vec3> colors;
