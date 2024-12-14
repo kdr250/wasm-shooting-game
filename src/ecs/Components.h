@@ -116,7 +116,7 @@ public:
     }
 };
 
-class AIMoveComponent : public Component
+class MoveComponent : public Component
 {
 public:
     std::vector<glm::vec2> points;
@@ -124,8 +124,8 @@ public:
     float speed = 0.0f;
     float t     = 0.0f;
 
-    AIMoveComponent() {}
-    AIMoveComponent(const std::vector<glm::vec2>& movePoints, const float sp) : speed(sp)
+    MoveComponent() {}
+    MoveComponent(const std::vector<glm::vec2>& movePoints, const float sp) : speed(sp)
     {
         points = movePoints;
     }

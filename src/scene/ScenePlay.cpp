@@ -70,10 +70,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
+            if (enemy->HasComponent<MoveComponent>())
             {
                 auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                auto& aiMove    = enemy->GetComponent<MoveComponent>();
                 bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
                 Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
                 return result;
@@ -104,10 +104,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
+            if (enemy->HasComponent<MoveComponent>())
             {
                 auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                auto& aiMove    = enemy->GetComponent<MoveComponent>();
                 bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
                 Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
                 return result;
@@ -142,10 +142,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
+            if (enemy->HasComponent<MoveComponent>())
             {
                 auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                auto& aiMove    = enemy->GetComponent<MoveComponent>();
                 bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
                 Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
                 return result;
@@ -180,10 +180,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
+            if (enemy->HasComponent<MoveComponent>())
             {
                 auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
+                auto& aiMove    = enemy->GetComponent<MoveComponent>();
                 bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
                 Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
                 return result;
@@ -200,10 +200,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
+            if (enemy->HasComponent<MoveComponent>())
             {
                 auto& transform    = enemy->GetComponent<TransformComponent>();
-                auto& aiMove       = enemy->GetComponent<AIMoveComponent>();
+                auto& aiMove       = enemy->GetComponent<MoveComponent>();
                 transform.position = aiMove.Move(deltaTime);
                 return Result::CONTINUE;
             }

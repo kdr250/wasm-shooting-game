@@ -119,7 +119,7 @@ std::vector<std::shared_ptr<Entity>> Enemy::Spawn(const int sceneid)
 
                 stream >> strSpeed;
                 float speed  = std::stof(strSpeed);
-                auto& aiMove = enemy->AddComponent<AIMoveComponent>(points, speed);
+                auto& aiMove = enemy->AddComponent<MoveComponent>(points, speed);
 
                 if (!enemy->HasComponent<TransformComponent>())
                 {
