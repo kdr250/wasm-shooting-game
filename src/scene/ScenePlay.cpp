@@ -27,9 +27,32 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         glm::vec2 {800.0f, 300.0f},
         glm::vec2 {100.0f, 300.0f},
     };
-    auto enemy = Enemy::Spawn(points);
+
+    std::vector<glm::vec2> splinePoints = {
+        glm::vec2 {0.0f, 0.0f},
+        glm::vec2 {100.0f, 100.0f},
+        glm::vec2 {800.0f, 100.0f},
+        glm::vec2 {800.0f, 300.0f},
+        glm::vec2 {100.0f, 300.0f},
+        glm::vec2 {100.0f, 100.0f},
+        glm::vec2 {800.0f, 100.0f},
+    };
+    auto enemy = Enemy::Spawn(points, splinePoints);
 
     std::vector<std::function<Result(long, int)>> events = {
+        [enemy](long fromPreviousMilli, int executionCount)
+        {
+            float deltaTime = Game::GetGame().GetDeltaTime();
+            if (enemy->HasComponent<SplineMoveComponent>())
+            {
+                auto& transform    = enemy->GetComponent<TransformComponent>();
+                auto& spline       = enemy->GetComponent<SplineMoveComponent>();
+                transform.position = spline.Move(deltaTime);
+                Result result      = spline.IsFinished() ? Result::COMPLETED : Result::CONTINUE;
+                return result;
+            }
+            return Result::COMPLETED;
+        },
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
@@ -138,7 +161,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
         [enemy](long fromPreviousMilli, int executionCount)
         {
             long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 1 && fromPreviousSecond >= 5)
+            if (executionCount == 1 && fromPreviousSecond >= 7)
             {
                 return Result::COMPLETED;
             }

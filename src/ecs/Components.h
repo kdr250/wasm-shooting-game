@@ -176,6 +176,105 @@ public:
     }
 };
 
+struct Spline
+{
+    // Control points for spline
+    // (Requires n+2 points where n is number
+    // of points in segment)
+    std::vector<glm::vec2> controllPoints;
+
+    // Given spline segment where startIdx = P1,
+    // compute position based on t value
+    glm::vec2 Compute(size_t startIdx, float t) const
+    {
+        // Check if startIdx is out of bounds
+        if (startIdx >= controllPoints.size())
+        {
+            return controllPoints.back();
+        }
+        else if (startIdx == 0)
+        {
+            return controllPoints[startIdx];
+        }
+        else if (startIdx + 2 >= controllPoints.size())
+        {
+            return controllPoints[startIdx];
+        }
+
+        // Get p0 through p3
+        glm::vec2 p0 = controllPoints[startIdx - 1];
+        glm::vec2 p1 = controllPoints[startIdx];
+        glm::vec2 p2 = controllPoints[startIdx + 1];
+        glm::vec2 p3 = controllPoints[startIdx + 2];
+        // Compute position according to Catmull-Rom equation
+        glm::vec2 position = 0.5f
+                             * ((2.0f * p1) + (-1.0f * p0 + p2) * t
+                                + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t * t
+                                + (-1.0f * p0 + 3.0f * p1 - 3.0f * p2 + p3) * t * t * t);
+        return position;
+    }
+
+    // Returns number of control points
+    size_t GetNumPoints() const
+    {
+        return controllPoints.size();
+    }
+};
+
+class SplineMoveComponent : public Component
+{
+public:
+    Spline spline;
+    int index       = 0;
+    float speed     = 0.0f;
+    float t         = 0.0f;
+    bool isFinished = false;
+
+    SplineMoveComponent() {}
+    SplineMoveComponent(const std::vector<glm::vec2>& points, const float sp) : speed(sp)
+    {
+        spline.controllPoints = points;
+        index                 = 1;
+    }
+
+    const glm::vec2 Move(float deltaTime)
+    {
+        if (IsFinished())
+        {
+            return spline.Compute(index, t);
+        }
+
+        t += speed * deltaTime;
+
+        // Advance to the next control point if needed.
+        if (t >= 1.0f)
+        {
+            if (index < spline.GetNumPoints() - 3)
+            {
+                index++;
+                t = t - 1.0f;
+            }
+            else
+            {
+                isFinished = true;
+            }
+        }
+        return spline.Compute(index, t);
+    }
+
+    bool IsFinished()
+    {
+        return isFinished;
+    }
+
+    void Reset()
+    {
+        index      = 1;
+        t          = 0.0f;
+        isFinished = false;
+    }
+};
+
 enum State
 {
     Normal,
