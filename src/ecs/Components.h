@@ -273,6 +273,11 @@ public:
         t          = 0.0f;
         isFinished = false;
     }
+
+    const glm::vec2& CurrentPoint()
+    {
+        return spline.controllPoints[index];
+    }
 };
 
 enum State

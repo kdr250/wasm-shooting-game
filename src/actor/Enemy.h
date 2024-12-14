@@ -11,8 +11,7 @@ class Entity;
 class Enemy
 {
 public:
-    static std::shared_ptr<Entity> Spawn(const std::vector<glm::vec2>& movePoints,
-                                         const std::vector<glm::vec2>& splinePoints);
+    static std::vector<std::shared_ptr<Entity>> Spawn(const int sceneid);
     static void Move(float deltaTime);
     static void Collide();
     static void Draw();
