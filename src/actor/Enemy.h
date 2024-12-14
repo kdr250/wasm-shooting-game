@@ -20,7 +20,7 @@ public:
 
     static const std::vector<std::shared_ptr<Entity>>& GetEnemies();
 
-    inline static const std::string ENEMY_TAG = "enemy";
+    inline static const std::string ENEMY_TAG = "Enemy";
 
 private:
 #ifdef __EMSCRIPTEN__

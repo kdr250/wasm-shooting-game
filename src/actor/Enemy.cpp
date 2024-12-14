@@ -65,6 +65,8 @@ std::vector<std::shared_ptr<Entity>> Enemy::Spawn(const int sceneid)
 
     std::vector<std::shared_ptr<Entity>> enemies;
 
+    auto enemy = entityManager.AddEntity(ENEMY_TAG);
+
     for (auto& line : allLine)
     {
         std::stringstream stream(line);
@@ -72,7 +74,15 @@ std::vector<std::shared_ptr<Entity>> Enemy::Spawn(const int sceneid)
         std::string type;
         stream >> tag;
 
-        auto enemy = entityManager.AddEntity(ENEMY_TAG);
+        if (tag == ENEMY_TAG)
+        {
+            enemy = entityManager.AddEntity(ENEMY_TAG);
+        }
+        else if (tag == "End")
+        {
+            enemies.emplace_back(enemy);
+            continue;
+        }
 
         float scale = 1.0f;
 
@@ -151,9 +161,9 @@ std::vector<std::shared_ptr<Entity>> Enemy::Spawn(const int sceneid)
                     enemy->AddComponent<TransformComponent>(spline.CurrentPoint(), scale);
                 }
             }
-        }
 
-        enemies.emplace_back(enemy);
+            // TODO: register events
+        }
     }
 
     return enemies;
