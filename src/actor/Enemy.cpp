@@ -3,7 +3,8 @@
 #include "Bullet.h"
 #include "Player.h"
 
-std::shared_ptr<Entity> Enemy::Spawn(const std::vector<glm::vec2>& movePoints)
+std::shared_ptr<Entity> Enemy::Spawn(const std::vector<glm::vec2>& movePoints,
+                                     const std::vector<glm::vec2>& splinePoints)
 {
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
@@ -34,6 +35,7 @@ std::shared_ptr<Entity> Enemy::Spawn(const std::vector<glm::vec2>& movePoints)
         std::vector {enemy->GetTag()});
     auto& aiMove = enemy->AddComponent<AIMoveComponent>(movePoints, speed);
     enemy->AddComponent<TransformComponent>(aiMove.CurrentPoint(), scale);
+    enemy->AddComponent<SplineMoveComponent>(splinePoints, 0.5f);
 
     return enemy;
 }
