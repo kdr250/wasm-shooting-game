@@ -1,5 +1,5 @@
 Enemy SpawnTime 1
 Component Sprite Name example_enemy Path resources/texture/example_enemy.png Scale 10.0
-Component Move Points 100.0-100.0,800.0-100.0,800.0-300.0,100.0-300.0 Speed 200.0
-Component SplineMove Points 0.0-0.0,100.0-100.0,800.0-100.0,800.0-300.0,100.0-300.0,100.0-100.0,800.0-100.0 Speed 0.5
+Component Move Points 100.0,100.0|800.0,100.0|800.0,300.0|100.0,300.0 Speed 200.0
+Component SplineMove Points 0.0,0.0|100.0,100.0|800.0,100.0|800.0,300.0|100.0,300.0|100.0,100.0|800.0,100.0 Speed 0.5
 End

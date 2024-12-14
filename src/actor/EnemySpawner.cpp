@@ -138,9 +138,9 @@ void EnemySpawner::Initialize(const int sceneId)
                     std::string strSpeed  = config.at("MoveSpeed");
 
                     std::vector<glm::vec2> points;
-                    for (auto& strPoint : Split(strPoints, ","))
+                    for (auto& strPoint : Split(strPoints, "|"))
                     {
-                        auto split = Split(strPoint, "-");
+                        auto split = Split(strPoint, ",");
                         float x    = std::stof(split[0]);
                         float y    = std::stof(split[1]);
                         glm::vec2 point {x, y};
@@ -162,9 +162,9 @@ void EnemySpawner::Initialize(const int sceneId)
                     std::string strSpeed  = config.at("SplineMoveSpeed");
 
                     std::vector<glm::vec2> points;
-                    for (auto& strPoint : Split(strPoints, ","))
+                    for (auto& strPoint : Split(strPoints, "|"))
                     {
-                        auto split = Split(strPoint, "-");
+                        auto split = Split(strPoint, ",");
                         float x    = std::stof(split[0]);
                         float y    = std::stof(split[1]);
                         glm::vec2 point {x, y};
