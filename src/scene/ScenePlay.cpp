@@ -6,6 +6,7 @@
 #include "../actor/Background.h"
 #include "../actor/Bullet.h"
 #include "../actor/Enemy.h"
+#include "../actor/EnemySpawner.h"
 #include "../actor/Player.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
@@ -21,16 +22,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     Bullet::Initialize();
 
-    std::vector<glm::vec2> splinePoints = {
-        glm::vec2 {0.0f, 0.0f},
-        glm::vec2 {100.0f, 100.0f},
-        glm::vec2 {800.0f, 100.0f},
-        glm::vec2 {800.0f, 300.0f},
-        glm::vec2 {100.0f, 300.0f},
-        glm::vec2 {100.0f, 100.0f},
-        glm::vec2 {800.0f, 100.0f},
-    };
-    auto enemies = Enemy::Spawn(id);
+    auto enemies = EnemySpawner::Spawn(id);
     auto enemy   = enemies[0];
 
     std::vector<std::function<Result(long, int)>> events = {

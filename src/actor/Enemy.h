@@ -11,7 +11,6 @@ class Entity;
 class Enemy
 {
 public:
-    static std::vector<std::shared_ptr<Entity>> Spawn(const int sceneid);
     static void Move(float deltaTime);
     static void Collide();
     static void Draw();
@@ -22,7 +21,6 @@ public:
 
     inline static const std::string ENEMY_TAG = "Enemy";
 
-private:
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
     inline static const std::string SPRITE_SHADER_FRAG = "resources/shader/Sprite.frag";
