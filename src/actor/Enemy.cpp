@@ -16,6 +16,19 @@ void Enemy::Move(float deltaTime)
             auto& eventComponent = enemy->GetComponent<EventComponent>();
             eventComponent.Execute(deltaTime);
         }
+        else if (enemy->HasComponent<MoveComponent>() && enemy->HasComponent<TransformComponent>())
+        {
+            auto& move         = enemy->GetComponent<MoveComponent>();
+            auto& transform    = enemy->GetComponent<TransformComponent>();
+            transform.position = move.Move(deltaTime);
+        }
+        else if (enemy->HasComponent<SplineMoveComponent>()
+                 && enemy->HasComponent<TransformComponent>())
+        {
+            auto& spline       = enemy->GetComponent<SplineMoveComponent>();
+            auto& transform    = enemy->GetComponent<TransformComponent>();
+            transform.position = spline.Move(deltaTime);
+        }
     }
 }
 
