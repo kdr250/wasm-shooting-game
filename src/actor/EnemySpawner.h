@@ -31,15 +31,22 @@ private:
     static void ReadEventConfiguration(std::stringstream& stream,
                                        std::map<std::string, std::string>& config);
 
-    static void RegisterMoveEvent(std::shared_ptr<Entity>& enemy,
+    static void RegisterEvents(std::shared_ptr<Entity>& enemy,
+                               std::map<std::string, std::string> config,
+                               std::vector<std::function<Result(long, int)>>& events);
+
+    static void RegisterMoveEvent(const int eventId,
+                                  std::shared_ptr<Entity>& enemy,
                                   std::map<std::string, std::string> config,
                                   std::vector<std::function<Result(long, int)>>& events);
 
-    static void RegisterSplineMoveEvent(std::shared_ptr<Entity>& enemy,
+    static void RegisterSplineMoveEvent(const int eventId,
+                                        std::shared_ptr<Entity>& enemy,
                                         std::map<std::string, std::string> config,
                                         std::vector<std::function<Result(long, int)>>& events);
 
     static void RegisterExplosionBulletsEvent(
+        const int eventId,
         std::shared_ptr<Entity>& enemy,
         std::map<std::string, std::string> config,
         std::vector<std::function<Result(long, int)>>& events);

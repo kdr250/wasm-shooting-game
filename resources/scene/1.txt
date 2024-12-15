@@ -2,7 +2,7 @@ Enemy SpawnTime 1.0
 Component Sprite Name example_enemy Path resources/texture/example_enemy.png Scale 10.0
 Component Move Points 100.0,100.0|800.0,100.0|800.0,300.0|100.0,300.0 Speed 200.0
 Component SplineMove Points 0.0,0.0|100.0,100.0|800.0,100.0|800.0,300.0|100.0,300.0|100.0,100.0|800.0,100.0 Speed 0.5
-Event SplineMoveEvent Type All
-Event ExplosionBulletsEvent LoopNum 3 Interval 0.3 Color Red NumBullets 18 Speed 300.0 Size 200.0 WaitAfter 3.0
-Event MoveEvent Type EveryPoints
+Event 0 SplineMoveEvent Type All
+Event 1 ExplosionBulletsEvent LoopNum 3 Interval 0.3 Color Red NumBullets 18 Speed 300.0 Size 200.0 WaitAfter 3.0
+Event 2 MoveEvent Type EveryPoints
 End

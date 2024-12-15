@@ -181,9 +181,7 @@ void EnemySpawner::Initialize(const int sceneId)
                 }
 
                 std::vector<std::function<Result(long, int)>> enemyEvents;
-                RegisterSplineMoveEvent(enemy, config, enemyEvents);
-                RegisterMoveEvent(enemy, config, enemyEvents);
-                RegisterExplosionBulletsEvent(enemy, config, enemyEvents);
+                RegisterEvents(enemy, config, enemyEvents);
 
                 // FIXME
                 std::vector<std::function<Result(long, int)>> hoge = {
@@ -352,28 +350,53 @@ void EnemySpawner::ReadComponentConfiguration(std::stringstream& stream,
 void EnemySpawner::ReadEventConfiguration(std::stringstream& stream,
                                           std::map<std::string, std::string>& config)
 {
-    std::string event, key, value;
-    stream >> event;
+    std::string id, event, key, value;
+    stream >> id >> event;
 
-    config.emplace(event, "true");
+    config.emplace("Event" + id, event);
 
     while (!stream.eof())
     {
         stream >> key >> value;
-        config.emplace(event + key, value);
+        config.emplace(event + key + id, value);
     }
 }
 
-void EnemySpawner::RegisterMoveEvent(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
+                                  std::map<std::string, std::string> config,
+                                  std::vector<std::function<Result(long, int)>>& events)
+{
+    int id              = 0;
+    std::string eventId = "Event" + std::to_string(id);
+
+    while (config.contains(eventId))
+    {
+        std::string event = config.at(eventId);
+        if (event == "MoveEvent")
+        {
+            RegisterMoveEvent(id, enemy, config, events);
+        }
+        else if (event == "SplineMoveEvent")
+        {
+            RegisterSplineMoveEvent(id, enemy, config, events);
+        }
+        else if (event == "ExplosionBulletsEvent")
+        {
+            RegisterExplosionBulletsEvent(id, enemy, config, events);
+        }
+        ++id;
+        eventId = "Event" + std::to_string(id);
+    }
+}
+
+void EnemySpawner::RegisterMoveEvent(const int eventId,
+                                     std::shared_ptr<Entity>& enemy,
                                      std::map<std::string, std::string> config,
                                      std::vector<std::function<Result(long, int)>>& events)
 {
-    if (!config.contains("MoveEvent"))
-    {
-        return;
-    }
+    std::string strId = std::to_string(eventId);
 
-    auto event = [enemy, config](long fromPreviousMilli, int executionCount)
+    auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
         if (!enemy->HasComponent<MoveComponent>())
         {
@@ -382,7 +405,7 @@ void EnemySpawner::RegisterMoveEvent(std::shared_ptr<Entity>& enemy,
 
         float deltaTime = Game::GetGame().GetDeltaTime();
 
-        std::string type = config.at("MoveEventType");
+        std::string type = config.at("MoveEventType" + strId);
         if (type == "OneRound")
         {
             auto& transform    = enemy->GetComponent<TransformComponent>();
@@ -408,23 +431,21 @@ void EnemySpawner::RegisterMoveEvent(std::shared_ptr<Entity>& enemy,
     events.emplace_back(event);
 }
 
-void EnemySpawner::RegisterSplineMoveEvent(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterSplineMoveEvent(const int eventId,
+                                           std::shared_ptr<Entity>& enemy,
                                            std::map<std::string, std::string> config,
                                            std::vector<std::function<Result(long, int)>>& events)
 {
-    if (!config.contains("SplineMoveEvent"))
-    {
-        return;
-    }
+    std::string strId = std::to_string(eventId);
 
-    auto event = [enemy, config](long fromPreviousMilli, int executionCount)
+    auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
         if (!enemy->HasComponent<SplineMoveComponent>())
         {
             return Result::COMPLETED;
         }
 
-        std::string type = config.at("SplineMoveEventType");
+        std::string type = config.at("SplineMoveEventType" + strId);
 
         if (type == "All")
         {
@@ -445,24 +466,22 @@ void EnemySpawner::RegisterSplineMoveEvent(std::shared_ptr<Entity>& enemy,
 }
 
 void EnemySpawner::RegisterExplosionBulletsEvent(
+    const int eventId,
     std::shared_ptr<Entity>& enemy,
     std::map<std::string, std::string> config,
     std::vector<std::function<Result(long, int)>>& events)
 {
-    if (!config.contains("ExplosionBulletsEvent"))
-    {
-        return;
-    }
+    std::string strId = std::to_string(eventId);
 
-    auto event = [enemy, config](long fromPreviousMilli, int executionCount)
+    auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
-        std::string strLoopNum    = config.at("ExplosionBulletsEventLoopNum");
-        std::string strInterval   = config.at("ExplosionBulletsEventInterval");
-        std::string strColor      = config.at("ExplosionBulletsEventColor");
-        std::string strNumBullets = config.at("ExplosionBulletsEventNumBullets");
-        std::string strSpeed      = config.at("ExplosionBulletsEventSpeed");
-        std::string strSize       = config.at("ExplosionBulletsEventSize");
-        std::string strWaitAfter  = config.at("ExplosionBulletsEventWaitAfter");
+        std::string strLoopNum    = config.at("ExplosionBulletsEventLoopNum" + strId);
+        std::string strInterval   = config.at("ExplosionBulletsEventInterval" + strId);
+        std::string strColor      = config.at("ExplosionBulletsEventColor" + strId);
+        std::string strNumBullets = config.at("ExplosionBulletsEventNumBullets" + strId);
+        std::string strSpeed      = config.at("ExplosionBulletsEventSpeed" + strId);
+        std::string strSize       = config.at("ExplosionBulletsEventSize" + strId);
+        std::string strWaitAfter  = config.at("ExplosionBulletsEventWaitAfter" + strId);
 
         int loopNum     = std::stoi(strLoopNum);
         float interval  = std::stof(strInterval);
