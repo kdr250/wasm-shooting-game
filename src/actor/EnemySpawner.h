@@ -32,8 +32,7 @@ private:
                                        std::map<std::string, std::string>& config);
 
     static void RegisterEvents(std::shared_ptr<Entity>& enemy,
-                               std::map<std::string, std::string> config,
-                               std::vector<std::function<Result(long, int)>>& events);
+                               std::map<std::string, std::string> config);
 
     static void RegisterMoveEvent(const int eventId,
                                   std::shared_ptr<Entity>& enemy,
@@ -50,4 +49,20 @@ private:
         std::shared_ptr<Entity>& enemy,
         std::map<std::string, std::string> config,
         std::vector<std::function<Result(long, int)>>& events);
+
+    static void RegisterRollBulletsEvent(const int eventId,
+                                         std::shared_ptr<Entity>& enemy,
+                                         std::map<std::string, std::string> config,
+                                         std::vector<std::function<Result(long, int)>>& events);
+
+    static void RegisterSequentialBulletsEvent(
+        const int eventId,
+        std::shared_ptr<Entity>& enemy,
+        std::map<std::string, std::string> config,
+        std::vector<std::function<Result(long, int)>>& events);
+
+    static void RegisterWinderBulletsEvent(const int eventId,
+                                           std::shared_ptr<Entity>& enemy,
+                                           std::map<std::string, std::string> config,
+                                           std::vector<std::function<Result(long, int)>>& events);
 };

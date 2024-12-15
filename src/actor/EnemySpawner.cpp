@@ -180,123 +180,7 @@ void EnemySpawner::Initialize(const int sceneId)
                     }
                 }
 
-                std::vector<std::function<Result(long, int)>> enemyEvents;
-                RegisterEvents(enemy, config, enemyEvents);
-
-                // FIXME
-                std::vector<std::function<Result(long, int)>> hoge = {
-                    [enemy](long fromPreviousMilli, int executionCount)
-                    {
-                        long fromPreviousSecond = fromPreviousMilli / 1000;
-                        if (executionCount == 1 && fromPreviousSecond >= 4)
-                        {
-                            return Result::COMPLETED;
-                        }
-                        if (executionCount < 1)
-                        {
-                            auto& transform = enemy->GetComponent<TransformComponent>();
-                            Bullet::SpawnRollBullets(transform.position,  // position
-                                                     Bullet::RED,         // color
-                                                     36,                  // num of bullets
-                                                     enemy->GetTag(),     // owner tag
-                                                     200.0f,              // speed
-                                                     200.0f               // size
-                            );
-                            return Result::CONTINUE;
-                        }
-                        return Result::NONE;
-                    },
-                    [enemy](long fromPreviousMilli, int executionCount)
-                    {
-                        float deltaTime = Game::GetGame().GetDeltaTime();
-                        if (enemy->HasComponent<MoveComponent>())
-                        {
-                            auto& transform = enemy->GetComponent<TransformComponent>();
-                            auto& aiMove    = enemy->GetComponent<MoveComponent>();
-                            bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                            Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                            return result;
-                        }
-                        return Result::COMPLETED;
-                    },
-                    [enemy](long fromPreviousMilli, int executionCount)
-                    {
-                        long fromPreviousSecond = fromPreviousMilli / 1000;
-                        if (executionCount == 1 && fromPreviousSecond >= 3)
-                        {
-                            return Result::COMPLETED;
-                        }
-                        if (executionCount < 1)
-                        {
-                            auto& transform       = enemy->GetComponent<TransformComponent>();
-                            auto& player          = Player::GetPlayer();
-                            auto& playerTransform = player->GetComponent<TransformComponent>();
-
-                            Bullet::SpawnSequentialBullets(transform.position,        // position
-                                                           playerTransform.position,  // target
-                                                           10,               // num of bullets
-                                                           Bullet::RED,      // color
-                                                           enemy->GetTag(),  // owner tag
-                                                           200.0f,           // speed
-                                                           200.0f            // size
-                            );
-                            return Result::CONTINUE;
-                        }
-                        return Result::NONE;
-                    },
-                    [enemy](long fromPreviousMilli, int executionCount)
-                    {
-                        float deltaTime = Game::GetGame().GetDeltaTime();
-                        if (enemy->HasComponent<MoveComponent>())
-                        {
-                            auto& transform = enemy->GetComponent<TransformComponent>();
-                            auto& aiMove    = enemy->GetComponent<MoveComponent>();
-                            bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                            Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                            return result;
-                        }
-                        return Result::COMPLETED;
-                    },
-                    [enemy](long fromPreviousMilli, int executionCount)
-                    {
-                        long fromPreviousSecond = fromPreviousMilli / 1000;
-                        if (executionCount == 1 && fromPreviousSecond >= 7)
-                        {
-                            return Result::COMPLETED;
-                        }
-                        if (executionCount < 1)
-                        {
-                            auto& transform       = enemy->GetComponent<TransformComponent>();
-                            auto& player          = Player::GetPlayer();
-                            auto& playerTransform = player->GetComponent<TransformComponent>();
-
-                            Bullet::SpawnWinderBullets(transform.position,        // position
-                                                       playerTransform.position,  // target
-                                                       100,                       // num of loop
-                                                       Bullet::RED,               // color
-                                                       enemy->GetTag(),           // owner tag
-                                                       200.0f,                    // speed
-                                                       200.0f                     // size
-                            );
-                            return Result::CONTINUE;
-                        }
-                        return Result::NONE;
-                    },
-                    [enemy](long fromPreviousMilli, int executionCount)
-                    {
-                        float deltaTime = Game::GetGame().GetDeltaTime();
-                        if (enemy->HasComponent<MoveComponent>())
-                        {
-                            auto& transform = enemy->GetComponent<TransformComponent>();
-                            auto& aiMove    = enemy->GetComponent<MoveComponent>();
-                            bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                            Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                            return result;
-                        }
-                        return Result::COMPLETED;
-                    },
-                };
-                enemy->AddComponent<EventComponent>(enemyEvents);
+                RegisterEvents(enemy, config);
 
                 return Result::COMPLETED;
             };
@@ -363,9 +247,9 @@ void EnemySpawner::ReadEventConfiguration(std::stringstream& stream,
 }
 
 void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
-                                  std::map<std::string, std::string> config,
-                                  std::vector<std::function<Result(long, int)>>& events)
+                                  std::map<std::string, std::string> config)
 {
+    std::vector<std::function<Result(long, int)>> events;
     int id              = 0;
     std::string eventId = "Event" + std::to_string(id);
 
@@ -384,9 +268,22 @@ void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
         {
             RegisterExplosionBulletsEvent(id, enemy, config, events);
         }
+        else if (event == "RollBulletsEvent")
+        {
+            RegisterRollBulletsEvent(id, enemy, config, events);
+        }
+        else if (event == "SequentialBulletsEvent")
+        {
+            RegisterSequentialBulletsEvent(id, enemy, config, events);
+        }
+        else if (event == "WinderBulletsEvent")
+        {
+            RegisterWinderBulletsEvent(id, enemy, config, events);
+        }
         ++id;
         eventId = "Event" + std::to_string(id);
     }
+    enemy->AddComponent<EventComponent>(events);
 }
 
 void EnemySpawner::RegisterMoveEvent(const int eventId,
@@ -505,6 +402,147 @@ void EnemySpawner::RegisterExplosionBulletsEvent(
                                           enemy->GetTag(),  // owner tag
                                           speed,            // speed
                                           size              // size
+            );
+            return Result::CONTINUE;
+        }
+        return Result::NONE;
+    };
+    events.emplace_back(event);
+}
+
+void EnemySpawner::RegisterRollBulletsEvent(const int eventId,
+                                            std::shared_ptr<Entity>& enemy,
+                                            std::map<std::string, std::string> config,
+                                            std::vector<std::function<Result(long, int)>>& events)
+{
+    std::string strId = std::to_string(eventId);
+
+    auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
+    {
+        std::string strColor      = config.at("RollBulletsEventColor" + strId);
+        std::string strNumBullets = config.at("RollBulletsEventNumBullets" + strId);
+        std::string strSpeed      = config.at("RollBulletsEventSpeed" + strId);
+        std::string strSize       = config.at("RollBulletsEventSize" + strId);
+        std::string strWaitAfter  = config.at("RollBulletsEventWaitAfter" + strId);
+
+        float waitAfter = std::stof(strWaitAfter);
+
+        float fromPreviousSecond = fromPreviousMilli / 1000.0f;
+        if (executionCount == 1 && fromPreviousSecond >= waitAfter)
+        {
+            return Result::COMPLETED;
+        }
+        if (executionCount < 1)
+        {
+            glm::vec3 color  = Bullet::RED;  // FIXME
+            int numOfBullets = std::stoi(strNumBullets);
+            float speed      = std::stof(strSpeed);
+            float size       = std::stof(strSize);
+
+            auto& transform = enemy->GetComponent<TransformComponent>();
+            Bullet::SpawnRollBullets(transform.position,  // position
+                                     color,               // color
+                                     numOfBullets,        // num of bullets
+                                     enemy->GetTag(),     // owner tag
+                                     speed,               // speed
+                                     size                 // size
+            );
+            return Result::CONTINUE;
+        }
+        return Result::NONE;
+    };
+    events.emplace_back(event);
+}
+
+void EnemySpawner::RegisterSequentialBulletsEvent(
+    const int eventId,
+    std::shared_ptr<Entity>& enemy,
+    std::map<std::string, std::string> config,
+    std::vector<std::function<Result(long, int)>>& events)
+{
+    std::string strId = std::to_string(eventId);
+
+    auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
+    {
+        std::string strColor      = config.at("SequentialBulletsEventColor" + strId);
+        std::string strNumBullets = config.at("SequentialBulletsEventNumBullets" + strId);
+        std::string strSpeed      = config.at("SequentialBulletsEventSpeed" + strId);
+        std::string strSize       = config.at("SequentialBulletsEventSize" + strId);
+        std::string strWaitAfter  = config.at("SequentialBulletsEventWaitAfter" + strId);
+
+        float waitAfter = std::stof(strWaitAfter);
+
+        float fromPreviousSecond = fromPreviousMilli / 1000.0f;
+        if (executionCount == 1 && fromPreviousSecond >= waitAfter)
+        {
+            return Result::COMPLETED;
+        }
+        if (executionCount < 1)
+        {
+            glm::vec3 color  = Bullet::RED;  // FIXME
+            int numOfBullets = std::stoi(strNumBullets);
+            float speed      = std::stof(strSpeed);
+            float size       = std::stof(strSize);
+
+            auto& transform       = enemy->GetComponent<TransformComponent>();
+            auto& player          = Player::GetPlayer();
+            auto& playerTransform = player->GetComponent<TransformComponent>();
+
+            Bullet::SpawnSequentialBullets(transform.position,        // position
+                                           playerTransform.position,  // target
+                                           numOfBullets,              // num of bullets
+                                           color,                     // color
+                                           enemy->GetTag(),           // owner tag
+                                           speed,                     // speed
+                                           size                       // size
+            );
+            return Result::CONTINUE;
+        }
+        return Result::NONE;
+    };
+    events.emplace_back(event);
+}
+
+void EnemySpawner::RegisterWinderBulletsEvent(const int eventId,
+                                              std::shared_ptr<Entity>& enemy,
+                                              std::map<std::string, std::string> config,
+                                              std::vector<std::function<Result(long, int)>>& events)
+{
+    std::string strId = std::to_string(eventId);
+
+    auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
+    {
+        std::string strColor     = config.at("WinderBulletsEventColor" + strId);
+        std::string strLoopNum   = config.at("WinderBulletsEventLoopNum" + strId);
+        std::string strSpeed     = config.at("WinderBulletsEventSpeed" + strId);
+        std::string strSize      = config.at("WinderBulletsEventSize" + strId);
+        std::string strWaitAfter = config.at("WinderBulletsEventWaitAfter" + strId);
+
+        float waitAfter = std::stof(strWaitAfter);
+
+        float fromPreviousSecond = fromPreviousMilli / 1000.0f;
+        if (executionCount == 1 && fromPreviousSecond >= waitAfter)
+        {
+            return Result::COMPLETED;
+        }
+        if (executionCount < 1)
+        {
+            glm::vec3 color = Bullet::RED;  // FIXME
+            int loopNum     = std::stoi(strLoopNum);
+            float speed     = std::stof(strSpeed);
+            float size      = std::stof(strSize);
+
+            auto& transform       = enemy->GetComponent<TransformComponent>();
+            auto& player          = Player::GetPlayer();
+            auto& playerTransform = player->GetComponent<TransformComponent>();
+
+            Bullet::SpawnWinderBullets(transform.position,        // position
+                                       playerTransform.position,  // target
+                                       loopNum,                   // num of loop
+                                       color,                     // color
+                                       enemy->GetTag(),           // owner tag
+                                       speed,                     // speed
+                                       size                       // size
             );
             return Result::CONTINUE;
         }
