@@ -180,12 +180,12 @@ void EnemySpawner::Initialize(const int sceneId)
                     }
                 }
 
-                // FIXME
                 std::vector<std::function<Result(long, int)>> enemyEvents;
                 RegisterSplineMoveEvent(enemy, config, enemyEvents);
                 RegisterMoveEvent(enemy, config, enemyEvents);
                 RegisterExplosionBulletsEvent(enemy, config, enemyEvents);
 
+                // FIXME
                 std::vector<std::function<Result(long, int)>> hoge = {
                     [enemy](long fromPreviousMilli, int executionCount)
                     {
@@ -398,6 +398,11 @@ void EnemySpawner::RegisterMoveEvent(std::shared_ptr<Entity>& enemy,
             bool hasReached = move.MoveToNext(deltaTime, transform.position);
             Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
             return result;
+        }
+        else
+        {
+            SDL_Log("SplineMoveEventType is not valid: %s", type.c_str());
+            return Result::COMPLETED;
         }
     };
     events.emplace_back(event);
