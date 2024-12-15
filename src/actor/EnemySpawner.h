@@ -1,10 +1,12 @@
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+#include "../ecs/Components.h"
 
 class Entity;
 
@@ -28,4 +30,17 @@ private:
 
     static void ReadEventConfiguration(std::stringstream& stream,
                                        std::map<std::string, std::string>& config);
+
+    static void RegisterMoveEvent(std::shared_ptr<Entity>& enemy,
+                                  std::map<std::string, std::string> config,
+                                  std::vector<std::function<Result(long, int)>>& events);
+
+    static void RegisterSplineMoveEvent(std::shared_ptr<Entity>& enemy,
+                                        std::map<std::string, std::string> config,
+                                        std::vector<std::function<Result(long, int)>>& events);
+
+    static void RegisterExplosionBulletsEvent(
+        std::shared_ptr<Entity>& enemy,
+        std::map<std::string, std::string> config,
+        std::vector<std::function<Result(long, int)>>& events);
 };
