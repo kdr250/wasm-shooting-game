@@ -39,15 +39,15 @@ private:
                                    std::shared_ptr<Entity>& enemy,
                                    std::map<std::string, std::string> config);
 
-    static void RegisterSpriteComponent(const int enemyCount,
+    static void RegisterSpriteComponent(const std::string& componentId,
                                         std::shared_ptr<Entity>& enemy,
                                         std::map<std::string, std::string> config);
 
-    static void RegisterMoveComponent(const int enemyCount,
+    static void RegisterMoveComponent(const std::string& componentId,
                                       std::shared_ptr<Entity>& enemy,
                                       std::map<std::string, std::string> config);
 
-    static void RegisterSplineMoveComponent(const int enemyCount,
+    static void RegisterSplineMoveComponent(const std::string& componentId,
                                             std::shared_ptr<Entity>& enemy,
                                             std::map<std::string, std::string> config);
 
@@ -88,8 +88,7 @@ private:
                                            std::map<std::string, std::string> config,
                                            std::vector<std::function<Result(long, int)>>& events);
 
-    static std::string GenerateComponentId(const int enemyCount, const std::string componentId);
-    static std::string GenerateComponentId(const int enemyCount, const int componentId);
+    static std::string GenerateComponentId(const int enemyCount);
 
     static std::string GenerateEventId(const int enemyCount, const std::string eventId);
     static std::string GenerateEventId(const int enemyCount, const int eventId);

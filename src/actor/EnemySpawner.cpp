@@ -159,12 +159,14 @@ void EnemySpawner::ReadComponentConfiguration(const int enemyCount,
     std::string type, key, value;
     stream >> type;
 
-    config.emplace(type, "true");
+    std::string componentId = GenerateComponentId(enemyCount);
+
+    config.emplace(componentId + type, "true");
 
     while (!stream.eof())
     {
         stream >> key >> value;
-        config.emplace(type + key, value);
+        config.emplace(componentId + type + key, value);
     }
 }
 
@@ -190,25 +192,26 @@ void EnemySpawner::RegisterComponents(const int enemyCount,
                                       std::shared_ptr<Entity>& enemy,
                                       std::map<std::string, std::string> config)
 {
-    RegisterSpriteComponent(enemyCount, enemy, config);
-    RegisterMoveComponent(enemyCount, enemy, config);
-    RegisterSplineMoveComponent(enemyCount, enemy, config);
+    std::string componentId = GenerateComponentId(enemyCount);
+    RegisterSpriteComponent(componentId, enemy, config);
+    RegisterMoveComponent(componentId, enemy, config);
+    RegisterSplineMoveComponent(componentId, enemy, config);
 }
 
-void EnemySpawner::RegisterSpriteComponent(const int enemyCount,
+void EnemySpawner::RegisterSpriteComponent(const std::string& componentId,
                                            std::shared_ptr<Entity>& enemy,
                                            std::map<std::string, std::string> config)
 {
-    if (!config.contains("Sprite"))
+    if (!config.contains(componentId + "Sprite"))
     {
         return;
     }
 
-    auto& assetManager = Game::GetGame().GetAssetManager();
+    std::string name     = config.at(componentId + "SpriteName");
+    std::string path     = config.at(componentId + "SpritePath");
+    std::string strScale = config.at(componentId + "SpriteScale");
 
-    std::string name     = config.at("SpriteName");
-    std::string path     = config.at("SpritePath");
-    std::string strScale = config.at("SpriteScale");
+    auto& assetManager = Game::GetGame().GetAssetManager();
 
     if (!assetManager.LoadTexture(name, path))
     {
@@ -236,17 +239,17 @@ void EnemySpawner::RegisterSpriteComponent(const int enemyCount,
         std::vector {enemy->GetTag()});
 }
 
-void EnemySpawner::RegisterMoveComponent(const int enemyCount,
+void EnemySpawner::RegisterMoveComponent(const std::string& componentId,
                                          std::shared_ptr<Entity>& enemy,
                                          std::map<std::string, std::string> config)
 {
-    if (!config.contains("Move"))
+    if (!config.contains(componentId + "Move"))
     {
         return;
     }
 
-    std::string strPoints = config.at("MovePoints");
-    std::string strSpeed  = config.at("MoveSpeed");
+    std::string strPoints = config.at(componentId + "MovePoints");
+    std::string strSpeed  = config.at(componentId + "MoveSpeed");
 
     std::vector<glm::vec2> points;
     for (auto& strPoint : Split(strPoints, "|"))
@@ -272,17 +275,17 @@ void EnemySpawner::RegisterMoveComponent(const int enemyCount,
     }
 }
 
-void EnemySpawner::RegisterSplineMoveComponent(const int enemyCount,
+void EnemySpawner::RegisterSplineMoveComponent(const std::string& componentId,
                                                std::shared_ptr<Entity>& enemy,
                                                std::map<std::string, std::string> config)
 {
-    if (!config.contains("SplineMove"))
+    if (!config.contains(componentId + "SplineMove"))
     {
         return;
     }
 
-    std::string strPoints = config.at("SplineMovePoints");
-    std::string strSpeed  = config.at("SplineMoveSpeed");
+    std::string strPoints = config.at(componentId + "SplineMovePoints");
+    std::string strSpeed  = config.at(componentId + "SplineMoveSpeed");
 
     std::vector<glm::vec2> points;
     for (auto& strPoint : Split(strPoints, "|"))
@@ -346,7 +349,11 @@ void EnemySpawner::RegisterEvents(const int enemyCount,
         ++id;
         eventId = GenerateEventId(enemyCount, id);
     }
-    enemy->AddComponent<EventComponent>(events);
+
+    if (!events.empty())
+    {
+        enemy->AddComponent<EventComponent>(events);
+    }
 }
 
 void EnemySpawner::RegisterMoveEvent(const std::string& eventId,
@@ -602,14 +609,9 @@ void EnemySpawner::RegisterWinderBulletsEvent(const std::string& eventId,
     events.emplace_back(event);
 }
 
-std::string EnemySpawner::GenerateComponentId(const int enemyCount, const std::string componentId)
+std::string EnemySpawner::GenerateComponentId(const int enemyCount)
 {
-    return "Component" + std::to_string(enemyCount) + "-" + componentId;
-}
-
-std::string EnemySpawner::GenerateComponentId(const int enemyCount, const int componentId)
-{
-    return GenerateComponentId(enemyCount, std::to_string(componentId));
+    return "Component" + std::to_string(enemyCount);
 }
 
 std::string EnemySpawner::GenerateEventId(const int enemyCount, const std::string eventId)
