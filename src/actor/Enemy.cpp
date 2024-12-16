@@ -1,44 +1,11 @@
 #include "Enemy.h"
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include "../Game.h"
 #include "Bullet.h"
 #include "Player.h"
-
-std::shared_ptr<Entity> Enemy::Spawn(const std::vector<glm::vec2>& movePoints,
-                                     const std::vector<glm::vec2>& splinePoints)
-{
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
-
-    if (!assetManager.LoadShader(SPRITE_SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
-    {
-        SDL_Log("Failed to load shader");
-        exit(EXIT_FAILURE);
-    }
-
-    assetManager.CreateSpriteVertex();
-
-    if (!assetManager.LoadTexture(ENEMY_TEXTURE_NAME, ENEMY_TEXTURE))
-    {
-        SDL_Log("Failed to load texture");
-        exit(EXIT_FAILURE);
-    }
-
-    float speed = 200.0f;
-    float scale = 10.0f;
-
-    auto enemy = entityManager.AddEntity(ENEMY_TAG);
-    enemy->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, ENEMY_TEXTURE_NAME);
-    auto& enemyTexture = assetManager.GetTexture(ENEMY_TEXTURE_NAME);
-    enemy->AddComponent<BoxCollisionComponent>(
-        glm::vec2 {enemyTexture.GetWidth(), enemyTexture.GetHeight()} * scale / 4.0f,
-        std::vector {enemy->GetTag()});
-    auto& aiMove = enemy->AddComponent<AIMoveComponent>(movePoints, speed);
-    enemy->AddComponent<TransformComponent>(aiMove.CurrentPoint(), scale);
-    enemy->AddComponent<SplineMoveComponent>(splinePoints, 0.5f);
-
-    return enemy;
-}
 
 void Enemy::Move(float deltaTime)
 {
@@ -48,6 +15,19 @@ void Enemy::Move(float deltaTime)
         {
             auto& eventComponent = enemy->GetComponent<EventComponent>();
             eventComponent.Execute(deltaTime);
+        }
+        else if (enemy->HasComponent<MoveComponent>() && enemy->HasComponent<TransformComponent>())
+        {
+            auto& move         = enemy->GetComponent<MoveComponent>();
+            auto& transform    = enemy->GetComponent<TransformComponent>();
+            transform.position = move.Move(deltaTime);
+        }
+        else if (enemy->HasComponent<SplineMoveComponent>()
+                 && enemy->HasComponent<TransformComponent>())
+        {
+            auto& spline       = enemy->GetComponent<SplineMoveComponent>();
+            auto& transform    = enemy->GetComponent<TransformComponent>();
+            transform.position = spline.Move(deltaTime);
         }
     }
 }

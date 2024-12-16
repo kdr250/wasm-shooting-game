@@ -13,6 +13,7 @@ public:
     void DoAction(const Action& action) override;
     void Render() override;
 
+    void SpawnEntities(float deltaTime);
     void MoveEntities(float deltaTime);
     void ProcessLifespan(float deltaTime);
     void ProcessCollision();

@@ -116,16 +116,17 @@ public:
     }
 };
 
-class AIMoveComponent : public Component
+class MoveComponent : public Component
 {
 public:
     std::vector<glm::vec2> points;
-    int current = 0;
-    float speed = 0.0f;
-    float t     = 0.0f;
+    int current     = 0;
+    float speed     = 0.0f;
+    float t         = 0.0f;
+    bool isFinished = false;
 
-    AIMoveComponent() {}
-    AIMoveComponent(const std::vector<glm::vec2>& movePoints, const float sp) : speed(sp)
+    MoveComponent() {}
+    MoveComponent(const std::vector<glm::vec2>& movePoints, const float sp) : speed(sp)
     {
         points = movePoints;
     }
@@ -135,11 +136,13 @@ public:
         int next                = (current + 1) % points.size();
         glm::vec2 currentToNext = points[next] - points[current];
         t += speed * deltaTime / glm::length(currentToNext);
+        isFinished = false;
 
         if (t >= 1.0f)
         {
-            t       = 0.0f;
-            current = next;
+            t          = 0.0f;
+            current    = next;
+            isFinished = next == 0;
             return points[next];
         }
         glm::vec2 result = points[current] + t * currentToNext;
@@ -173,6 +176,11 @@ public:
     {
         int next = (current + 1) % points.size();
         return points[next];
+    }
+
+    bool IsFinished()
+    {
+        return isFinished;
     }
 };
 
@@ -272,6 +280,11 @@ public:
         index      = 1;
         t          = 0.0f;
         isFinished = false;
+    }
+
+    const glm::vec2& CurrentPoint()
+    {
+        return spline.controllPoints[index];
     }
 };
 

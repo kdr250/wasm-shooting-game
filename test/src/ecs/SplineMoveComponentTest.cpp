@@ -23,6 +23,6 @@ TEST(SplineMoveComponent, MoveTest)
         actual = spline.Move(0.016);
     }
 
-    EXPECT_EQ(expected.x, actual.x);
-    EXPECT_EQ(expected.y, actual.y);
+    EXPECT_FLOAT_EQ(expected.x, actual.x);
+    EXPECT_FLOAT_EQ(expected.y, actual.y);
 }

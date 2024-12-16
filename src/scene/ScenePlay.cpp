@@ -6,6 +6,7 @@
 #include "../actor/Background.h"
 #include "../actor/Bullet.h"
 #include "../actor/Enemy.h"
+#include "../actor/EnemySpawner.h"
 #include "../actor/Player.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
@@ -21,184 +22,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     Bullet::Initialize();
 
-    std::vector<glm::vec2> points = {
-        glm::vec2 {100.0f, 100.0f},
-        glm::vec2 {800.0f, 100.0f},
-        glm::vec2 {800.0f, 300.0f},
-        glm::vec2 {100.0f, 300.0f},
-    };
-
-    std::vector<glm::vec2> splinePoints = {
-        glm::vec2 {0.0f, 0.0f},
-        glm::vec2 {100.0f, 100.0f},
-        glm::vec2 {800.0f, 100.0f},
-        glm::vec2 {800.0f, 300.0f},
-        glm::vec2 {100.0f, 300.0f},
-        glm::vec2 {100.0f, 100.0f},
-        glm::vec2 {800.0f, 100.0f},
-    };
-    auto enemy = Enemy::Spawn(points, splinePoints);
-
-    std::vector<std::function<Result(long, int)>> events = {
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<SplineMoveComponent>())
-            {
-                auto& transform    = enemy->GetComponent<TransformComponent>();
-                auto& spline       = enemy->GetComponent<SplineMoveComponent>();
-                transform.position = spline.Move(deltaTime);
-                Result result      = spline.IsFinished() ? Result::COMPLETED : Result::CONTINUE;
-                return result;
-            }
-            return Result::COMPLETED;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 1 && fromPreviousSecond >= 3)
-            {
-                return Result::COMPLETED;
-            }
-            if (executionCount < 1)
-            {
-                Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                                              Bullet::RED,
-                                              18,               // number of bullets
-                                              enemy->GetTag(),  // owner tag
-                                              300.0f,           // speed
-                                              200.0f            // size
-                );
-                return Result::CONTINUE;
-            }
-            return Result::NONE;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
-            {
-                auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
-                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                return result;
-            }
-            return Result::COMPLETED;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 1 && fromPreviousSecond >= 4)
-            {
-                return Result::COMPLETED;
-            }
-            if (executionCount < 1)
-            {
-                auto& transform = enemy->GetComponent<TransformComponent>();
-                Bullet::SpawnRollBullets(transform.position,  // position
-                                         Bullet::RED,         // color
-                                         36,                  // num of bullets
-                                         enemy->GetTag(),     // owner tag
-                                         200.0f,              // speed
-                                         200.0f               // size
-                );
-                return Result::CONTINUE;
-            }
-            return Result::NONE;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
-            {
-                auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
-                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                return result;
-            }
-            return Result::COMPLETED;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 1 && fromPreviousSecond >= 3)
-            {
-                return Result::COMPLETED;
-            }
-            if (executionCount < 1)
-            {
-                auto& transform       = enemy->GetComponent<TransformComponent>();
-                auto& player          = Player::GetPlayer();
-                auto& playerTransform = player->GetComponent<TransformComponent>();
-
-                Bullet::SpawnSequentialBullets(transform.position,        // position
-                                               playerTransform.position,  // target
-                                               10,                        // num of bullets
-                                               Bullet::RED,               // color
-                                               enemy->GetTag(),           // owner tag
-                                               200.0f,                    // speed
-                                               200.0f                     // size
-                );
-                return Result::CONTINUE;
-            }
-            return Result::NONE;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
-            {
-                auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
-                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                return result;
-            }
-            return Result::COMPLETED;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            long fromPreviousSecond = fromPreviousMilli / 1000;
-            if (executionCount == 1 && fromPreviousSecond >= 7)
-            {
-                return Result::COMPLETED;
-            }
-            if (executionCount < 1)
-            {
-                auto& transform       = enemy->GetComponent<TransformComponent>();
-                auto& player          = Player::GetPlayer();
-                auto& playerTransform = player->GetComponent<TransformComponent>();
-
-                Bullet::SpawnWinderBullets(transform.position,        // position
-                                           playerTransform.position,  // target
-                                           100,                       // num of loop
-                                           Bullet::RED,               // color
-                                           enemy->GetTag(),           // owner tag
-                                           200.0f,                    // speed
-                                           200.0f                     // size
-                );
-                return Result::CONTINUE;
-            }
-            return Result::NONE;
-        },
-        [enemy](long fromPreviousMilli, int executionCount)
-        {
-            float deltaTime = Game::GetGame().GetDeltaTime();
-            if (enemy->HasComponent<AIMoveComponent>())
-            {
-                auto& transform = enemy->GetComponent<TransformComponent>();
-                auto& aiMove    = enemy->GetComponent<AIMoveComponent>();
-                bool hasReached = aiMove.MoveToNext(deltaTime, transform.position);
-                Result result   = hasReached ? Result::COMPLETED : Result::CONTINUE;
-                return result;
-            }
-            return Result::COMPLETED;
-        },
-    };
-
-    enemy->AddComponent<EventComponent>(events);
+    EnemySpawner::Initialize(id);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -216,6 +40,7 @@ void ScenePlay::Update(float deltaTime)
     if (paused)
         return;
 
+    SpawnEntities(deltaTime);
     MoveEntities(deltaTime);
     ProcessLifespan(deltaTime);
     ProcessCollision();
@@ -262,6 +87,11 @@ void ScenePlay::DoAction(const Action& action)
     }
 
     Player::ProcessAction(action);
+}
+
+void ScenePlay::SpawnEntities(float deltaTime)
+{
+    EnemySpawner::Spawn(deltaTime);
 }
 
 void ScenePlay::MoveEntities(float deltaTime)
