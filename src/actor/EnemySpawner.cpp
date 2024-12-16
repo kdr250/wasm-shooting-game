@@ -68,7 +68,8 @@ void EnemySpawner::Initialize(const int sceneId)
 
     std::map<std::string, std::string> config;
 
-    auto iter = allLine.begin();
+    int enemyCount = 0;
+    auto iter      = allLine.begin();
     while (iter != allLine.end())
     {
         std::string line = *iter;
@@ -78,20 +79,20 @@ void EnemySpawner::Initialize(const int sceneId)
 
         if (tag == Enemy::ENEMY_TAG)
         {
-            ReadEnemyConfiguration(stream, config);
+            ReadEnemyConfiguration(enemyCount, stream, config);
         }
         else if (tag == "Component")
         {
-            ReadComponentConfiguration(stream, config);
+            ReadComponentConfiguration(enemyCount, stream, config);
         }
         else if (tag == "Event")
         {
-            ReadEventConfiguration(stream, config);
+            ReadEventConfiguration(enemyCount, stream, config);
         }
         else if (tag == "End")
         {
             std::function<Result(long, int)> spawnEvent =
-                [spawner, config](long fromPreviousMilli, int executionCount)
+                [spawner, config, enemyCount](long fromPreviousMilli, int executionCount)
             {
                 auto& game          = Game::GetGame();
                 auto& assetManager  = game.GetAssetManager();
@@ -110,14 +111,17 @@ void EnemySpawner::Initialize(const int sceneId)
 
                 auto enemy = entityManager.AddEntity(Enemy::ENEMY_TAG);
 
-                RegisterComponents(enemy, config);
-                RegisterEvents(enemy, config);
+                RegisterComponents(enemyCount, enemy, config);
+                RegisterEvents(enemyCount, enemy, config);
 
                 return Result::COMPLETED;
             };
 
             auto& eventComponent = spawner->GetComponent<EventComponent>();
             eventComponent.Add(spawnEvent);
+
+            config.clear();
+            ++enemyCount;
         }
         ++iter;
     }
@@ -136,7 +140,8 @@ std::shared_ptr<Entity>& EnemySpawner::GetSpawner()
     return entityManager.GetEntities(ENEMY_SPAWNER_TAG)[0];
 }
 
-void EnemySpawner::ReadEnemyConfiguration(std::stringstream& stream,
+void EnemySpawner::ReadEnemyConfiguration(const int enemyCount,
+                                          std::stringstream& stream,
                                           std::map<std::string, std::string>& config)
 {
     std::string key, value;
@@ -147,7 +152,8 @@ void EnemySpawner::ReadEnemyConfiguration(std::stringstream& stream,
     }
 }
 
-void EnemySpawner::ReadComponentConfiguration(std::stringstream& stream,
+void EnemySpawner::ReadComponentConfiguration(const int enemyCount,
+                                              std::stringstream& stream,
                                               std::map<std::string, std::string>& config)
 {
     std::string type, key, value;
@@ -162,30 +168,35 @@ void EnemySpawner::ReadComponentConfiguration(std::stringstream& stream,
     }
 }
 
-void EnemySpawner::ReadEventConfiguration(std::stringstream& stream,
+void EnemySpawner::ReadEventConfiguration(const int enemyCount,
+                                          std::stringstream& stream,
                                           std::map<std::string, std::string>& config)
 {
     std::string id, event, key, value;
     stream >> id >> event;
 
-    config.emplace("Event" + id, event);
+    std::string eventId = GenerateEventId(enemyCount, id);
+
+    config.emplace(eventId, event);
 
     while (!stream.eof())
     {
         stream >> key >> value;
-        config.emplace(event + key + id, value);
+        config.emplace(eventId + event + key, value);
     }
 }
 
-void EnemySpawner::RegisterComponents(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterComponents(const int enemyCount,
+                                      std::shared_ptr<Entity>& enemy,
                                       std::map<std::string, std::string> config)
 {
-    RegisterSpriteComponent(enemy, config);
-    RegisterMoveComponent(enemy, config);
-    RegisterSplineMoveComponent(enemy, config);
+    RegisterSpriteComponent(enemyCount, enemy, config);
+    RegisterMoveComponent(enemyCount, enemy, config);
+    RegisterSplineMoveComponent(enemyCount, enemy, config);
 }
 
-void EnemySpawner::RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterSpriteComponent(const int enemyCount,
+                                           std::shared_ptr<Entity>& enemy,
                                            std::map<std::string, std::string> config)
 {
     if (!config.contains("Sprite"))
@@ -225,7 +236,8 @@ void EnemySpawner::RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
         std::vector {enemy->GetTag()});
 }
 
-void EnemySpawner::RegisterMoveComponent(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterMoveComponent(const int enemyCount,
+                                         std::shared_ptr<Entity>& enemy,
                                          std::map<std::string, std::string> config)
 {
     if (!config.contains("Move"))
@@ -260,7 +272,8 @@ void EnemySpawner::RegisterMoveComponent(std::shared_ptr<Entity>& enemy,
     }
 }
 
-void EnemySpawner::RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterSplineMoveComponent(const int enemyCount,
+                                               std::shared_ptr<Entity>& enemy,
                                                std::map<std::string, std::string> config)
 {
     if (!config.contains("SplineMove"))
@@ -295,52 +308,54 @@ void EnemySpawner::RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
     }
 }
 
-void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterEvents(const int enemyCount,
+                                  std::shared_ptr<Entity>& enemy,
                                   std::map<std::string, std::string> config)
 {
     std::vector<std::function<Result(long, int)>> events;
     int id              = 0;
-    std::string eventId = "Event" + std::to_string(id);
+    std::string eventId = GenerateEventId(enemyCount, id);
 
     while (config.contains(eventId))
     {
         std::string event = config.at(eventId);
         if (event == "MoveEvent")
         {
-            RegisterMoveEvent(id, enemy, config, events);
+            RegisterMoveEvent(enemyCount, id, enemy, config, events);
         }
         else if (event == "SplineMoveEvent")
         {
-            RegisterSplineMoveEvent(id, enemy, config, events);
+            RegisterSplineMoveEvent(enemyCount, id, enemy, config, events);
         }
         else if (event == "ExplosionBulletsEvent")
         {
-            RegisterExplosionBulletsEvent(id, enemy, config, events);
+            RegisterExplosionBulletsEvent(enemyCount, id, enemy, config, events);
         }
         else if (event == "RollBulletsEvent")
         {
-            RegisterRollBulletsEvent(id, enemy, config, events);
+            RegisterRollBulletsEvent(enemyCount, id, enemy, config, events);
         }
         else if (event == "SequentialBulletsEvent")
         {
-            RegisterSequentialBulletsEvent(id, enemy, config, events);
+            RegisterSequentialBulletsEvent(enemyCount, id, enemy, config, events);
         }
         else if (event == "WinderBulletsEvent")
         {
-            RegisterWinderBulletsEvent(id, enemy, config, events);
+            RegisterWinderBulletsEvent(enemyCount, id, enemy, config, events);
         }
         ++id;
-        eventId = "Event" + std::to_string(id);
+        eventId = GenerateEventId(enemyCount, id);
     }
     enemy->AddComponent<EventComponent>(events);
 }
 
-void EnemySpawner::RegisterMoveEvent(const int eventId,
+void EnemySpawner::RegisterMoveEvent(const int enemyCount,
+                                     const int eventId,
                                      std::shared_ptr<Entity>& enemy,
                                      std::map<std::string, std::string> config,
                                      std::vector<std::function<Result(long, int)>>& events)
 {
-    std::string strId = std::to_string(eventId);
+    std::string strId = GenerateEventId(enemyCount, eventId);
 
     auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
@@ -351,7 +366,7 @@ void EnemySpawner::RegisterMoveEvent(const int eventId,
 
         float deltaTime = Game::GetGame().GetDeltaTime();
 
-        std::string type = config.at("MoveEventType" + strId);
+        std::string type = config.at(strId + "MoveEventType");
         if (type == "OneRound")
         {
             auto& transform    = enemy->GetComponent<TransformComponent>();
@@ -377,12 +392,13 @@ void EnemySpawner::RegisterMoveEvent(const int eventId,
     events.emplace_back(event);
 }
 
-void EnemySpawner::RegisterSplineMoveEvent(const int eventId,
+void EnemySpawner::RegisterSplineMoveEvent(const int enemyCount,
+                                           const int eventId,
                                            std::shared_ptr<Entity>& enemy,
                                            std::map<std::string, std::string> config,
                                            std::vector<std::function<Result(long, int)>>& events)
 {
-    std::string strId = std::to_string(eventId);
+    std::string strId = GenerateEventId(enemyCount, eventId);
 
     auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
@@ -391,7 +407,7 @@ void EnemySpawner::RegisterSplineMoveEvent(const int eventId,
             return Result::COMPLETED;
         }
 
-        std::string type = config.at("SplineMoveEventType" + strId);
+        std::string type = config.at(strId + "SplineMoveEventType");
 
         if (type == "All")
         {
@@ -412,22 +428,23 @@ void EnemySpawner::RegisterSplineMoveEvent(const int eventId,
 }
 
 void EnemySpawner::RegisterExplosionBulletsEvent(
+    const int enemyCount,
     const int eventId,
     std::shared_ptr<Entity>& enemy,
     std::map<std::string, std::string> config,
     std::vector<std::function<Result(long, int)>>& events)
 {
-    std::string strId = std::to_string(eventId);
+    std::string strId = GenerateEventId(enemyCount, eventId);
 
     auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
-        std::string strLoopNum    = config.at("ExplosionBulletsEventLoopNum" + strId);
-        std::string strInterval   = config.at("ExplosionBulletsEventInterval" + strId);
-        std::string strColor      = config.at("ExplosionBulletsEventColor" + strId);
-        std::string strNumBullets = config.at("ExplosionBulletsEventNumBullets" + strId);
-        std::string strSpeed      = config.at("ExplosionBulletsEventSpeed" + strId);
-        std::string strSize       = config.at("ExplosionBulletsEventSize" + strId);
-        std::string strWaitAfter  = config.at("ExplosionBulletsEventWaitAfter" + strId);
+        std::string strLoopNum    = config.at(strId + "ExplosionBulletsEventLoopNum");
+        std::string strInterval   = config.at(strId + "ExplosionBulletsEventInterval");
+        std::string strColor      = config.at(strId + "ExplosionBulletsEventColor");
+        std::string strNumBullets = config.at(strId + "ExplosionBulletsEventNumBullets");
+        std::string strSpeed      = config.at(strId + "ExplosionBulletsEventSpeed");
+        std::string strSize       = config.at(strId + "ExplosionBulletsEventSize");
+        std::string strWaitAfter  = config.at(strId + "ExplosionBulletsEventWaitAfter");
 
         int loopNum     = std::stoi(strLoopNum);
         float interval  = std::stof(strInterval);
@@ -459,20 +476,21 @@ void EnemySpawner::RegisterExplosionBulletsEvent(
     events.emplace_back(event);
 }
 
-void EnemySpawner::RegisterRollBulletsEvent(const int eventId,
+void EnemySpawner::RegisterRollBulletsEvent(const int enemyCount,
+                                            const int eventId,
                                             std::shared_ptr<Entity>& enemy,
                                             std::map<std::string, std::string> config,
                                             std::vector<std::function<Result(long, int)>>& events)
 {
-    std::string strId = std::to_string(eventId);
+    std::string strId = GenerateEventId(enemyCount, eventId);
 
     auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
-        std::string strColor      = config.at("RollBulletsEventColor" + strId);
-        std::string strNumBullets = config.at("RollBulletsEventNumBullets" + strId);
-        std::string strSpeed      = config.at("RollBulletsEventSpeed" + strId);
-        std::string strSize       = config.at("RollBulletsEventSize" + strId);
-        std::string strWaitAfter  = config.at("RollBulletsEventWaitAfter" + strId);
+        std::string strColor      = config.at(strId + "RollBulletsEventColor");
+        std::string strNumBullets = config.at(strId + "RollBulletsEventNumBullets");
+        std::string strSpeed      = config.at(strId + "RollBulletsEventSpeed");
+        std::string strSize       = config.at(strId + "RollBulletsEventSize");
+        std::string strWaitAfter  = config.at(strId + "RollBulletsEventWaitAfter");
 
         float waitAfter = std::stof(strWaitAfter);
 
@@ -504,20 +522,21 @@ void EnemySpawner::RegisterRollBulletsEvent(const int eventId,
 }
 
 void EnemySpawner::RegisterSequentialBulletsEvent(
+    const int enemyCount,
     const int eventId,
     std::shared_ptr<Entity>& enemy,
     std::map<std::string, std::string> config,
     std::vector<std::function<Result(long, int)>>& events)
 {
-    std::string strId = std::to_string(eventId);
+    std::string strId = GenerateEventId(enemyCount, eventId);
 
     auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
-        std::string strColor      = config.at("SequentialBulletsEventColor" + strId);
-        std::string strNumBullets = config.at("SequentialBulletsEventNumBullets" + strId);
-        std::string strSpeed      = config.at("SequentialBulletsEventSpeed" + strId);
-        std::string strSize       = config.at("SequentialBulletsEventSize" + strId);
-        std::string strWaitAfter  = config.at("SequentialBulletsEventWaitAfter" + strId);
+        std::string strColor      = config.at(strId + "SequentialBulletsEventColor");
+        std::string strNumBullets = config.at(strId + "SequentialBulletsEventNumBullets");
+        std::string strSpeed      = config.at(strId + "SequentialBulletsEventSpeed");
+        std::string strSize       = config.at(strId + "SequentialBulletsEventSize");
+        std::string strWaitAfter  = config.at(strId + "SequentialBulletsEventWaitAfter");
 
         float waitAfter = std::stof(strWaitAfter);
 
@@ -552,20 +571,21 @@ void EnemySpawner::RegisterSequentialBulletsEvent(
     events.emplace_back(event);
 }
 
-void EnemySpawner::RegisterWinderBulletsEvent(const int eventId,
+void EnemySpawner::RegisterWinderBulletsEvent(const int enemyCount,
+                                              const int eventId,
                                               std::shared_ptr<Entity>& enemy,
                                               std::map<std::string, std::string> config,
                                               std::vector<std::function<Result(long, int)>>& events)
 {
-    std::string strId = std::to_string(eventId);
+    std::string strId = GenerateEventId(enemyCount, eventId);
 
     auto event = [enemy, config, strId](long fromPreviousMilli, int executionCount)
     {
-        std::string strColor     = config.at("WinderBulletsEventColor" + strId);
-        std::string strLoopNum   = config.at("WinderBulletsEventLoopNum" + strId);
-        std::string strSpeed     = config.at("WinderBulletsEventSpeed" + strId);
-        std::string strSize      = config.at("WinderBulletsEventSize" + strId);
-        std::string strWaitAfter = config.at("WinderBulletsEventWaitAfter" + strId);
+        std::string strColor     = config.at(strId + "WinderBulletsEventColor");
+        std::string strLoopNum   = config.at(strId + "WinderBulletsEventLoopNum");
+        std::string strSpeed     = config.at(strId + "WinderBulletsEventSpeed");
+        std::string strSize      = config.at(strId + "WinderBulletsEventSize");
+        std::string strWaitAfter = config.at(strId + "WinderBulletsEventWaitAfter");
 
         float waitAfter = std::stof(strWaitAfter);
 
@@ -598,4 +618,14 @@ void EnemySpawner::RegisterWinderBulletsEvent(const int eventId,
         return Result::NONE;
     };
     events.emplace_back(event);
+}
+
+std::string EnemySpawner::GenerateEventId(const int enemyCount, const std::string eventId)
+{
+    return "Event" + std::to_string(enemyCount) + "-" + eventId;
+}
+
+std::string EnemySpawner::GenerateEventId(const int enemyCount, const int eventId)
+{
+    return GenerateEventId(enemyCount, std::to_string(eventId));
 }
