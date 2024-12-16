@@ -56,40 +56,34 @@ private:
                                std::shared_ptr<Entity>& enemy,
                                std::map<std::string, std::string> config);
 
-    static void RegisterMoveEvent(const int enemyCount,
-                                  const int eventId,
+    static void RegisterMoveEvent(const std::string& eventId,
                                   std::shared_ptr<Entity>& enemy,
                                   std::map<std::string, std::string> config,
                                   std::vector<std::function<Result(long, int)>>& events);
 
-    static void RegisterSplineMoveEvent(const int enemyCount,
-                                        const int eventId,
+    static void RegisterSplineMoveEvent(const std::string& eventId,
                                         std::shared_ptr<Entity>& enemy,
                                         std::map<std::string, std::string> config,
                                         std::vector<std::function<Result(long, int)>>& events);
 
     static void RegisterExplosionBulletsEvent(
-        const int enemyCount,
-        const int eventId,
+        const std::string& eventId,
         std::shared_ptr<Entity>& enemy,
         std::map<std::string, std::string> config,
         std::vector<std::function<Result(long, int)>>& events);
 
-    static void RegisterRollBulletsEvent(const int enemyCount,
-                                         const int eventId,
+    static void RegisterRollBulletsEvent(const std::string& eventId,
                                          std::shared_ptr<Entity>& enemy,
                                          std::map<std::string, std::string> config,
                                          std::vector<std::function<Result(long, int)>>& events);
 
     static void RegisterSequentialBulletsEvent(
-        const int enemyCount,
-        const int eventId,
+        const std::string& eventId,
         std::shared_ptr<Entity>& enemy,
         std::map<std::string, std::string> config,
         std::vector<std::function<Result(long, int)>>& events);
 
-    static void RegisterWinderBulletsEvent(const int enemyCount,
-                                           const int eventId,
+    static void RegisterWinderBulletsEvent(const std::string& eventId,
                                            std::shared_ptr<Entity>& enemy,
                                            std::map<std::string, std::string> config,
                                            std::vector<std::function<Result(long, int)>>& events);
