@@ -108,78 +108,9 @@ void EnemySpawner::Initialize(const int sceneId)
                     }
                 }
 
-                auto enemy  = entityManager.AddEntity(Enemy::ENEMY_TAG);
-                float scale = 1.0f;
+                auto enemy = entityManager.AddEntity(Enemy::ENEMY_TAG);
 
-                if (config.contains("Sprite"))
-                {
-                    std::string name     = config.at("SpriteName");
-                    std::string path     = config.at("SpritePath");
-                    std::string strScale = config.at("SpriteScale");
-
-                    if (!assetManager.LoadTexture(name, path))
-                    {
-                        SDL_Log("Failed to load texture: %s", path.c_str());
-                        exit(EXIT_FAILURE);
-                    }
-                    enemy->AddComponent<SpriteComponent>(Enemy::SPRITE_SHADER_NAME, name);
-
-                    scale         = std::stof(strScale);
-                    auto& texture = assetManager.GetTexture(name);
-
-                    enemy->AddComponent<BoxCollisionComponent>(
-                        glm::vec2 {texture.GetWidth(), texture.GetHeight()} * scale / 4.0f,
-                        std::vector {enemy->GetTag()});
-                }
-
-                if (config.contains("Move"))
-                {
-                    std::string strPoints = config.at("MovePoints");
-                    std::string strSpeed  = config.at("MoveSpeed");
-
-                    std::vector<glm::vec2> points;
-                    for (auto& strPoint : Split(strPoints, "|"))
-                    {
-                        auto split = Split(strPoint, ",");
-                        float x    = std::stof(split[0]);
-                        float y    = std::stof(split[1]);
-                        glm::vec2 point {x, y};
-                        points.emplace_back(point);
-                    }
-
-                    float speed = std::stof(strSpeed);
-
-                    auto& move = enemy->AddComponent<MoveComponent>(points, speed);
-                    if (!enemy->HasComponent<TransformComponent>())
-                    {
-                        enemy->AddComponent<TransformComponent>(move.CurrentPoint(), scale);
-                    }
-                }
-
-                if (config.contains("SplineMove"))
-                {
-                    std::string strPoints = config.at("SplineMovePoints");
-                    std::string strSpeed  = config.at("SplineMoveSpeed");
-
-                    std::vector<glm::vec2> points;
-                    for (auto& strPoint : Split(strPoints, "|"))
-                    {
-                        auto split = Split(strPoint, ",");
-                        float x    = std::stof(split[0]);
-                        float y    = std::stof(split[1]);
-                        glm::vec2 point {x, y};
-                        points.emplace_back(point);
-                    }
-
-                    float speed = std::stof(strSpeed);
-
-                    auto& spline = enemy->AddComponent<SplineMoveComponent>(points, speed);
-                    if (!enemy->HasComponent<TransformComponent>())
-                    {
-                        enemy->AddComponent<TransformComponent>(spline.CurrentPoint(), scale);
-                    }
-                }
-
+                RegisterComponents(enemy, config);
                 RegisterEvents(enemy, config);
 
                 return Result::COMPLETED;
@@ -243,6 +174,124 @@ void EnemySpawner::ReadEventConfiguration(std::stringstream& stream,
     {
         stream >> key >> value;
         config.emplace(event + key + id, value);
+    }
+}
+
+void EnemySpawner::RegisterComponents(std::shared_ptr<Entity>& enemy,
+                                      std::map<std::string, std::string> config)
+{
+    RegisterSpriteComponent(enemy, config);
+    RegisterMoveComponent(enemy, config);
+    RegisterSplineMoveComponent(enemy, config);
+}
+
+void EnemySpawner::RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
+                                           std::map<std::string, std::string> config)
+{
+    if (!config.contains("Sprite"))
+    {
+        return;
+    }
+
+    auto& assetManager = Game::GetGame().GetAssetManager();
+
+    std::string name     = config.at("SpriteName");
+    std::string path     = config.at("SpritePath");
+    std::string strScale = config.at("SpriteScale");
+
+    if (!assetManager.LoadTexture(name, path))
+    {
+        SDL_Log("Failed to load texture: %s", path.c_str());
+        exit(EXIT_FAILURE);
+    }
+    enemy->AddComponent<SpriteComponent>(Enemy::SPRITE_SHADER_NAME, name);
+
+    float scale = std::stof(strScale);
+
+    if (enemy->HasComponent<TransformComponent>())
+    {
+        enemy->GetComponent<TransformComponent>().scale = scale;
+    }
+    else
+    {
+        auto& transform = enemy->AddComponent<TransformComponent>();
+        transform.scale = scale;
+    }
+
+    auto& texture = assetManager.GetTexture(name);
+
+    enemy->AddComponent<BoxCollisionComponent>(
+        glm::vec2 {texture.GetWidth(), texture.GetHeight()} * scale / 4.0f,
+        std::vector {enemy->GetTag()});
+}
+
+void EnemySpawner::RegisterMoveComponent(std::shared_ptr<Entity>& enemy,
+                                         std::map<std::string, std::string> config)
+{
+    if (!config.contains("Move"))
+    {
+        return;
+    }
+
+    std::string strPoints = config.at("MovePoints");
+    std::string strSpeed  = config.at("MoveSpeed");
+
+    std::vector<glm::vec2> points;
+    for (auto& strPoint : Split(strPoints, "|"))
+    {
+        auto split = Split(strPoint, ",");
+        float x    = std::stof(split[0]);
+        float y    = std::stof(split[1]);
+        glm::vec2 point {x, y};
+        points.emplace_back(point);
+    }
+
+    float speed = std::stof(strSpeed);
+
+    auto& move = enemy->AddComponent<MoveComponent>(points, speed);
+    if (!enemy->HasComponent<TransformComponent>())
+    {
+        enemy->AddComponent<TransformComponent>(move.CurrentPoint(), 1.0);
+    }
+    else
+    {
+        auto& transform    = enemy->GetComponent<TransformComponent>();
+        transform.position = move.CurrentPoint();
+    }
+}
+
+void EnemySpawner::RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
+                                               std::map<std::string, std::string> config)
+{
+    if (!config.contains("SplineMove"))
+    {
+        return;
+    }
+
+    std::string strPoints = config.at("SplineMovePoints");
+    std::string strSpeed  = config.at("SplineMoveSpeed");
+
+    std::vector<glm::vec2> points;
+    for (auto& strPoint : Split(strPoints, "|"))
+    {
+        auto split = Split(strPoint, ",");
+        float x    = std::stof(split[0]);
+        float y    = std::stof(split[1]);
+        glm::vec2 point {x, y};
+        points.emplace_back(point);
+    }
+
+    float speed = std::stof(strSpeed);
+
+    auto& spline = enemy->AddComponent<SplineMoveComponent>(points, speed);
+    if (!enemy->HasComponent<TransformComponent>())
+    {
+        enemy->AddComponent<TransformComponent>(spline.CurrentPoint(), 1.0);
+    }
+    else
+    {
+        auto& transform    = enemy->GetComponent<TransformComponent>();
+        transform.position = spline.CurrentPoint();
     }
 }
 

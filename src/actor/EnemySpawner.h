@@ -31,6 +31,20 @@ private:
     static void ReadEventConfiguration(std::stringstream& stream,
                                        std::map<std::string, std::string>& config);
 
+    // Register Components
+    static void RegisterComponents(std::shared_ptr<Entity>& enemy,
+                                   std::map<std::string, std::string> config);
+
+    static void RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
+                                        std::map<std::string, std::string> config);
+
+    static void RegisterMoveComponent(std::shared_ptr<Entity>& enemy,
+                                      std::map<std::string, std::string> config);
+
+    static void RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
+                                            std::map<std::string, std::string> config);
+
+    // Register Events
     static void RegisterEvents(std::shared_ptr<Entity>& enemy,
                                std::map<std::string, std::string> config);
 
