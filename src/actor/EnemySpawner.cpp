@@ -101,8 +101,8 @@ void EnemySpawner::Initialize(const int sceneId)
                 if (config.contains("SpawnTime"))
                 {
                     std::string strSpawnTime = config.at("SpawnTime");
-                    long spawnTime           = std::stol(strSpawnTime);
-                    long elapsedTime         = game.SceneElapsedTimeSecond();
+                    float spawnTime          = std::stof(strSpawnTime);
+                    float elapsedTime        = game.SceneElapsedTimeMillisecond() / 1000.0f;
                     if (elapsedTime < spawnTime)
                     {
                         return Result::NONE;
@@ -600,6 +600,16 @@ void EnemySpawner::RegisterWinderBulletsEvent(const std::string& eventId,
         return Result::NONE;
     };
     events.emplace_back(event);
+}
+
+std::string EnemySpawner::GenerateComponentId(const int enemyCount, const std::string componentId)
+{
+    return "Component" + std::to_string(enemyCount) + "-" + componentId;
+}
+
+std::string EnemySpawner::GenerateComponentId(const int enemyCount, const int componentId)
+{
+    return GenerateComponentId(enemyCount, std::to_string(componentId));
 }
 
 std::string EnemySpawner::GenerateEventId(const int enemyCount, const std::string eventId)

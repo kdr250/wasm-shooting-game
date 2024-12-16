@@ -88,6 +88,9 @@ private:
                                            std::map<std::string, std::string> config,
                                            std::vector<std::function<Result(long, int)>>& events);
 
+    static std::string GenerateComponentId(const int enemyCount, const std::string componentId);
+    static std::string GenerateComponentId(const int enemyCount, const int componentId);
+
     static std::string GenerateEventId(const int enemyCount, const std::string eventId);
     static std::string GenerateEventId(const int enemyCount, const int eventId);
 };
