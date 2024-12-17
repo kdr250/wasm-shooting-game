@@ -18,6 +18,7 @@ public:
     EntityVector& GetEntities();
     EntityVector& GetEntities(const std::string& tag);
     bool HasEntities(const std::string& tag);
+    bool HasEntity(const int id);
 
 private:
     void RemoveDeadEntities(EntityVector& vec);

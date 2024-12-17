@@ -17,10 +17,15 @@ public:
 
     static void Spawn(float deltaTime);
 
+    static void Update(float deltaTime);
+
     inline static const std::string ENEMY_SPAWNER_TAG = "EnemySpawner";
+    inline static const std::string EVENT_HANDLER_TAG = "EnemySpawnerEventHandler";
 
 private:
     static std::shared_ptr<Entity>& GetSpawner();
+
+    static std::shared_ptr<Entity>& GetEventHandler();
 
     static void ReadEnemyConfiguration(std::stringstream& stream,
                                        std::map<std::string, std::string>& config);
@@ -47,6 +52,9 @@ private:
     // Register Events
     static void RegisterEvents(std::shared_ptr<Entity>& enemy,
                                std::map<std::string, std::string> config);
+
+    static void RegisterSceneClearEvent(std::shared_ptr<Entity>& enemy,
+                                        std::map<std::string, std::string> config);
 
     static void RegisterMoveEvent(const std::string& eventId,
                                   std::shared_ptr<Entity>& enemy,

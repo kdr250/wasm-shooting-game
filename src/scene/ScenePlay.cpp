@@ -92,6 +92,7 @@ void ScenePlay::DoAction(const Action& action)
 void ScenePlay::SpawnEntities(float deltaTime)
 {
     EnemySpawner::Spawn(deltaTime);
+    EnemySpawner::Update(deltaTime);  // FIXME
 }
 
 void ScenePlay::MoveEntities(float deltaTime)
