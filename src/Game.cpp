@@ -159,6 +159,16 @@ void Game::ChangeScene(const std::string& sceneName,
     sceneMap.emplace(sceneName, scene);
 }
 
+void Game::OnSceneClear()
+{
+    sceneMap[currentSceneName]->OnClear();
+}
+
+void Game::OnSceneOver()
+{
+    sceneMap[currentSceneName]->OnOver();
+}
+
 void Game::Loop()
 {
 #ifdef __EMSCRIPTEN__

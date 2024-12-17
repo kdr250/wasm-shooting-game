@@ -12,6 +12,8 @@ public:
     void Update(float deltaTime) override;
     void DoAction(const Action& action) override;
     void Render() override;
+    void OnClear() override;
+    void OnOver() override;
 
     void SpawnEntities(float deltaTime);
     void MoveEntities(float deltaTime);
@@ -23,5 +25,7 @@ private:
 
     void SetPause(bool pause);
 
-    bool paused = false;
+    bool paused  = false;
+    bool cleared = false;
+    bool over    = false;
 };

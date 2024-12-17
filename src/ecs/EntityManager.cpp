@@ -1,4 +1,5 @@
 #include "EntityManager.h"
+#include <algorithm>
 
 EntityManager::EntityManager() {}
 
@@ -41,6 +42,17 @@ EntityVector& EntityManager::GetEntities(const std::string& tag)
 bool EntityManager::HasEntities(const std::string& tag)
 {
     return entityMap.contains(tag) && !entityMap[tag].empty();
+}
+
+bool EntityManager::HasEntity(const int id)
+{
+    auto iter = std::find_if(entities.begin(),
+                             entities.end(),
+                             [id](auto& entity)
+                             {
+                                 return entity->GetId() == id;
+                             });
+    return iter != entities.end();
 }
 
 void EntityManager::RemoveDeadEntities(EntityVector& vec)

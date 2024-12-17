@@ -36,6 +36,9 @@ void EnemySpawner::Initialize(const int sceneId)
     auto spawner = entityManager.AddEntity(ENEMY_SPAWNER_TAG);
     spawner->AddComponent<EventComponent>();
 
+    auto eventHandler = entityManager.AddEntity(EVENT_HANDLER_TAG);
+    eventHandler->AddComponent<EventComponent>();
+
     std::string filePath = "resources/scene/" + std::to_string(sceneId) + ".txt";
     std::ifstream file;
     file.open(filePath);
@@ -127,15 +130,26 @@ void EnemySpawner::Initialize(const int sceneId)
 
 void EnemySpawner::Spawn(float deltaTime)
 {
-    auto& spawner        = GetSpawner();
-    auto& eventComponent = spawner->GetComponent<EventComponent>();
-    eventComponent.Execute(deltaTime);
+    auto& spawner = GetSpawner();
+    spawner->GetComponent<EventComponent>().Execute(deltaTime);
+}
+
+void EnemySpawner::Update(float deltaTime)
+{
+    auto& eventHandler = GetEventHandler();
+    eventHandler->GetComponent<EventComponent>().Execute(deltaTime);
 }
 
 std::shared_ptr<Entity>& EnemySpawner::GetSpawner()
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
     return entityManager.GetEntities(ENEMY_SPAWNER_TAG)[0];
+}
+
+std::shared_ptr<Entity>& EnemySpawner::GetEventHandler()
+{
+    auto& entityManager = Game::GetGame().GetEntityManger();
+    return entityManager.GetEntities(EVENT_HANDLER_TAG)[0];
 }
 
 void EnemySpawner::ReadEnemyConfiguration(std::stringstream& stream,
@@ -309,7 +323,11 @@ void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
     while (config.contains(eventId))
     {
         std::string event = config.at(eventId);
-        if (event == "MoveEvent")
+        if (event == "SceneClearEvent")
+        {
+            RegisterSceneClearEvent(enemy, config);
+        }
+        else if (event == "MoveEvent")
         {
             RegisterMoveEvent(eventId, enemy, config, events);
         }
@@ -341,6 +359,23 @@ void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
     {
         enemy->AddComponent<EventComponent>(events);
     }
+}
+
+void EnemySpawner::RegisterSceneClearEvent(std::shared_ptr<Entity>& enemy,
+                                           std::map<std::string, std::string> config)
+{
+    auto event = [enemy, config](long fromPreviousMilli, int executionCount)
+    {
+        if (!enemy->IsActive())
+        {
+            Game::GetGame().OnSceneClear();
+            return Result::COMPLETED;
+        }
+        return Result::NONE;
+    };
+
+    auto& eventHandler = GetEventHandler();
+    eventHandler->GetComponent<EventComponent>().Add(event);
 }
 
 void EnemySpawner::RegisterMoveEvent(const std::string& eventId,

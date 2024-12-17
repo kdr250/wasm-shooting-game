@@ -10,6 +10,8 @@ public:
     void Update(float deltaTime) override;
     void DoAction(const Action& action) override;
     void Render() override;
+    void OnClear() override {};
+    void OnOver() override {};
 
 private:
     void OnEnd() override;
