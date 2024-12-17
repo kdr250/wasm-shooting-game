@@ -22,38 +22,30 @@ public:
 private:
     static std::shared_ptr<Entity>& GetSpawner();
 
-    static void ReadEnemyConfiguration(const int enemyCount,
-                                       std::stringstream& stream,
+    static void ReadEnemyConfiguration(std::stringstream& stream,
                                        std::map<std::string, std::string>& config);
 
-    static void ReadComponentConfiguration(const int enemyCount,
-                                           std::stringstream& stream,
+    static void ReadComponentConfiguration(std::stringstream& stream,
                                            std::map<std::string, std::string>& config);
 
-    static void ReadEventConfiguration(const int enemyCount,
-                                       std::stringstream& stream,
+    static void ReadEventConfiguration(std::stringstream& stream,
                                        std::map<std::string, std::string>& config);
 
     // Register Components
-    static void RegisterComponents(const int enemyCount,
-                                   std::shared_ptr<Entity>& enemy,
+    static void RegisterComponents(std::shared_ptr<Entity>& enemy,
                                    std::map<std::string, std::string> config);
 
-    static void RegisterSpriteComponent(const std::string& componentId,
-                                        std::shared_ptr<Entity>& enemy,
+    static void RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
                                         std::map<std::string, std::string> config);
 
-    static void RegisterMoveComponent(const std::string& componentId,
-                                      std::shared_ptr<Entity>& enemy,
+    static void RegisterMoveComponent(std::shared_ptr<Entity>& enemy,
                                       std::map<std::string, std::string> config);
 
-    static void RegisterSplineMoveComponent(const std::string& componentId,
-                                            std::shared_ptr<Entity>& enemy,
+    static void RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
                                             std::map<std::string, std::string> config);
 
     // Register Events
-    static void RegisterEvents(const int enemyCount,
-                               std::shared_ptr<Entity>& enemy,
+    static void RegisterEvents(std::shared_ptr<Entity>& enemy,
                                std::map<std::string, std::string> config);
 
     static void RegisterMoveEvent(const std::string& eventId,
@@ -88,8 +80,6 @@ private:
                                            std::map<std::string, std::string> config,
                                            std::vector<std::function<Result(long, int)>>& events);
 
-    static std::string GenerateComponentId(const int enemyCount);
-
-    static std::string GenerateEventId(const int enemyCount, const std::string eventId);
-    static std::string GenerateEventId(const int enemyCount, const int eventId);
+    static std::string GenerateEventId(const std::string eventId);
+    static std::string GenerateEventId(const int eventId);
 };

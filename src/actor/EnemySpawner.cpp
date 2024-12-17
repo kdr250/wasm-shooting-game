@@ -68,8 +68,7 @@ void EnemySpawner::Initialize(const int sceneId)
 
     std::map<std::string, std::string> config;
 
-    int enemyCount = 0;
-    auto iter      = allLine.begin();
+    auto iter = allLine.begin();
     while (iter != allLine.end())
     {
         std::string line = *iter;
@@ -79,20 +78,20 @@ void EnemySpawner::Initialize(const int sceneId)
 
         if (tag == Enemy::ENEMY_TAG)
         {
-            ReadEnemyConfiguration(enemyCount, stream, config);
+            ReadEnemyConfiguration(stream, config);
         }
         else if (tag == "Component")
         {
-            ReadComponentConfiguration(enemyCount, stream, config);
+            ReadComponentConfiguration(stream, config);
         }
         else if (tag == "Event")
         {
-            ReadEventConfiguration(enemyCount, stream, config);
+            ReadEventConfiguration(stream, config);
         }
         else if (tag == "End")
         {
             std::function<Result(long, int)> spawnEvent =
-                [spawner, config, enemyCount](long fromPreviousMilli, int executionCount)
+                [spawner, config](long fromPreviousMilli, int executionCount)
             {
                 auto& game          = Game::GetGame();
                 auto& assetManager  = game.GetAssetManager();
@@ -111,8 +110,8 @@ void EnemySpawner::Initialize(const int sceneId)
 
                 auto enemy = entityManager.AddEntity(Enemy::ENEMY_TAG);
 
-                RegisterComponents(enemyCount, enemy, config);
-                RegisterEvents(enemyCount, enemy, config);
+                RegisterComponents(enemy, config);
+                RegisterEvents(enemy, config);
 
                 return Result::COMPLETED;
             };
@@ -121,7 +120,6 @@ void EnemySpawner::Initialize(const int sceneId)
             eventComponent.Add(spawnEvent);
 
             config.clear();
-            ++enemyCount;
         }
         ++iter;
     }
@@ -140,8 +138,7 @@ std::shared_ptr<Entity>& EnemySpawner::GetSpawner()
     return entityManager.GetEntities(ENEMY_SPAWNER_TAG)[0];
 }
 
-void EnemySpawner::ReadEnemyConfiguration(const int enemyCount,
-                                          std::stringstream& stream,
+void EnemySpawner::ReadEnemyConfiguration(std::stringstream& stream,
                                           std::map<std::string, std::string>& config)
 {
     std::string key, value;
@@ -152,32 +149,28 @@ void EnemySpawner::ReadEnemyConfiguration(const int enemyCount,
     }
 }
 
-void EnemySpawner::ReadComponentConfiguration(const int enemyCount,
-                                              std::stringstream& stream,
+void EnemySpawner::ReadComponentConfiguration(std::stringstream& stream,
                                               std::map<std::string, std::string>& config)
 {
     std::string type, key, value;
     stream >> type;
 
-    std::string componentId = GenerateComponentId(enemyCount);
-
-    config.emplace(componentId + type, "true");
+    config.emplace(type, "true");
 
     while (!stream.eof())
     {
         stream >> key >> value;
-        config.emplace(componentId + type + key, value);
+        config.emplace(type + key, value);
     }
 }
 
-void EnemySpawner::ReadEventConfiguration(const int enemyCount,
-                                          std::stringstream& stream,
+void EnemySpawner::ReadEventConfiguration(std::stringstream& stream,
                                           std::map<std::string, std::string>& config)
 {
     std::string id, event, key, value;
     stream >> id >> event;
 
-    std::string eventId = GenerateEventId(enemyCount, id);
+    std::string eventId = GenerateEventId(id);
 
     config.emplace(eventId, event);
 
@@ -188,28 +181,25 @@ void EnemySpawner::ReadEventConfiguration(const int enemyCount,
     }
 }
 
-void EnemySpawner::RegisterComponents(const int enemyCount,
-                                      std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterComponents(std::shared_ptr<Entity>& enemy,
                                       std::map<std::string, std::string> config)
 {
-    std::string componentId = GenerateComponentId(enemyCount);
-    RegisterSpriteComponent(componentId, enemy, config);
-    RegisterMoveComponent(componentId, enemy, config);
-    RegisterSplineMoveComponent(componentId, enemy, config);
+    RegisterSpriteComponent(enemy, config);
+    RegisterMoveComponent(enemy, config);
+    RegisterSplineMoveComponent(enemy, config);
 }
 
-void EnemySpawner::RegisterSpriteComponent(const std::string& componentId,
-                                           std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
                                            std::map<std::string, std::string> config)
 {
-    if (!config.contains(componentId + "Sprite"))
+    if (!config.contains("Sprite"))
     {
         return;
     }
 
-    std::string name     = config.at(componentId + "SpriteName");
-    std::string path     = config.at(componentId + "SpritePath");
-    std::string strScale = config.at(componentId + "SpriteScale");
+    std::string name     = config.at("SpriteName");
+    std::string path     = config.at("SpritePath");
+    std::string strScale = config.at("SpriteScale");
 
     auto& assetManager = Game::GetGame().GetAssetManager();
 
@@ -239,17 +229,16 @@ void EnemySpawner::RegisterSpriteComponent(const std::string& componentId,
         std::vector {enemy->GetTag()});
 }
 
-void EnemySpawner::RegisterMoveComponent(const std::string& componentId,
-                                         std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterMoveComponent(std::shared_ptr<Entity>& enemy,
                                          std::map<std::string, std::string> config)
 {
-    if (!config.contains(componentId + "Move"))
+    if (!config.contains("Move"))
     {
         return;
     }
 
-    std::string strPoints = config.at(componentId + "MovePoints");
-    std::string strSpeed  = config.at(componentId + "MoveSpeed");
+    std::string strPoints = config.at("MovePoints");
+    std::string strSpeed  = config.at("MoveSpeed");
 
     std::vector<glm::vec2> points;
     for (auto& strPoint : Split(strPoints, "|"))
@@ -275,17 +264,16 @@ void EnemySpawner::RegisterMoveComponent(const std::string& componentId,
     }
 }
 
-void EnemySpawner::RegisterSplineMoveComponent(const std::string& componentId,
-                                               std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
                                                std::map<std::string, std::string> config)
 {
-    if (!config.contains(componentId + "SplineMove"))
+    if (!config.contains("SplineMove"))
     {
         return;
     }
 
-    std::string strPoints = config.at(componentId + "SplineMovePoints");
-    std::string strSpeed  = config.at(componentId + "SplineMoveSpeed");
+    std::string strPoints = config.at("SplineMovePoints");
+    std::string strSpeed  = config.at("SplineMoveSpeed");
 
     std::vector<glm::vec2> points;
     for (auto& strPoint : Split(strPoints, "|"))
@@ -311,13 +299,12 @@ void EnemySpawner::RegisterSplineMoveComponent(const std::string& componentId,
     }
 }
 
-void EnemySpawner::RegisterEvents(const int enemyCount,
-                                  std::shared_ptr<Entity>& enemy,
+void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
                                   std::map<std::string, std::string> config)
 {
     std::vector<std::function<Result(long, int)>> events;
     int id              = 0;
-    std::string eventId = GenerateEventId(enemyCount, id);
+    std::string eventId = GenerateEventId(id);
 
     while (config.contains(eventId))
     {
@@ -347,7 +334,7 @@ void EnemySpawner::RegisterEvents(const int enemyCount,
             RegisterWinderBulletsEvent(eventId, enemy, config, events);
         }
         ++id;
-        eventId = GenerateEventId(enemyCount, id);
+        eventId = GenerateEventId(id);
     }
 
     if (!events.empty())
@@ -609,17 +596,12 @@ void EnemySpawner::RegisterWinderBulletsEvent(const std::string& eventId,
     events.emplace_back(event);
 }
 
-std::string EnemySpawner::GenerateComponentId(const int enemyCount)
+std::string EnemySpawner::GenerateEventId(const std::string eventId)
 {
-    return "Component" + std::to_string(enemyCount);
+    return "Event" + eventId;
 }
 
-std::string EnemySpawner::GenerateEventId(const int enemyCount, const std::string eventId)
+std::string EnemySpawner::GenerateEventId(const int eventId)
 {
-    return "Event" + std::to_string(enemyCount) + "-" + eventId;
-}
-
-std::string EnemySpawner::GenerateEventId(const int enemyCount, const int eventId)
-{
-    return GenerateEventId(enemyCount, std::to_string(eventId));
+    return GenerateEventId(std::to_string(eventId));
 }
