@@ -37,7 +37,7 @@ void ScenePlay::Update(float deltaTime)
 {
     Game::GetGame().GetEntityManger().Update();
 
-    if (paused)
+    if (paused || cleared || over)
         return;
 
     SpawnEntities(deltaTime);
@@ -125,7 +125,7 @@ void ScenePlay::ProcessCollision()
 
     if (Player::IsCollide())
     {
-        OnEnd();
+        OnOver();
     }
 }
 
@@ -145,4 +145,18 @@ void ScenePlay::Render()
 
     // swap the buffers
     SDL_GL_SwapWindow(Game::GetGame().GetWindow());
+}
+
+void ScenePlay::OnClear()
+{
+    TextActor::Spawn("Game Clear !!",
+                     glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f});
+    cleared = true;
+}
+
+void ScenePlay::OnOver()
+{
+    TextActor::Spawn("Game Over !!",
+                     glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f});
+    over = true;
 }

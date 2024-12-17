@@ -14,6 +14,8 @@ public:
     virtual void Update(float deltaTime)        = 0;
     virtual void DoAction(const Action& action) = 0;
     virtual void Render()                       = 0;
+    virtual void OnClear()                      = 0;
+    virtual void OnOver()                       = 0;
 
     void RegisterAction(int inputKey, const std::string& actionName);
 

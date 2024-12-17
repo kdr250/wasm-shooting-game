@@ -54,6 +54,9 @@ public:
                      std::shared_ptr<Scene> scene,
                      bool endCurrentScene = false);
 
+    void OnSceneClear();
+    void OnSceneOver();
+
 private:
     // Shutdown the game
     static void Shutdown();

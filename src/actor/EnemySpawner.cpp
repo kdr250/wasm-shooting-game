@@ -323,7 +323,6 @@ void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,
     while (config.contains(eventId))
     {
         std::string event = config.at(eventId);
-        SDL_Log("event = %s", event.c_str());
         if (event == "SceneClearEvent")
         {
             RegisterSceneClearEvent(enemy, config);
@@ -369,7 +368,7 @@ void EnemySpawner::RegisterSceneClearEvent(std::shared_ptr<Entity>& enemy,
     {
         if (!enemy->IsActive())
         {
-            Game::GetGame().Stop();  // FIXME
+            Game::GetGame().OnSceneClear();
             return Result::COMPLETED;
         }
         return Result::NONE;
