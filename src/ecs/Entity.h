@@ -8,6 +8,7 @@ class EntityManager;
 
 using ComponentTuple = std::tuple<TransformComponent,
                                   SpriteComponent,
+                                  AnimationComponent,
                                   DrawComponent,
                                   RectComponent,
                                   InputComponent,

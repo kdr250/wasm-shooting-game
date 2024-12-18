@@ -5,6 +5,7 @@
 #include <sstream>
 #include "../Game.h"
 #include "Bullet.h"
+#include "ExplosionEffect.h"
 #include "Player.h"
 
 void Enemy::Move(float deltaTime)
@@ -43,8 +44,9 @@ void Enemy::Collide()
         {
             if (Physics::IsOverlap(bullet, enemy))
             {
-                enemy->Destroy();
                 bullet->Destroy();
+                enemy->Destroy();
+                ExplosionEffect::Spawn(enemy->GetComponent<TransformComponent>().position);
                 continue;
             }
         }

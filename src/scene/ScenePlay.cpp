@@ -7,6 +7,7 @@
 #include "../actor/Bullet.h"
 #include "../actor/Enemy.h"
 #include "../actor/EnemySpawner.h"
+#include "../actor/ExplosionEffect.h"
 #include "../actor/Player.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
@@ -54,6 +55,7 @@ void ScenePlay::OnEnd()
 
     Player::Unload();
     Enemy::Unload();
+    ExplosionEffect::Unload();
     TextActor::Unload();
 
     auto& entities = entityManager.GetEntities();
@@ -140,6 +142,7 @@ void ScenePlay::Render()
     Background::Draw();
     Bullet::Draw();
     Enemy::Draw();
+    ExplosionEffect::Draw();
     Player::Draw();
     TextActor::Draw();
 

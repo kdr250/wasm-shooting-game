@@ -58,6 +58,26 @@ public:
     }
 };
 
+class AnimationComponent : public Component
+{
+public:
+    std::string shaderName;
+    std::string animationName;
+    int currentFrame = 0;
+    int speed        = 0;
+
+    AnimationComponent() {}
+    AnimationComponent(const std::string& shaName, const std::string& animName, int sp) :
+        shaderName(shaName), animationName(animName), speed(sp)
+    {
+    }
+
+    void Update()
+    {
+        ++currentFrame;
+    }
+};
+
 class DrawComponent : public Component
 {
 public:
