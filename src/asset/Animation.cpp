@@ -1,13 +1,11 @@
 #include "Animation.h"
+#include "Texture.h"
 
 Animation::Animation() {}
 
-Animation::Animation(const std::string& name, const std::vector<Texture>& t) : Animation(name, t, 1)
-{
-}
+Animation::Animation(const std::vector<Texture>& t) : Animation(t, 1) {}
 
-Animation::Animation(const std::string& name, const std::vector<Texture>& tex, int speed) :
-    name(name), speed(speed)
+Animation::Animation(const std::vector<Texture>& tex, int speed) : speed(speed)
 {
     textures = tex;
 }
@@ -17,9 +15,17 @@ void Animation::Update()
     currentFrame = (currentFrame + 1) % textures.size();
 }
 
-std::string& Animation::GetName()
+void Animation::SetActive()
 {
-    return name;
+    textures[currentFrame].SetActive();
+}
+
+void Animation::Unload()
+{
+    for (auto& texture : textures)
+    {
+        texture.Unload();
+    }
 }
 
 Texture& Animation::GetTexture()
