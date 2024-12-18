@@ -12,12 +12,12 @@ Animation::Animation(const std::vector<Texture>& tex, int speed) : speed(speed)
 
 void Animation::Update()
 {
-    currentFrame = (currentFrame + 1) % textures.size();
+    ++currentFrame;
 }
 
 void Animation::SetActive()
 {
-    textures[currentFrame].SetActive();
+    GetTexture().SetActive();
 }
 
 void Animation::Unload()
@@ -30,5 +30,6 @@ void Animation::Unload()
 
 Texture& Animation::GetTexture()
 {
-    return textures[currentFrame];
+    int animationFrame = (currentFrame / speed) % textures.size();
+    return textures[animationFrame];
 }

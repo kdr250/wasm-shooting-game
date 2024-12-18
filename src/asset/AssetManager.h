@@ -20,7 +20,8 @@ public:
 
     bool LoadAnimation(const std::string& name,
                        const std::string& path,
-                       const glm::vec2& oneFrameSize);
+                       const glm::vec2& oneFrameSize,
+                       const int speed);
     Animation& GetAnimation(const std::string& name);
 
     bool LoadShader(const std::string& name,

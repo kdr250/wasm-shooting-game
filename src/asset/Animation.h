@@ -17,9 +17,9 @@ public:
     void SetActive();
     void Unload();
 
+private:
     Texture& GetTexture();
 
-private:
     std::vector<Texture> textures;
     int currentFrame;
     int speed;
