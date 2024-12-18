@@ -159,17 +159,21 @@ bool AssetManager::LoadAnimation(const std::string& name,
 
     std::vector<Texture> textures;
 
-    for (int i = 0; i < widthCount; ++i)
+    for (int i = 0; i < heightCount; ++i)
     {
-        for (int j = 0; j < heightCount; ++j)
+        for (int j = 0; j < widthCount; ++j)
         {
             auto image =
                 std::make_unique<unsigned char[]>(numChannel * oneFrameWidth * oneFrameHeight);
-            for (int k = 0; k < oneFrameHeight; ++k)
+            int index = 0;
+            for (int k = i * oneFrameHeight; k < (i + 1) * oneFrameHeight; ++k)
             {
-                for (int l = 0; l < numChannel * oneFrameWidth; ++l)
+                for (int l = j * numChannel * oneFrameWidth;
+                     l < (j + 1) * numChannel * oneFrameWidth;
+                     ++l)
                 {
-                    image[k * numChannel * oneFrameWidth + l] = rowPtrs[k][l];
+                    image[index] = rowPtrs[k][l];
+                    ++index;
                 }
             }
 
