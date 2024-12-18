@@ -98,7 +98,7 @@ bool AssetManager::LoadAnimation(const std::string& name,
                                  const glm::vec2& oneFrameSize,
                                  const int speed)
 {
-    if (textures.contains(name))
+    if (animations.contains(name))
     {
         return true;
     }
