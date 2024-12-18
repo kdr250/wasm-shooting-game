@@ -95,8 +95,7 @@ Texture& AssetManager::GetTexture(const std::string& name)
 
 bool AssetManager::LoadAnimation(const std::string& name,
                                  const std::string& path,
-                                 const glm::vec2& oneFrameSize,
-                                 const int speed)
+                                 const glm::vec2& oneFrameSize)
 {
     if (animations.contains(name))
     {
@@ -187,7 +186,7 @@ bool AssetManager::LoadAnimation(const std::string& name,
     png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
     fclose(pngFile);
 
-    Animation animation(textures, speed);
+    Animation animation(textures);
     animations.emplace(name, animation);
 
     return true;

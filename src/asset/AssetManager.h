@@ -20,8 +20,7 @@ public:
 
     bool LoadAnimation(const std::string& name,
                        const std::string& path,
-                       const glm::vec2& oneFrameSize,
-                       const int speed);
+                       const glm::vec2& oneFrameSize);
     Animation& GetAnimation(const std::string& name);
     void RemoveAnimation(const std::string& name);
 

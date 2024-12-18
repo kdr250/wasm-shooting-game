@@ -15,14 +15,14 @@ void ExplosionEffect::Spawn(const glm::vec2& position)
 
     assetManager.CreateSpriteVertex();
 
-    if (!assetManager.LoadAnimation(EXPLOSION_NAME, EXPLOSION_PATH, glm::vec2 {16.0f, 16.0f}, 3))
+    if (!assetManager.LoadAnimation(EXPLOSION_NAME, EXPLOSION_PATH, glm::vec2 {16.0f, 16.0f}))
     {
         SDL_Log("Failed to load animation");
         exit(EXIT_FAILURE);
     }
 
     auto explosion = entityManager.AddEntity(EXPLOSION_TAG);
-    explosion->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, EXPLOSION_NAME);
+    explosion->AddComponent<AnimationComponent>(SPRITE_SHADER_NAME, EXPLOSION_NAME, 3);
     explosion->AddComponent<TransformComponent>(position);
     explosion->AddComponent<LifespanComponent>(0.1f);
 }
@@ -35,19 +35,21 @@ void ExplosionEffect::Draw()
 
     for (auto& explosions : GetExplosionEffects())
     {
-        auto& sprite    = explosions->GetComponent<SpriteComponent>();
-        auto& transform = explosions->GetComponent<TransformComponent>();
+        auto& animComponent      = explosions->GetComponent<AnimationComponent>();
+        auto& transformComponent = explosions->GetComponent<TransformComponent>();
+        auto& spriteShader       = assetManager.GetShader(animComponent.shaderName);
+        auto& animation          = assetManager.GetAnimation(animComponent.animationName);
 
-        auto& spriteShader = assetManager.GetShader(sprite.shaderName);
-        auto& animation    = assetManager.GetAnimation(sprite.textureName);
+        animComponent.Update();
+
+        auto& texture = animation.GetTexture(animComponent.currentFrame, animComponent.speed);
 
         spriteShader.SetActive();
         spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-        spriteShader.SetVector2Uniform("uTextureSize", animation.GetSize());
-        spriteShader.SetVector2Uniform("uTexturePosition", transform.position);
+        spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
+        spriteShader.SetVector2Uniform("uTexturePosition", transformComponent.position);
         spriteShader.SetFloatUniform("uTextureScale", 20.0f);
-        animation.Update();
-        animation.SetActive();
+        texture.SetActive();
 
         glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
     }

@@ -11,19 +11,12 @@ class Animation
 public:
     Animation();
     Animation(const std::vector<Texture>& t);
-    Animation(const std::vector<Texture>& t, int speed);
 
-    void Update();
-    void SetActive();
     void Unload();
 
-    const glm::vec2& GetSize();
+    Texture& GetTexture(const int currentFrame, const int speed);
 
 private:
-    Texture& GetTexture();
-
     std::vector<Texture> textures;
     glm::vec2 size;
-    int currentFrame;
-    int speed;
 };
