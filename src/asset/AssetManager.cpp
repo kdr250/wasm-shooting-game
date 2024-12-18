@@ -198,6 +198,16 @@ Animation& AssetManager::GetAnimation(const std::string& name)
     return animations[name];
 }
 
+void AssetManager::RemoveAnimation(const std::string& name)
+{
+    auto iter = animations.find(name);
+    if (iter != animations.end())
+    {
+        iter->second.Unload();
+        animations.erase(iter);
+    }
+}
+
 void AssetManager::RemoveTexture(const std::string& name)
 {
     auto iter = textures.find(name);

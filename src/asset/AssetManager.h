@@ -23,6 +23,7 @@ public:
                        const glm::vec2& oneFrameSize,
                        const int speed);
     Animation& GetAnimation(const std::string& name);
+    void RemoveAnimation(const std::string& name);
 
     bool LoadShader(const std::string& name,
                     const std::string& vertPath,

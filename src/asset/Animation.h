@@ -17,10 +17,13 @@ public:
     void SetActive();
     void Unload();
 
+    const glm::vec2& GetSize();
+
 private:
     Texture& GetTexture();
 
     std::vector<Texture> textures;
+    glm::vec2 size;
     int currentFrame;
     int speed;
 };

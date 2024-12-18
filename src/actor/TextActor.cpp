@@ -28,13 +28,11 @@ void TextActor::Spawn(const std::string& text, const glm::vec2& position)
 
 void TextActor::Draw()
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
+    auto& game         = Game::GetGame();
+    auto& assetManager = game.GetAssetManager();
+    auto& vertexArray  = assetManager.GetSpriteVertex();
 
-    auto& vertexArray = assetManager.GetSpriteVertex();
-
-    for (auto& textActor : entityManager.GetEntities(TEXT_TAG))
+    for (auto& textActor : GetTextActors())
     {
         auto& sprite    = textActor->GetComponent<SpriteComponent>();
         auto& transform = textActor->GetComponent<TransformComponent>();

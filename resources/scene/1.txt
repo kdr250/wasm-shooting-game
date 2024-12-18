@@ -16,12 +16,12 @@ End
 
 Enemy SpawnTime 2.0
 Component Sprite Name example_enemy Path resources/texture/example_enemy.png Scale 10.0
-Component Move Points 100.0,600.0|200.0,700.0 Speed 300.0
+Component Move Points 100.0,200.0|200.0,100.0 Speed 300.0
 End
 
 Enemy SpawnTime 3.0
 Component Sprite Name example_enemy Path resources/texture/example_enemy.png Scale 10.0
-Component Move Points 900.0,600.0|800.0,700.0 Speed 300.0
+Component Move Points 900.0,100.0|800.0,200.0 Speed 300.0
 Event 0 MoveEvent Type EveryPoints
 Event 1 MoveEvent Type EveryPoints
 Event 2 MoveEvent Type EveryPoints
