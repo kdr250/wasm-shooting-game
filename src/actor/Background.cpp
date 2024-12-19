@@ -27,14 +27,14 @@ void Background::Spawn()
     background1->AddComponent<TransformComponent>(
         glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f},
         glm::vec2 {0.0f, 0.5f},
-        2.0f);
+        4.0f);
 
     auto background2 = entityManager.AddEntity(BACKGROUND_TAG);
     background2->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, BACKGROUND_NAME_TWO);
     background2->AddComponent<TransformComponent>(
         glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / -2.0f},
         glm::vec2 {0.0f, 0.5f},
-        2.0f);
+        4.0f);
 }
 
 void Background::Draw()
