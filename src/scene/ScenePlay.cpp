@@ -15,8 +15,6 @@
 
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
-    TextActor::Spawn("Hello World !!", glm::vec2 {Game::WINDOW_WIDTH / 2.0f, 50.0f});
-
     Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
 
     Background::Spawn();
