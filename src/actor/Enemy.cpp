@@ -7,6 +7,7 @@
 #include "Bullet.h"
 #include "ExplosionEffect.h"
 #include "Player.h"
+#include "ScoreActor.h"
 
 void Enemy::Move(float deltaTime)
 {
@@ -47,6 +48,7 @@ void Enemy::Collide()
                 bullet->Destroy();
                 enemy->Destroy();
                 ExplosionEffect::Spawn(enemy->GetComponent<TransformComponent>().position);
+                ScoreActor::AddScore(300);
                 continue;
             }
         }
