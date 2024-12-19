@@ -26,9 +26,15 @@ void Background::Spawn()
     background1->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, BACKGROUND_NAME_ONE);
     background1->AddComponent<TransformComponent>(
         glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f},
+        glm::vec2 {0.0f, 0.5f},
         2.0f);
 
-    // TODO: Add background2
+    auto background2 = entityManager.AddEntity(BACKGROUND_TAG);
+    background2->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, BACKGROUND_NAME_TWO);
+    background2->AddComponent<TransformComponent>(
+        glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / -2.0f},
+        glm::vec2 {0.0f, 0.5f},
+        2.0f);
 }
 
 void Background::Draw()
@@ -41,6 +47,12 @@ void Background::Draw()
     {
         auto& sprite    = background->GetComponent<SpriteComponent>();
         auto& transform = background->GetComponent<TransformComponent>();
+        transform.position += transform.velocity;
+        if (transform.position.y >= Game::WINDOW_HEIGHT * 1.5f)
+        {
+            transform.position.y = Game::WINDOW_HEIGHT / -2.0f;
+            transform.position += transform.velocity;
+        }
 
         auto& texture      = assetManager.GetTexture(sprite.textureName);
         auto& spriteShader = assetManager.GetShader(sprite.shaderName);
