@@ -1,6 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <string>
+#include <vector>
+
+class Entity;
 
 class Background
 {
@@ -10,6 +14,8 @@ public:
     static void Draw();
 
 private:
+    static const std::vector<std::shared_ptr<Entity>>& GetBackgrounds();
+
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
     inline static const std::string SPRITE_SHADER_FRAG = "resources/shader/Sprite.frag";
