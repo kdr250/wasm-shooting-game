@@ -9,6 +9,7 @@
 #include "../actor/EnemySpawner.h"
 #include "../actor/ExplosionEffect.h"
 #include "../actor/Player.h"
+#include "../actor/ScoreActor.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
 #include "SceneMenu.h"
@@ -22,6 +23,8 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     Bullet::Initialize();
 
     EnemySpawner::Initialize(id);
+
+    ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 100.0f, Game::WINDOW_HEIGHT - 50.0f});
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -143,6 +146,7 @@ void ScenePlay::Render()
     ExplosionEffect::Draw();
     Player::Draw();
     TextActor::Draw();
+    ScoreActor::Draw(1024);  // FIXME
 
     // swap the buffers
     SDL_GL_SwapWindow(Game::GetGame().GetWindow());
