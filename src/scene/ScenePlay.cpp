@@ -146,7 +146,7 @@ void ScenePlay::Render()
     ExplosionEffect::Draw();
     Player::Draw();
     TextActor::Draw();
-    ScoreActor::Draw(1024);  // FIXME
+    ScoreActor::Draw();
 
     // swap the buffers
     SDL_GL_SwapWindow(Game::GetGame().GetWindow());

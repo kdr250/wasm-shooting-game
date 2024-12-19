@@ -1,8 +1,14 @@
 #include "ScoreActor.h"
 #include "../Game.h"
 
+int ScoreActor::score          = 0;
+int ScoreActor::scoreToDisplay = 0;
+
 void ScoreActor::Spawn(const glm::vec2& position)
 {
+    score          = 0;
+    scoreToDisplay = 0;
+
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
@@ -34,8 +40,15 @@ void ScoreActor::Spawn(const glm::vec2& position)
     scoreActor->AddComponent<TransformComponent>(position);
 }
 
-void ScoreActor::Draw(const int score)
+void ScoreActor::AddScore(const int scoreToAdd)
 {
+    score += scoreToAdd;
+}
+
+void ScoreActor::Draw()
+{
+    DramRoll();
+
     auto& assetManager = Game::GetGame().GetAssetManager();
     auto& vertexArray  = assetManager.GetSpriteVertex();
 
@@ -43,7 +56,7 @@ void ScoreActor::Draw(const int score)
     auto& transform            = scoreActor->GetComponent<TransformComponent>();
     glm::vec2 originalPosition = transform.position;
 
-    std::string strScore = std::to_string(score);
+    std::string strScore = std::to_string(scoreToDisplay);
 
     for (int i = 0; i < strScore.size(); ++i)
     {
@@ -82,4 +95,9 @@ const std::shared_ptr<Entity>& ScoreActor::GetScoreActor()
 {
     auto& entityManager = Game::GetGame().GetEntityManger();
     return entityManager.GetEntities(SCORE_TAG)[0];
+}
+
+void ScoreActor::DramRoll()
+{
+    scoreToDisplay = std::min(score, scoreToDisplay + DRAM_ROLL_SPEED);
 }

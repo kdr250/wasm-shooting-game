@@ -11,12 +11,18 @@ class ScoreActor
 {
 public:
     static void Spawn(const glm::vec2& position);
-    static void Draw(const int score);
+    static void AddScore(const int scoreToAdd);
+    static void Draw();
 
     static void Unload();
 
 private:
     static const std::shared_ptr<Entity>& GetScoreActor();
+
+    static void DramRoll();
+
+    static int score;
+    static int scoreToDisplay;
 
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
@@ -32,4 +38,6 @@ private:
 
     inline static const std::string SCORE_TAG            = "Score";
     inline static const std::string SCORE_TEXTURE_PREFIX = "text_score_";
+
+    static constexpr int DRAM_ROLL_SPEED = 9;
 };
