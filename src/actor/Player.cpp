@@ -90,7 +90,7 @@ void Player::Move(float deltaTime)
                                        glm::vec2 {0.0f, -600.0f},  // velocity
                                        Bullet::GREEN,              // color
                                        player->GetTag(),           // owner tag
-                                       200.0f                      // size
+                                       20.0f                       // size
         );
         input.ResetShootInterval();
     }

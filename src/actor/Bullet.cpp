@@ -76,7 +76,8 @@ void Bullet::SpawnRollBullets(const glm::vec2& position,
                               const float size)
 {
     std::function<Result(long, int)> event =
-        [position, bulletsNum, speed, color, ownerTag](long fromPreviousMilli, int executionCount)
+        [position, bulletsNum, speed, color, ownerTag, size](long fromPreviousMilli,
+                                                             int executionCount)
     {
         if (executionCount == bulletsNum)
         {
@@ -94,7 +95,7 @@ void Bullet::SpawnRollBullets(const glm::vec2& position,
                                    velocity,  // velocity
                                    color,     // color
                                    ownerTag,  // owner tag
-                                   200.0f     // size
+                                   size       // size
             );
             return Result::CONTINUE;
         }
@@ -115,8 +116,8 @@ void Bullet::SpawnSequentialBullets(const glm::vec2& position,
                                     const float size)
 {
     std::function<Result(long, int)> event =
-        [position, target, bulletsNum, speed, color, ownerTag](long fromPreviousMilli,
-                                                               int executionCount)
+        [position, target, bulletsNum, speed, color, ownerTag, size](long fromPreviousMilli,
+                                                                     int executionCount)
     {
         if (executionCount == bulletsNum)
         {
@@ -130,7 +131,7 @@ void Bullet::SpawnSequentialBullets(const glm::vec2& position,
                                            velocity,  // velocity
                                            color,     // color
                                            ownerTag,  // owner tag
-                                           200.0f     // size
+                                           size       // size
             );
             return Result::CONTINUE;
         }
@@ -151,8 +152,8 @@ void Bullet::SpawnWinderBullets(const glm::vec2& position,
                                 const float size)
 {
     std::function<Result(long, int)> event =
-        [position, target, loopNum, speed, color, ownerTag](long fromPreviousMilli,
-                                                            int executionCount)
+        [position, target, loopNum, speed, color, ownerTag, size](long fromPreviousMilli,
+                                                                  int executionCount)
     {
         if (executionCount == loopNum)
         {
@@ -172,7 +173,7 @@ void Bullet::SpawnWinderBullets(const glm::vec2& position,
                                                velocity,  // velocity
                                                color,     // color
                                                ownerTag,  // owner tag
-                                               200.0f     // size
+                                               size       // size
                 );
             }
             return Result::CONTINUE;
