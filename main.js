@@ -35,7 +35,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpq6lw6wyn.js
+// include: /tmp/tmp1p8_5akn.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -216,25 +216,25 @@ Module['FS_createPath']("/resources", "texture", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/resources/font/Roboto-Bold.ttf", "start": 0, "end": 128676}, {"filename": "/resources/scene/1.txt", "start": 128676, "end": 130080}, {"filename": "/resources/shader/Background.frag", "start": 130080, "end": 130253}, {"filename": "/resources/shader/Background.vert", "start": 130253, "end": 130424}, {"filename": "/resources/shader/BackgroundV3.frag", "start": 130424, "end": 130574}, {"filename": "/resources/shader/BackgroundV3.vert", "start": 130574, "end": 130783}, {"filename": "/resources/shader/Bullet.frag", "start": 130783, "end": 131747}, {"filename": "/resources/shader/Bullet.vert", "start": 131747, "end": 132061}, {"filename": "/resources/shader/BulletV3.frag", "start": 132061, "end": 132942}, {"filename": "/resources/shader/BulletV3.vert", "start": 132942, "end": 133294}, {"filename": "/resources/shader/Sprite.frag", "start": 133294, "end": 133467}, {"filename": "/resources/shader/Sprite.vert", "start": 133467, "end": 134111}, {"filename": "/resources/shader/SpriteV3.frag", "start": 134111, "end": 134261}, {"filename": "/resources/shader/SpriteV3.vert", "start": 134261, "end": 134943}, {"filename": "/resources/texture/background1.png", "start": 134943, "end": 429431}, {"filename": "/resources/texture/background2.png", "start": 429431, "end": 628651}, {"filename": "/resources/texture/example.png", "start": 628651, "end": 629211}, {"filename": "/resources/texture/example_enemy.png", "start": 629211, "end": 629772}, {"filename": "/resources/texture/explosion.png", "start": 629772, "end": 630051}], "remote_package_size": 630051});
+    loadPackage({"files": [{"filename": "/resources/font/Roboto-Bold.ttf", "start": 0, "end": 128676}, {"filename": "/resources/scene/1.txt", "start": 128676, "end": 130080}, {"filename": "/resources/shader/Bullet.frag", "start": 130080, "end": 131044}, {"filename": "/resources/shader/Bullet.vert", "start": 131044, "end": 131358}, {"filename": "/resources/shader/BulletV3.frag", "start": 131358, "end": 132239}, {"filename": "/resources/shader/BulletV3.vert", "start": 132239, "end": 132591}, {"filename": "/resources/shader/Sprite.frag", "start": 132591, "end": 132764}, {"filename": "/resources/shader/Sprite.vert", "start": 132764, "end": 133408}, {"filename": "/resources/shader/SpriteV3.frag", "start": 133408, "end": 133558}, {"filename": "/resources/shader/SpriteV3.vert", "start": 133558, "end": 134240}, {"filename": "/resources/texture/background1.png", "start": 134240, "end": 428728}, {"filename": "/resources/texture/background2.png", "start": 428728, "end": 627948}, {"filename": "/resources/texture/example.png", "start": 627948, "end": 628508}, {"filename": "/resources/texture/example_enemy.png", "start": 628508, "end": 629069}, {"filename": "/resources/texture/explosion.png", "start": 629069, "end": 629348}], "remote_package_size": 629348});
 
   })();
 
-// end include: /tmp/tmpq6lw6wyn.js
-// include: /tmp/tmp1o52km8j.js
+// end include: /tmp/tmp1p8_5akn.js
+// include: /tmp/tmpc84s5h9t.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmp1o52km8j.js
-// include: /tmp/tmpklbbhl8c.js
+  // end include: /tmp/tmpc84s5h9t.js
+// include: /tmp/tmpeiqla2hh.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmpklbbhl8c.js
+  // end include: /tmp/tmpeiqla2hh.js
 
 
 // Sometimes an existing Module object exists with properties
