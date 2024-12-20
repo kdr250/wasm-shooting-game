@@ -24,7 +24,7 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 
     EnemySpawner::Initialize(id);
 
-    ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 100.0f, Game::WINDOW_HEIGHT - 50.0f});
+    ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f});
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
