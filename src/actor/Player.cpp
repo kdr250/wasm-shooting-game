@@ -186,9 +186,7 @@ bool Player::IsCollide()
 
 void Player::Draw()
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
+    auto& assetManager = Game::GetGame().GetAssetManager();
 
     auto& player = GetPlayer();
 
