@@ -21,6 +21,9 @@ private:
 
     static void DramRoll();
 
+    static std::string GenerateTextureName(const char numChar);
+    static std::string GenerateTextureName(const int num);
+
     static int score;
     static int scoreToDisplay;
 
@@ -40,4 +43,7 @@ private:
     inline static const std::string SCORE_TEXTURE_PREFIX = "text_score_";
 
     static constexpr int DRAM_ROLL_SPEED = 9;
+
+    static constexpr int MAX_SCORE = 99999999;
+    static constexpr int MAX_DIGIT = 8;
 };

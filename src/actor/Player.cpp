@@ -90,7 +90,7 @@ void Player::Move(float deltaTime)
                                        glm::vec2 {0.0f, -600.0f},  // velocity
                                        Bullet::GREEN,              // color
                                        player->GetTag(),           // owner tag
-                                       200.0f                      // size
+                                       20.0f                       // size
         );
         input.ResetShootInterval();
     }
@@ -186,9 +186,7 @@ bool Player::IsCollide()
 
 void Player::Draw()
 {
-    auto& game          = Game::GetGame();
-    auto& assetManager  = game.GetAssetManager();
-    auto& entityManager = game.GetEntityManger();
+    auto& assetManager = Game::GetGame().GetAssetManager();
 
     auto& player = GetPlayer();
 

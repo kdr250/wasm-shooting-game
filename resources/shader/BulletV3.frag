@@ -8,8 +8,6 @@ uniform vec3 uBulletColors[320];
 
 in vec2 inPos;
 
-const float radius = 16.0;
-
 out vec4 outColor;
 
 void main()
@@ -19,6 +17,7 @@ void main()
 
     float nearestDist = 10000.0;
     vec3 nearestColor = uBulletColors[0];
+    vec2 nearestSize = uBulletSizes[0];
 
     for (int i = 0; i < uBulletCount; ++i)
     {
@@ -31,8 +30,11 @@ void main()
         {
             nearestDist = dist;
             nearestColor = uBulletColors[i];
+            nearestSize = uBulletSizes[i];
         }
     }
+
+    float radius = max(nearestSize.x, nearestSize.y) / 2.0;
 
     float strength = radius / nearestDist;
     vec3 color = nearestColor * strength;

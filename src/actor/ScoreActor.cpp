@@ -32,7 +32,7 @@ void ScoreActor::Spawn(const glm::vec2& position)
         std::string text        = std::to_string(i);
         auto& font              = assetManager.GetFont(FONT_NAME);
         auto texture            = font.RenderText(text, Font::DEFAULT_COLOR_WHITE, 30);
-        std::string textureName = SCORE_TEXTURE_PREFIX + text;
+        std::string textureName = GenerateTextureName(i);
         assetManager.AddTexture(textureName, texture);
     }
 
@@ -42,7 +42,7 @@ void ScoreActor::Spawn(const glm::vec2& position)
 
 void ScoreActor::AddScore(const int scoreToAdd)
 {
-    score += scoreToAdd;
+    score = std::min(score + scoreToAdd, MAX_SCORE);
 }
 
 void ScoreActor::Draw()
@@ -58,9 +58,11 @@ void ScoreActor::Draw()
 
     std::string strScore = std::to_string(scoreToDisplay);
 
-    for (int i = 0; i < strScore.size(); ++i)
+    for (int index = 0; index < MAX_DIGIT; ++index)
     {
-        std::string textureName = SCORE_TEXTURE_PREFIX + strScore[i];
+        int i                   = strScore.size() - (MAX_DIGIT - index);
+        char numChar            = i >= 0 ? strScore[i] : '0';
+        std::string textureName = GenerateTextureName(numChar);
 
         auto& spriteShader = assetManager.GetShader(SPRITE_SHADER_NAME);
         auto& texture      = assetManager.GetTexture(textureName);
@@ -85,8 +87,7 @@ void ScoreActor::Unload()
     auto& assetManager = Game::GetGame().GetAssetManager();
     for (int i = 0; i <= 9; ++i)
     {
-        std::string text        = std::to_string(i);
-        std::string textureName = SCORE_TEXTURE_PREFIX + text;
+        std::string textureName = GenerateTextureName(i);
         assetManager.RemoveTexture(textureName);
     }
 }
@@ -100,4 +101,14 @@ const std::shared_ptr<Entity>& ScoreActor::GetScoreActor()
 void ScoreActor::DramRoll()
 {
     scoreToDisplay = std::min(score, scoreToDisplay + DRAM_ROLL_SPEED);
+}
+
+std::string ScoreActor::GenerateTextureName(const char numChar)
+{
+    return SCORE_TEXTURE_PREFIX + numChar;
+}
+
+std::string ScoreActor::GenerateTextureName(const int num)
+{
+    return SCORE_TEXTURE_PREFIX + std::to_string(num);
 }
