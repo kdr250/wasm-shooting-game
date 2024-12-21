@@ -54,7 +54,7 @@ void HealthBar::Draw()
     vertexArray.SetActive();
 
     spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-    spriteShader.SetVector2Uniform("uTextureSize", health, 50.0f);
+    spriteShader.SetVector2Uniform("uTextureSize", health, 30.0f);
     spriteShader.SetVector2Uniform("uTexturePosition", transform.position);
     spriteShader.SetFloatUniform("uTextureScale", 1.0f);
 
