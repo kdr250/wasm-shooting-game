@@ -35,6 +35,10 @@ void HealthBar::Spawn(const int maxHP, const glm::vec2& position)
 void HealthBar::Damaged(int damage)
 {
     health -= damage;
+
+    auto& healthBar = GetHealthBar();
+    auto& transform = healthBar->GetComponent<TransformComponent>();
+    transform.position.x -= damage / 4.0f;
 }
 
 void HealthBar::Draw()
