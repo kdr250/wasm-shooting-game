@@ -6,6 +6,7 @@
 #include "../Game.h"
 #include "Bullet.h"
 #include "ExplosionEffect.h"
+#include "HealthBar.h"
 #include "Player.h"
 #include "ScoreActor.h"
 
@@ -46,10 +47,21 @@ void Enemy::Collide()
             if (Physics::IsOverlap(bullet, enemy))
             {
                 bullet->Destroy();
+
+                if (enemy->HasComponent<HealthComponent>())
+                {
+                    auto& health = enemy->GetComponent<HealthComponent>();
+                    health.Damaged(100);  // FIXME
+                    HealthBar::Damaged(100);
+                    if (health.IsAlive())
+                    {
+                        continue;
+                    }
+                }
+
                 enemy->Destroy();
                 ExplosionEffect::Spawn(enemy->GetComponent<TransformComponent>().position);
                 ScoreActor::AddScore(300);
-                continue;
             }
         }
     }
@@ -78,6 +90,11 @@ void Enemy::Draw()
 
         texture.SetActive();
         glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+
+        if (enemy->HasComponent<HealthComponent>())
+        {
+            HealthBar::Draw();
+        }
     }
 }
 

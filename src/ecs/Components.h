@@ -324,6 +324,30 @@ public:
     StateComponent(const State& s) : state(s) {}
 };
 
+class HealthComponent : public Component
+{
+public:
+    int maxHealth = 0;
+    int health    = 0;
+
+    HealthComponent() {}
+    HealthComponent(int hp)
+    {
+        maxHealth = hp;
+        health    = hp;
+    }
+
+    void Damaged(int damage)
+    {
+        health -= damage;
+    }
+
+    bool IsAlive()
+    {
+        return health > 0;
+    }
+};
+
 class LifespanComponent : public Component
 {
 public:

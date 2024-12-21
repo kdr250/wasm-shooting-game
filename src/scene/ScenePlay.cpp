@@ -8,7 +8,6 @@
 #include "../actor/Enemy.h"
 #include "../actor/EnemySpawner.h"
 #include "../actor/ExplosionEffect.h"
-#include "../actor/HealthBar.h"
 #include "../actor/Player.h"
 #include "../actor/ScoreActor.h"
 #include "../actor/TextActor.h"
@@ -26,8 +25,6 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     EnemySpawner::Initialize(id);
 
     ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f});
-
-    HealthBar::Initialize(100, glm::vec2 {Game::WINDOW_WIDTH / 2.0, 20.0f});
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -150,7 +147,6 @@ void ScenePlay::Render()
     Player::Draw();
     TextActor::Draw();
     ScoreActor::Draw();
-    HealthBar::Draw();
 
     // swap the buffers
     SDL_GL_SwapWindow(Game::GetGame().GetWindow());

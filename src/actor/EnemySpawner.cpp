@@ -5,6 +5,7 @@
 #include "../Game.h"
 #include "Bullet.h"
 #include "Enemy.h"
+#include "HealthBar.h"
 #include "Player.h"
 
 std::vector<std::string> Split(std::string& str, const char* delimiter)
@@ -201,6 +202,7 @@ void EnemySpawner::RegisterComponents(std::shared_ptr<Entity>& enemy,
     RegisterSpriteComponent(enemy, config);
     RegisterMoveComponent(enemy, config);
     RegisterSplineMoveComponent(enemy, config);
+    RegisterHealthComponent(enemy, config);
 }
 
 void EnemySpawner::RegisterSpriteComponent(std::shared_ptr<Entity>& enemy,
@@ -311,6 +313,21 @@ void EnemySpawner::RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
         auto& transform    = enemy->GetComponent<TransformComponent>();
         transform.position = spline.CurrentPoint();
     }
+}
+
+void EnemySpawner::RegisterHealthComponent(std::shared_ptr<Entity>& enemy,
+                                           std::map<std::string, std::string> config)
+{
+    if (!config.contains("Health"))
+    {
+        return;
+    }
+
+    std::string strHealth = config.at("HealthValue");
+    int health            = std::stoi(strHealth);
+    enemy->AddComponent<HealthComponent>(health);
+
+    HealthBar::Spawn(health, glm::vec2 {Game::WINDOW_WIDTH / 2.0, 20.0f});
 }
 
 void EnemySpawner::RegisterEvents(std::shared_ptr<Entity>& enemy,

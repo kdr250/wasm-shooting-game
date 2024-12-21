@@ -49,6 +49,9 @@ private:
     static void RegisterSplineMoveComponent(std::shared_ptr<Entity>& enemy,
                                             std::map<std::string, std::string> config);
 
+    static void RegisterHealthComponent(std::shared_ptr<Entity>& enemy,
+                                        std::map<std::string, std::string> config);
+
     // Register Events
     static void RegisterEvents(std::shared_ptr<Entity>& enemy,
                                std::map<std::string, std::string> config);

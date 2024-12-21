@@ -4,7 +4,7 @@
 int HealthBar::health    = 0;
 int HealthBar::maxHealth = 0;
 
-void HealthBar::Initialize(const int maxHP, const glm::vec2& position)
+void HealthBar::Spawn(const int maxHP, const glm::vec2& position)
 {
     maxHealth = maxHP;
     health    = maxHP;
@@ -32,6 +32,11 @@ void HealthBar::Initialize(const int maxHP, const glm::vec2& position)
     healthBar->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, HEALTH_BAR_TEXTURE_NAME);
 }
 
+void HealthBar::Damaged(int damage)
+{
+    health -= damage;
+}
+
 void HealthBar::Draw()
 {
     auto& assetManager = Game::GetGame().GetAssetManager();
@@ -49,7 +54,7 @@ void HealthBar::Draw()
     vertexArray.SetActive();
 
     spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
-    spriteShader.SetVector2Uniform("uTextureSize", 500.0f, 50.0f);  // FIXME
+    spriteShader.SetVector2Uniform("uTextureSize", health, 50.0f);
     spriteShader.SetVector2Uniform("uTexturePosition", transform.position);
     spriteShader.SetFloatUniform("uTextureScale", 1.0f);
 

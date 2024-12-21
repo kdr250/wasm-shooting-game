@@ -10,7 +10,8 @@ class Entity;
 class HealthBar
 {
 public:
-    static void Initialize(const int maxHP, const glm::vec2& position);
+    static void Spawn(const int maxHP, const glm::vec2& position);
+    static void Damaged(int damage);
     static void Draw();
 
     static void Unload();
