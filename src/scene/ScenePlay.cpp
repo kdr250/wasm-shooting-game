@@ -9,6 +9,7 @@
 #include "../actor/EnemySpawner.h"
 #include "../actor/ExplosionEffect.h"
 #include "../actor/Player.h"
+#include "../actor/PlayerLife.h"
 #include "../actor/ScoreActor.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
@@ -23,6 +24,8 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     Bullet::Initialize();
 
     EnemySpawner::Initialize(id);
+
+    PlayerLife::Spawn(3, glm::vec2 {Game::WINDOW_WIDTH - 150.0f, Game::WINDOW_HEIGHT - 100.0f});
 
     ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f});
 
@@ -146,6 +149,7 @@ void ScenePlay::Render()
     ExplosionEffect::Draw();
     Player::Draw();
     TextActor::Draw();
+    PlayerLife::Draw();
     ScoreActor::Draw();
 
     // swap the buffers

@@ -7,25 +7,23 @@
 
 class Entity;
 
-class ScoreActor
+class PlayerLife
 {
 public:
-    static void Spawn(const glm::vec2& position);
-    static void AddScore(const int scoreToAdd);
+    static void Spawn(const int max, const glm::vec2& position);
+    static void Damaged(int damage);
     static void Draw();
 
     static void Unload();
 
 private:
-    static const std::shared_ptr<Entity>& GetScoreActor();
-
-    static void DramRoll();
+    static std::shared_ptr<Entity>& GetPlayerLife();
 
     static std::string GenerateTextureName(const char numChar);
     static std::string GenerateTextureName(const int num);
 
-    static int score;
-    static int scoreToDisplay;
+    static int life;
+    static int maxLife;
 
 #ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
@@ -39,11 +37,14 @@ private:
     inline static const std::string FONT_PATH = "resources/font/Roboto-Bold.ttf";
     inline static const std::string FONT_NAME = "Roboto-Bold";
 
-    inline static const std::string SCORE_TAG            = "Score";
-    inline static const std::string SCORE_TEXTURE_PREFIX = "text_number_";
+    inline static const std::string PLAYER_LIFE_TEXTURE_PATH   = "resources/texture/example.png";
+    inline static const std::string PLAYER_LIFE_TEXTURE_PREFIX = "text_number_";
+    inline static const std::string PLAYER_LIFE_TEXTURE_NAME   = "PlayerLife";
 
-    static constexpr int DRAM_ROLL_SPEED = 9;
+    inline static const std::string PLAYER_LIFE_TAG = "PlayerLife";
 
-    static constexpr int MAX_SCORE = 99999999;
-    static constexpr int MAX_DIGIT = 8;
+    static constexpr char X = 'x';
+
+    static constexpr int MAX_LIFE  = 99;
+    static constexpr int MAX_DIGIT = 2;
 };
