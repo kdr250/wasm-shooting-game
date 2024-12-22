@@ -3,6 +3,7 @@
 #include "../Game.h"
 #include "Bullet.h"
 #include "Enemy.h"
+#include "PlayerLife.h"
 
 std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
 {
@@ -29,6 +30,7 @@ std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
 
     auto player = entityManager.AddEntity(PLAYER_TAG);
     player->AddComponent<StateComponent>();
+    player->AddComponent<HealthComponent>(3, 2.0f);
     player->AddComponent<TransformComponent>(position, scale, speed);
     player->AddComponent<InputComponent>();
     player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);
@@ -36,6 +38,9 @@ std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
     player->AddComponent<BoxCollisionComponent>(
         glm::vec2 {playerTexture.GetWidth(), playerTexture.GetHeight()} * scale / 4.0f,
         std::vector {player->GetTag()});
+
+    PlayerLife::Spawn(player->GetComponent<HealthComponent>().health,
+                      glm::vec2 {Game::WINDOW_WIDTH - 150.0f, Game::WINDOW_HEIGHT - 100.0f});
 
     return player;
 }
@@ -162,14 +167,22 @@ bool Player::NeedsPause()
 
 bool Player::IsCollide()
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto& game          = Game::GetGame();
+    auto& entityManager = game.GetEntityManger();
     auto& player        = GetPlayer();
+    auto& health        = player->GetComponent<HealthComponent>();
+
+    long elapsedTimeMilli = game.SceneElapsedTimeMillisecond();
 
     for (auto& enemy : Enemy::GetEnemies())
     {
         if (Physics::IsOverlap(enemy, player))
         {
-            return true;
+            bool isDamaged = health.Damaged(1, elapsedTimeMilli);
+            if (isDamaged)
+            {
+                PlayerLife::Damaged(1);
+            }
         }
     }
 
@@ -177,11 +190,15 @@ bool Player::IsCollide()
     {
         if (Physics::IsOverlap(bullet, player))
         {
-            return true;
+            bool isDamaged = health.Damaged(1, elapsedTimeMilli);
+            if (isDamaged)
+            {
+                PlayerLife::Damaged(1);
+            }
         }
     }
 
-    return false;
+    return !health.IsAlive();
 }
 
 void Player::Draw()
