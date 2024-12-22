@@ -31,7 +31,7 @@ private:
 #endif
     inline static const std::string SPRITE_SHADER_NAME = "sprite";
 
-    inline static const std::string HEALTH_BAR_TEXTURE_PATH = "resources/texture/example_enemy.png";
+    inline static const std::string HEALTH_BAR_TEXTURE_PATH = "resources/texture/red.png";
     inline static const std::string HEALTH_BAR_TEXTURE_NAME = "HealthBar";
 
     inline static const std::string HEALTH_BAR_TAG = "HealthBar";
