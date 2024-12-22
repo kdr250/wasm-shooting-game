@@ -9,6 +9,7 @@
 #include "../actor/EnemySpawner.h"
 #include "../actor/ExplosionEffect.h"
 #include "../actor/Player.h"
+#include "../actor/PlayerLife.h"
 #include "../actor/ScoreActor.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
@@ -146,6 +147,7 @@ void ScenePlay::Render()
     ExplosionEffect::Draw();
     Player::Draw();
     TextActor::Draw();
+    PlayerLife::Draw();
     ScoreActor::Draw();
 
     // swap the buffers

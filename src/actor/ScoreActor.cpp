@@ -50,6 +50,7 @@ void ScoreActor::Draw()
     DramRoll();
 
     auto& assetManager = Game::GetGame().GetAssetManager();
+    auto& spriteShader = assetManager.GetShader(SPRITE_SHADER_NAME);
     auto& vertexArray  = assetManager.GetSpriteVertex();
 
     auto& scoreActor           = GetScoreActor();
@@ -64,10 +65,10 @@ void ScoreActor::Draw()
         char numChar            = i >= 0 ? strScore[i] : '0';
         std::string textureName = GenerateTextureName(numChar);
 
-        auto& spriteShader = assetManager.GetShader(SPRITE_SHADER_NAME);
-        auto& texture      = assetManager.GetTexture(textureName);
+        auto& texture = assetManager.GetTexture(textureName);
 
         spriteShader.SetActive();
+        vertexArray.SetActive();
         spriteShader.SetVector2Uniform("uWindowSize", Game::WINDOW_WIDTH, Game::WINDOW_HEIGHT);
         spriteShader.SetVector2Uniform("uTextureSize", texture.GetWidth(), texture.GetHeight());
         spriteShader.SetVector2Uniform("uTexturePosition", transform.position);

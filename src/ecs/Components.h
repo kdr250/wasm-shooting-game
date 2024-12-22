@@ -327,19 +327,32 @@ public:
 class HealthComponent : public Component
 {
 public:
-    int maxHealth = 0;
-    int health    = 0;
+    int maxHealth  = 0;
+    int health     = 0;
+    float interval = 0.0f;
+    float lastTime = 0.0f;
 
     HealthComponent() {}
-    HealthComponent(int hp)
-    {
-        maxHealth = hp;
-        health    = hp;
-    }
+    HealthComponent(int hp) : maxHealth(hp), health(hp) {}
+    HealthComponent(int hp, float interv) : maxHealth(hp), health(hp), interval(interv) {}
 
     void Damaged(int damage)
     {
         health -= damage;
+    }
+
+    bool Damaged(int damage, long elapsedTimeMilli)
+    {
+        float elapsedTime = elapsedTimeMilli / 1000.0f;
+        if (elapsedTime - lastTime < interval)
+        {
+            return false;
+        }
+
+        Damaged(damage);
+
+        lastTime = elapsedTime;
+        return true;
     }
 
     bool IsAlive()
