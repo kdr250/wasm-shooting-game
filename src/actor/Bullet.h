@@ -18,18 +18,18 @@ public:
 
     static void Initialize();
 
-    static void SpawnDirectionalBullet(const glm::vec2& position,
-                                       const glm::vec2& velocity,
-                                       const glm::vec3& color,
-                                       const std::string& ownerTag,
-                                       const float size);
+    static void RegisterSpawnDirectionalBullet(const glm::vec2& position,
+                                               const glm::vec2& velocity,
+                                               const glm::vec3& color,
+                                               const std::string& ownerTag,
+                                               const float size);
 
-    static void SpawnExplosionBullets(const glm::vec2& position,
-                                      const glm::vec3& color,
-                                      const int bulletsNum,
-                                      const std::string& ownerTag,
-                                      const float speed,
-                                      const float size);
+    static void RegisterSpawnExplosionBullets(const glm::vec2& position,
+                                              const glm::vec3& color,
+                                              const int bulletsNum,
+                                              const std::string& ownerTag,
+                                              const float speed,
+                                              const float size);
 
     static void SpawnRollBullets(const glm::vec2& position,
                                  const glm::vec3& color,
@@ -54,15 +54,31 @@ public:
                                    const float speed,
                                    const float size);
 
+    static void Spawn(float deltaTime);
     static void Move(float deltaTime);
     static void Draw();
 
     static const std::vector<std::shared_ptr<Entity>>& GetBullets(const std::string& ownerTag);
 
 private:
-    static std::shared_ptr<Entity> GetSpawner();
+    static void SpawnDirectionalBullet(const glm::vec2& position,
+                                       const glm::vec2& velocity,
+                                       const glm::vec3& color,
+                                       const std::string& ownerTag,
+                                       const float size);
+
+    static void SpawnExplosionBullets(const glm::vec2& position,
+                                      const glm::vec3& color,
+                                      const int bulletsNum,
+                                      const std::string& ownerTag,
+                                      const float speed,
+                                      const float size);
+
+    static std::shared_ptr<Entity> GetSpawner(const std::string& ownerTag);
 
     static std::string GenerateTagName(const std::string& ownerTag);
+
+    static std::string GenerateSpawnerTagName(const std::string& ownerTag);
 
 #ifdef __EMSCRIPTEN__
     inline static const std::string BULLET_SHADER_VERT = "resources/shader/Bullet.vert";

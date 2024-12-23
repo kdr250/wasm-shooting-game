@@ -37,6 +37,29 @@ void Bullet::SpawnDirectionalBullet(const glm::vec2& position,
     bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, excludes);
 }
 
+void Bullet::RegisterSpawnDirectionalBullet(const glm::vec2& position,
+                                            const glm::vec2& velocity,
+                                            const glm::vec3& color,
+                                            const std::string& ownerTag,
+                                            const float size)
+{
+    std::function<Result(long, int)> event =
+        [position, velocity, color, ownerTag, size](long fromPreviousMilli, int executionCount)
+    {
+        SpawnDirectionalBullet(position,  // position
+                               velocity,  // velocity
+                               color,     // color
+                               ownerTag,  // owner tag
+                               size       // size
+        );
+        return Result::COMPLETED;
+    };
+
+    auto spawner         = GetSpawner(ownerTag);
+    auto& eventComponent = spawner->GetComponent<EventComponent>();
+    eventComponent.Add(event);
+}
+
 void Bullet::SpawnExplosionBullets(const glm::vec2& position,
                                    const glm::vec3& color,
                                    const int bulletsNum,
@@ -66,6 +89,32 @@ void Bullet::SpawnExplosionBullets(const glm::vec2& position,
         bullet->AddComponent<LifespanComponent>(10.0f);
         bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, excludes);
     }
+}
+
+void Bullet::RegisterSpawnExplosionBullets(const glm::vec2& position,
+                                           const glm::vec3& color,
+                                           const int bulletsNum,
+                                           const std::string& ownerTag,
+                                           const float speed,
+                                           const float size)
+{
+    std::function<Result(long, int)> event =
+        [position, color, bulletsNum, ownerTag, speed, size](long fromPreviousMilli,
+                                                             int executionCount)
+    {
+        SpawnExplosionBullets(position,    // position
+                              color,       // color
+                              bulletsNum,  // num of bullets
+                              ownerTag,    // owner tag
+                              speed,       // speed
+                              size         // size
+        );
+        return Result::COMPLETED;
+    };
+
+    auto spawner         = GetSpawner(ownerTag);
+    auto& eventComponent = spawner->GetComponent<EventComponent>();
+    eventComponent.Add(event);
 }
 
 void Bullet::SpawnRollBullets(const glm::vec2& position,
@@ -102,7 +151,7 @@ void Bullet::SpawnRollBullets(const glm::vec2& position,
         return Result::NONE;
     };
 
-    auto spawner         = GetSpawner();
+    auto spawner         = GetSpawner(ownerTag);
     auto& eventComponent = spawner->GetComponent<EventComponent>();
     eventComponent.Add(event);
 }
@@ -138,7 +187,7 @@ void Bullet::SpawnSequentialBullets(const glm::vec2& position,
         return Result::NONE;
     };
 
-    auto spawner         = GetSpawner();
+    auto spawner         = GetSpawner(ownerTag);
     auto& eventComponent = spawner->GetComponent<EventComponent>();
     eventComponent.Add(event);
 }
@@ -181,20 +230,26 @@ void Bullet::SpawnWinderBullets(const glm::vec2& position,
         return Result::NONE;
     };
 
-    auto spawner         = GetSpawner();
+    auto spawner         = GetSpawner(ownerTag);
     auto& eventComponent = spawner->GetComponent<EventComponent>();
     eventComponent.Add(event);
 }
 
+void Bullet::Spawn(float deltaTime)
+{
+    for (auto& ownerTag : {Player::PLAYER_TAG, Enemy::ENEMY_TAG})
+    {
+        auto spawner         = GetSpawner(ownerTag);
+        auto& eventComponent = spawner->GetComponent<EventComponent>();
+        eventComponent.Execute(deltaTime);
+    }
+}
+
 void Bullet::Move(float deltaTime)
 {
-    auto spawner         = GetSpawner();
-    auto& eventComponent = spawner->GetComponent<EventComponent>();
-    eventComponent.Execute(deltaTime);
-
-    for (auto& tag : {Player::PLAYER_TAG, Enemy::ENEMY_TAG})
+    for (auto& ownerTag : {Player::PLAYER_TAG, Enemy::ENEMY_TAG})
     {
-        for (auto& bullet : GetBullets(tag))
+        for (auto& bullet : GetBullets(ownerTag))
         {
             auto& transform = bullet->GetComponent<TransformComponent>();
             transform.position += transform.velocity * deltaTime;
@@ -253,15 +308,16 @@ const std::vector<std::shared_ptr<Entity>>& Bullet::GetBullets(const std::string
     return entityManager.GetEntities(tag);
 }
 
-std::shared_ptr<Entity> Bullet::GetSpawner()
+std::shared_ptr<Entity> Bullet::GetSpawner(const std::string& ownerTag)
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
-    if (entityManager.HasEntities(SPAWNER_TAG))
+    auto& entityManager    = Game::GetGame().GetEntityManger();
+    std::string spawnerTag = GenerateSpawnerTagName(ownerTag);
+    if (entityManager.HasEntities(spawnerTag))
     {
-        return entityManager.GetEntities(SPAWNER_TAG)[0];
+        return entityManager.GetEntities(spawnerTag)[0];
     }
 
-    auto spawner = entityManager.AddEntity(SPAWNER_TAG);
+    auto spawner = entityManager.AddEntity(spawnerTag);
     spawner->AddComponent<EventComponent>();
 
     return spawner;
@@ -270,4 +326,9 @@ std::shared_ptr<Entity> Bullet::GetSpawner()
 std::string Bullet::GenerateTagName(const std::string& ownerTag)
 {
     return BULLET_TAG_PREFIX + "_" + ownerTag;
+}
+
+std::string Bullet::GenerateSpawnerTagName(const std::string& ownerTag)
+{
+    return SPAWNER_TAG + "_" + ownerTag;
 }

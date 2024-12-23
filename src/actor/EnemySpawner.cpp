@@ -499,12 +499,13 @@ void EnemySpawner::RegisterExplosionBulletsEvent(
             float speed      = std::stof(strSpeed);
             float size       = std::stof(strSize);
 
-            Bullet::SpawnExplosionBullets(enemy->GetComponent<TransformComponent>().position,
-                                          color,
-                                          numOfBullets,     // number of bullets
-                                          enemy->GetTag(),  // owner tag
-                                          speed,            // speed
-                                          size              // size
+            Bullet::RegisterSpawnExplosionBullets(
+                enemy->GetComponent<TransformComponent>().position,
+                color,
+                numOfBullets,     // number of bullets
+                enemy->GetTag(),  // owner tag
+                speed,            // speed
+                size              // size
             );
             return Result::CONTINUE;
         }

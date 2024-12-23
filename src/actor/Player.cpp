@@ -91,11 +91,11 @@ void Player::Move(float deltaTime)
     input.shootInterval -= deltaTime;
     if (input.shoot && input.shootInterval <= 0.0f)
     {
-        Bullet::SpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
-                                       glm::vec2 {0.0f, -600.0f},  // velocity
-                                       Bullet::GREEN,              // color
-                                       player->GetTag(),           // owner tag
-                                       20.0f                       // size
+        Bullet::RegisterSpawnDirectionalBullet(playerTransform.position + glm::vec2 {0.0f, -50.0f},
+                                               glm::vec2 {0.0f, -600.0f},  // velocity
+                                               Bullet::GREEN,              // color
+                                               player->GetTag(),           // owner tag
+                                               20.0f                       // size
         );
         input.ResetShootInterval();
     }
