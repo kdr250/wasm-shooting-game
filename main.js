@@ -35,7 +35,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpoyq5fhxg.js
+// include: /tmp/tmpk8dmvom_.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -216,25 +216,25 @@ Module['FS_createPath']("/resources", "texture", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/resources/font/Roboto-Bold.ttf", "start": 0, "end": 128676}, {"filename": "/resources/scene/1.txt", "start": 128676, "end": 130103}, {"filename": "/resources/shader/Bullet.frag", "start": 130103, "end": 131183}, {"filename": "/resources/shader/Bullet.vert", "start": 131183, "end": 131497}, {"filename": "/resources/shader/BulletV3.frag", "start": 131497, "end": 132494}, {"filename": "/resources/shader/BulletV3.vert", "start": 132494, "end": 132846}, {"filename": "/resources/shader/Sprite.frag", "start": 132846, "end": 133019}, {"filename": "/resources/shader/Sprite.vert", "start": 133019, "end": 133663}, {"filename": "/resources/shader/SpriteV3.frag", "start": 133663, "end": 133813}, {"filename": "/resources/shader/SpriteV3.vert", "start": 133813, "end": 134495}, {"filename": "/resources/texture/background1.png", "start": 134495, "end": 428983}, {"filename": "/resources/texture/background2.png", "start": 428983, "end": 628203}, {"filename": "/resources/texture/example.png", "start": 628203, "end": 628929}, {"filename": "/resources/texture/example_enemy.png", "start": 628929, "end": 629579}, {"filename": "/resources/texture/explosion.png", "start": 629579, "end": 629858}, {"filename": "/resources/texture/red.png", "start": 629858, "end": 630419}], "remote_package_size": 630419});
+    loadPackage({"files": [{"filename": "/resources/font/Roboto-Bold.ttf", "start": 0, "end": 128676}, {"filename": "/resources/scene/1.txt", "start": 128676, "end": 130103}, {"filename": "/resources/shader/Bullet.frag", "start": 130103, "end": 131206}, {"filename": "/resources/shader/Bullet.vert", "start": 131206, "end": 131589}, {"filename": "/resources/shader/BulletV3.frag", "start": 131589, "end": 132586}, {"filename": "/resources/shader/BulletV3.vert", "start": 132586, "end": 132938}, {"filename": "/resources/shader/Sprite.frag", "start": 132938, "end": 133109}, {"filename": "/resources/shader/Sprite.vert", "start": 133109, "end": 133799}, {"filename": "/resources/shader/SpriteV3.frag", "start": 133799, "end": 133949}, {"filename": "/resources/shader/SpriteV3.vert", "start": 133949, "end": 134631}, {"filename": "/resources/texture/background1.png", "start": 134631, "end": 429119}, {"filename": "/resources/texture/background2.png", "start": 429119, "end": 628339}, {"filename": "/resources/texture/example.png", "start": 628339, "end": 629065}, {"filename": "/resources/texture/example_enemy.png", "start": 629065, "end": 629715}, {"filename": "/resources/texture/explosion.png", "start": 629715, "end": 629994}, {"filename": "/resources/texture/red.png", "start": 629994, "end": 630555}], "remote_package_size": 630555});
 
   })();
 
-// end include: /tmp/tmpoyq5fhxg.js
-// include: /tmp/tmpfvechenk.js
+// end include: /tmp/tmpk8dmvom_.js
+// include: /tmp/tmpt_gui4cn.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmpfvechenk.js
-// include: /tmp/tmp1q3znm53.js
+  // end include: /tmp/tmpt_gui4cn.js
+// include: /tmp/tmpy7vz991k.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmp1q3znm53.js
+  // end include: /tmp/tmpy7vz991k.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -9227,6 +9227,7 @@ var ASM_CONSTS = {
 
 
 
+
   
   
   
@@ -9951,6 +9952,8 @@ var wasmImports = {
   glGenVertexArrays: _glGenVertexArrays,
   /** @export */
   glGetError: _glGetError,
+  /** @export */
+  glGetProgramInfoLog: _glGetProgramInfoLog,
   /** @export */
   glGetProgramiv: _glGetProgramiv,
   /** @export */
