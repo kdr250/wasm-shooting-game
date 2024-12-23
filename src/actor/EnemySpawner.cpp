@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include "../Game.h"
-#include "Bullet.h"
+#include "BulletSpawner.h"
 #include "Enemy.h"
 #include "HealthBar.h"
 #include "Player.h"
@@ -494,12 +494,12 @@ void EnemySpawner::RegisterExplosionBulletsEvent(
         }
         if (executionCount < loopNum && fromPreviousSecond >= interval)
         {
-            glm::vec3 color  = Bullet::RED;  // FIXME
+            glm::vec3 color  = BulletSpawner::RED;  // FIXME
             int numOfBullets = std::stoi(strNumBullets);
             float speed      = std::stof(strSpeed);
             float size       = std::stof(strSize);
 
-            Bullet::RegisterSpawnExplosionBullets(
+            BulletSpawner::RegisterSpawnExplosionBullets(
                 enemy->GetComponent<TransformComponent>().position,
                 color,
                 numOfBullets,     // number of bullets
@@ -536,18 +536,18 @@ void EnemySpawner::RegisterRollBulletsEvent(const std::string& eventId,
         }
         if (executionCount < 1)
         {
-            glm::vec3 color  = Bullet::RED;  // FIXME
+            glm::vec3 color  = BulletSpawner::RED;  // FIXME
             int numOfBullets = std::stoi(strNumBullets);
             float speed      = std::stof(strSpeed);
             float size       = std::stof(strSize);
 
             auto& transform = enemy->GetComponent<TransformComponent>();
-            Bullet::SpawnRollBullets(transform.position,  // position
-                                     color,               // color
-                                     numOfBullets,        // num of bullets
-                                     enemy->GetTag(),     // owner tag
-                                     speed,               // speed
-                                     size                 // size
+            BulletSpawner::SpawnRollBullets(transform.position,  // position
+                                            color,               // color
+                                            numOfBullets,        // num of bullets
+                                            enemy->GetTag(),     // owner tag
+                                            speed,               // speed
+                                            size                 // size
             );
             return Result::CONTINUE;
         }
@@ -579,7 +579,7 @@ void EnemySpawner::RegisterSequentialBulletsEvent(
         }
         if (executionCount < 1)
         {
-            glm::vec3 color  = Bullet::RED;  // FIXME
+            glm::vec3 color  = BulletSpawner::RED;  // FIXME
             int numOfBullets = std::stoi(strNumBullets);
             float speed      = std::stof(strSpeed);
             float size       = std::stof(strSize);
@@ -588,13 +588,13 @@ void EnemySpawner::RegisterSequentialBulletsEvent(
             auto& player          = Player::GetPlayer();
             auto& playerTransform = player->GetComponent<TransformComponent>();
 
-            Bullet::SpawnSequentialBullets(transform.position,        // position
-                                           playerTransform.position,  // target
-                                           numOfBullets,              // num of bullets
-                                           color,                     // color
-                                           enemy->GetTag(),           // owner tag
-                                           speed,                     // speed
-                                           size                       // size
+            BulletSpawner::SpawnSequentialBullets(transform.position,        // position
+                                                  playerTransform.position,  // target
+                                                  numOfBullets,              // num of bullets
+                                                  color,                     // color
+                                                  enemy->GetTag(),           // owner tag
+                                                  speed,                     // speed
+                                                  size                       // size
             );
             return Result::CONTINUE;
         }
@@ -625,7 +625,7 @@ void EnemySpawner::RegisterWinderBulletsEvent(const std::string& eventId,
         }
         if (executionCount < 1)
         {
-            glm::vec3 color = Bullet::RED;  // FIXME
+            glm::vec3 color = BulletSpawner::RED;  // FIXME
             int loopNum     = std::stoi(strLoopNum);
             float speed     = std::stof(strSpeed);
             float size      = std::stof(strSize);
@@ -634,13 +634,13 @@ void EnemySpawner::RegisterWinderBulletsEvent(const std::string& eventId,
             auto& player          = Player::GetPlayer();
             auto& playerTransform = player->GetComponent<TransformComponent>();
 
-            Bullet::SpawnWinderBullets(transform.position,        // position
-                                       playerTransform.position,  // target
-                                       loopNum,                   // num of loop
-                                       color,                     // color
-                                       enemy->GetTag(),           // owner tag
-                                       speed,                     // speed
-                                       size                       // size
+            BulletSpawner::SpawnWinderBullets(transform.position,        // position
+                                              playerTransform.position,  // target
+                                              loopNum,                   // num of loop
+                                              color,                     // color
+                                              enemy->GetTag(),           // owner tag
+                                              speed,                     // speed
+                                              size                       // size
             );
             return Result::CONTINUE;
         }
