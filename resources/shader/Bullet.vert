@@ -1,3 +1,8 @@
+#ifdef GL_ES
+precision mediump float;
+precision mediump int;
+#endif
+
 uniform vec2 uWindowSize;
 uniform int uBulletCount;
 uniform vec2 uBulletPositions[320];
