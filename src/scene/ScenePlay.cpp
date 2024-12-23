@@ -5,6 +5,7 @@
 #include "../Game.h"
 #include "../actor/Background.h"
 #include "../actor/Bullet.h"
+#include "../actor/BulletSpawner.h"
 #include "../actor/Enemy.h"
 #include "../actor/EnemySpawner.h"
 #include "../actor/ExplosionEffect.h"
@@ -18,13 +19,9 @@
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
     Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
-
     Background::Spawn();
-
-    Bullet::Initialize();
-
-    EnemySpawner::Initialize(id);
-
+    BulletSpawner::Initialize();
+    EnemySpawner::Initialize(sceneId);
     ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f});
 
     RegisterAction(SDL_SCANCODE_W, "UP");
@@ -97,6 +94,7 @@ void ScenePlay::SpawnEntities(float deltaTime)
 {
     EnemySpawner::Spawn(deltaTime);
     EnemySpawner::Update(deltaTime);  // FIXME
+    BulletSpawner::Spawn(deltaTime);
 }
 
 void ScenePlay::MoveEntities(float deltaTime)
