@@ -113,7 +113,7 @@ bool Shader::IsCompiled(GLuint shader)
     {
         char buffer[512];
         memset(buffer, 0, 512);
-        glGetShaderInfoLog(shader, 512, nullptr, buffer);
+        glGetShaderInfoLog(shader, 511, nullptr, buffer);
         SDL_Log("GLSL compile status: %s", buffer);
         return false;
     }
@@ -128,7 +128,7 @@ bool Shader::IsValidProgram()
     {
         char buffer[512];
         memset(buffer, 0, 512);
-        glGetShaderInfoLog(shaderProgramId, 512, nullptr, buffer);
+        glGetProgramInfoLog(shaderProgramId, 511, nullptr, buffer);
         SDL_Log("GLSL link status: %s", buffer);
         return false;
     }
