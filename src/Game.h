@@ -7,6 +7,7 @@
 #include "asset/AssetManager.h"
 #include "ecs/EntityManager.h"
 #include "scene/Action.h"
+#include "sound/SoundManager.h"
 
 class Scene;
 
@@ -39,6 +40,8 @@ public:
     AssetManager& GetAssetManager();
 
     EntityManager& GetEntityManger();
+
+    SoundManager& GetSoundManager();
 
     SDL_Window* GetWindow();
 
@@ -79,6 +82,7 @@ private:
 
     EntityManager entityManager;
     AssetManager assetManager;
+    SoundManager soundManager;
 
     bool isRunning;
 
