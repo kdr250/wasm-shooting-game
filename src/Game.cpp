@@ -92,10 +92,7 @@ bool Game::Initialize()
         return false;
     }
 
-    // FIXME
-    auto& soundManager = game->GetSoundManager();
-    soundManager.LoadSound("bgm1", "resources/sound/bgm.mp3");
-    soundManager.PlaySound("bgm1", true);
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 8);
 
     game->ChangeScene("MENU", std::make_shared<SceneMenu>());
 

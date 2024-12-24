@@ -26,14 +26,18 @@ void SoundManager::PlaySound(const std::string& name, bool loop)
     auto iter = sounds.find(name);
     if (iter == sounds.end())
     {
-        SDL_Log("Failed to play music: %s", name.c_str());
+        SDL_Log("Failed to find music: %s", name.c_str());
         return;
     }
 
     int loopFlag      = static_cast<int>(loop) * -1;
     auto nameAndSound = *iter;
 
-    Mix_PlayMusic(nameAndSound.second, loopFlag);
+    if (Mix_PlayMusic(nameAndSound.second, loopFlag) != 0)
+    {
+        SDL_Log("Failed to play music: %s", name.c_str());
+        return;
+    }
 }
 
 void SoundManager::Unload()

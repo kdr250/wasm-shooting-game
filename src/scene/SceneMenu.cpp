@@ -6,6 +6,7 @@ SceneMenu::SceneMenu()
 {
     auto& game         = Game::GetGame();
     auto& assetManager = game.GetAssetManager();
+    auto& soundManager = game.GetSoundManager();
 
     if (!assetManager.LoadShader(SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
     {
@@ -24,6 +25,9 @@ SceneMenu::SceneMenu()
     RegisterAction(SDL_SCANCODE_RETURN2, "PLAY_GAME");
     RegisterAction(SDL_SCANCODE_KP_ENTER, "PLAY_GAME");
     RegisterAction(SDL_SCANCODE_ESCAPE, "QUIT");
+
+    soundManager.LoadSound("bgm1", "resources/sound/bgm.mp3");
+    soundManager.PlaySound("bgm1", true);
 }
 
 void SceneMenu::Update(float deltaTime) {}
