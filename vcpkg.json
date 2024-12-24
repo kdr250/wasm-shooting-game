@@ -9,6 +9,13 @@
             "platform": "!wasm32"
         },
         {
+            "name": "sdl2-mixer",
+            "platform": "!wasm32",
+            "features": [
+                "mpg123"
+            ]
+        },
+        {
             "name": "glew",
             "platform": "!wasm32"
         },
