@@ -41,7 +41,7 @@ public:
 
     EntityManager& GetEntityManger();
 
-    AudioManager& GetSoundManager();
+    AudioManager& GetAudioManager();
 
     SDL_Window* GetWindow();
 
