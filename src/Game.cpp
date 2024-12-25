@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <SDL2/SDL_mixer.h>
 #include <algorithm>
 #include "scene/SceneMenu.h"
 
@@ -22,7 +23,7 @@ bool Game::Initialize()
 
     game = new Game();
 
-    int sdlResult = SDL_Init(SDL_INIT_VIDEO);
+    int sdlResult = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     if (sdlResult != 0)
     {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -79,6 +80,20 @@ bool Game::Initialize()
         return false;
     }
 
+    if (Mix_Init(MIX_INIT_MP3) == 0)
+    {
+        SDL_Log("Failed to initialize SDL_mixer: %s", Mix_GetError());
+        return false;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+    {
+        SDL_Log("Failed to open audio: %s", Mix_GetError());
+        return false;
+    }
+
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 8);
+
     game->ChangeScene("MENU", std::make_shared<SceneMenu>());
 
     return true;
@@ -110,6 +125,11 @@ AssetManager& Game::GetAssetManager()
 EntityManager& Game::GetEntityManger()
 {
     return entityManager;
+}
+
+AudioManager& Game::GetAudioManager()
+{
+    return soundManager;
 }
 
 SDL_Window* Game::GetWindow()
@@ -188,6 +208,8 @@ void Game::Shutdown()
 {
     SDL_GL_DeleteContext(game->context);
     SDL_DestroyWindow(game->window);
+    Mix_Quit();
+    TTF_Quit();
     SDL_Quit();
     delete game;
     game = nullptr;

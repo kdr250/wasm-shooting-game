@@ -31,6 +31,10 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     RegisterAction(SDL_SCANCODE_SPACE, "SHOOT");
     RegisterAction(SDL_SCANCODE_P, "PAUSE");
     RegisterAction(SDL_SCANCODE_ESCAPE, "QUIT");
+
+    auto& audioManager = Game::GetGame().GetAudioManager();
+    audioManager.LoadMusic("bgm1", "resources/audio/bgm.mp3");
+    audioManager.PlayMusic("bgm1", true);
 }
 
 void ScenePlay::Update(float deltaTime)
