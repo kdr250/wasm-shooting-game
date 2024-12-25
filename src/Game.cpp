@@ -86,12 +86,13 @@ bool Game::Initialize()
         return false;
     }
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
     {
         SDL_Log("Failed to open audio: %s", Mix_GetError());
         return false;
     }
 
+    Mix_AllocateChannels(MIX_CHANNELS);
     Mix_VolumeMusic(MIX_MAX_VOLUME / 8);
 
     game->ChangeScene("MENU", std::make_shared<SceneMenu>());
