@@ -4,10 +4,10 @@
 #include <map>
 #include <string>
 
-class SoundManager
+class AudioManager
 {
 public:
-    SoundManager();
+    AudioManager();
 
     bool LoadSound(const std::string& name, const std::string& path);
     void PlaySound(const std::string& name, bool loop);

@@ -1,9 +1,9 @@
-#include "SoundManager.h"
+#include "AudioManager.h"
 #include <SDL2/SDL_log.h>
 
-SoundManager::SoundManager() {}
+AudioManager::AudioManager() {}
 
-bool SoundManager::LoadSound(const std::string& name, const std::string& path)
+bool AudioManager::LoadSound(const std::string& name, const std::string& path)
 {
     if (sounds.contains(name))
     {
@@ -21,7 +21,7 @@ bool SoundManager::LoadSound(const std::string& name, const std::string& path)
     return true;
 }
 
-void SoundManager::PlaySound(const std::string& name, bool loop)
+void AudioManager::PlaySound(const std::string& name, bool loop)
 {
     auto iter = sounds.find(name);
     if (iter == sounds.end())
@@ -40,7 +40,7 @@ void SoundManager::PlaySound(const std::string& name, bool loop)
     }
 }
 
-void SoundManager::Unload()
+void AudioManager::Unload()
 {
     for (auto& [name, sound] : sounds)
     {

@@ -127,7 +127,7 @@ EntityManager& Game::GetEntityManger()
     return entityManager;
 }
 
-SoundManager& Game::GetSoundManager()
+AudioManager& Game::GetSoundManager()
 {
     return soundManager;
 }
