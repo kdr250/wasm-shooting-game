@@ -3,7 +3,7 @@
 
 AudioManager::AudioManager() {}
 
-bool AudioManager::LoadSound(const std::string& name, const std::string& path)
+bool AudioManager::LoadMusic(const std::string& name, const std::string& path)
 {
     if (sounds.contains(name))
     {
@@ -21,7 +21,7 @@ bool AudioManager::LoadSound(const std::string& name, const std::string& path)
     return true;
 }
 
-void AudioManager::PlaySound(const std::string& name, bool loop)
+void AudioManager::PlayMusic(const std::string& name, bool loop)
 {
     auto iter = sounds.find(name);
     if (iter == sounds.end())

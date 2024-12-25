@@ -26,8 +26,8 @@ SceneMenu::SceneMenu()
     RegisterAction(SDL_SCANCODE_KP_ENTER, "PLAY_GAME");
     RegisterAction(SDL_SCANCODE_ESCAPE, "QUIT");
 
-    audioManager.LoadSound("bgm1", "resources/sound/bgm.mp3");
-    audioManager.PlaySound("bgm1", true);
+    audioManager.LoadMusic("bgm1", "resources/sound/bgm.mp3");
+    audioManager.PlayMusic("bgm1", true);
 }
 
 void SceneMenu::Update(float deltaTime) {}

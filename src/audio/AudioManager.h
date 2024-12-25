@@ -9,8 +9,8 @@ class AudioManager
 public:
     AudioManager();
 
-    bool LoadSound(const std::string& name, const std::string& path);
-    void PlaySound(const std::string& name, bool loop);
+    bool LoadMusic(const std::string& name, const std::string& path);
+    void PlayMusic(const std::string& name, bool loop);
 
     void Unload();
 

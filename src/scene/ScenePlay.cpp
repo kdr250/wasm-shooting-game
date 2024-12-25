@@ -33,8 +33,8 @@ ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
     RegisterAction(SDL_SCANCODE_ESCAPE, "QUIT");
 
     auto& audioManager = Game::GetGame().GetAudioManager();
-    audioManager.LoadSound("bgm1", "resources/sound/bgm.mp3");
-    audioManager.PlaySound("bgm1", true);
+    audioManager.LoadMusic("bgm1", "resources/sound/bgm.mp3");
+    audioManager.PlayMusic("bgm1", true);
 }
 
 void ScenePlay::Update(float deltaTime)
