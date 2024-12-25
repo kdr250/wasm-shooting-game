@@ -33,6 +33,13 @@ void EnemySpawner::Initialize(const int sceneId)
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
+    auto& audioManager  = game.GetAudioManager();
+
+    if (!audioManager.LoadSound(ENEMY_SHOOT_SOUND_NAME, ENEMY_SHOOT_SOUND_PATH))
+    {
+        SDL_Log("Failed to load sound");
+        exit(EXIT_FAILURE);
+    }
 
     auto spawner = entityManager.AddEntity(ENEMY_SPAWNER_TAG);
     spawner->AddComponent<EventComponent>();
@@ -502,10 +509,11 @@ void EnemySpawner::RegisterExplosionBulletsEvent(
             BulletSpawner::RegisterSpawnExplosionBullets(
                 enemy->GetComponent<TransformComponent>().position,
                 color,
-                numOfBullets,     // number of bullets
-                enemy->GetTag(),  // owner tag
-                speed,            // speed
-                size              // size
+                numOfBullets,           // number of bullets
+                enemy->GetTag(),        // owner tag
+                speed,                  // speed
+                size,                   // size
+                ENEMY_SHOOT_SOUND_NAME  // sound name
             );
             return Result::CONTINUE;
         }
@@ -542,12 +550,13 @@ void EnemySpawner::RegisterRollBulletsEvent(const std::string& eventId,
             float size       = std::stof(strSize);
 
             auto& transform = enemy->GetComponent<TransformComponent>();
-            BulletSpawner::SpawnRollBullets(transform.position,  // position
-                                            color,               // color
-                                            numOfBullets,        // num of bullets
-                                            enemy->GetTag(),     // owner tag
-                                            speed,               // speed
-                                            size                 // size
+            BulletSpawner::SpawnRollBullets(transform.position,     // position
+                                            color,                  // color
+                                            numOfBullets,           // num of bullets
+                                            enemy->GetTag(),        // owner tag
+                                            speed,                  // speed
+                                            size,                   // size
+                                            ENEMY_SHOOT_SOUND_NAME  // sound name
             );
             return Result::CONTINUE;
         }
@@ -594,7 +603,8 @@ void EnemySpawner::RegisterSequentialBulletsEvent(
                                                   color,                     // color
                                                   enemy->GetTag(),           // owner tag
                                                   speed,                     // speed
-                                                  size                       // size
+                                                  size,                      // size
+                                                  ENEMY_SHOOT_SOUND_NAME     // sound name
             );
             return Result::CONTINUE;
         }
@@ -640,7 +650,8 @@ void EnemySpawner::RegisterWinderBulletsEvent(const std::string& eventId,
                                               color,                     // color
                                               enemy->GetTag(),           // owner tag
                                               speed,                     // speed
-                                              size                       // size
+                                              size,                      // size
+                                              ENEMY_SHOOT_SOUND_NAME     // sound name
             );
             return Result::CONTINUE;
         }

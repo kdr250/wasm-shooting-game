@@ -36,4 +36,7 @@ private:
 
     inline static const std::string PLAYER_TEXTURE_NAME = "example";
     inline static const std::string PLAYER_TEXTURE      = "resources/texture/example.png";
+
+    inline static const std::string PLAYER_SHOOT_SOUND_NAME = "shoot";
+    inline static const std::string PLAYER_SHOOT_SOUND_PATH = "resources/audio/shoot.wav";
 };

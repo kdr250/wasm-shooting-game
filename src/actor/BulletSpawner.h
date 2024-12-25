@@ -24,21 +24,24 @@ public:
                                                const glm::vec2& velocity,
                                                const glm::vec3& color,
                                                const std::string& ownerTag,
-                                               const float size);
+                                               const float size,
+                                               const std::string& soundName);
 
     static void RegisterSpawnExplosionBullets(const glm::vec2& position,
                                               const glm::vec3& color,
                                               const int bulletsNum,
                                               const std::string& ownerTag,
                                               const float speed,
-                                              const float size);
+                                              const float size,
+                                              const std::string& soundName);
 
     static void SpawnRollBullets(const glm::vec2& position,
                                  const glm::vec3& color,
                                  const int bulletsNum,
                                  const std::string& ownerTag,
                                  const float speed,
-                                 const float size);
+                                 const float size,
+                                 const std::string& soundName);
 
     static void SpawnSequentialBullets(const glm::vec2& position,
                                        const glm::vec2& target,
@@ -46,7 +49,8 @@ public:
                                        const glm::vec3& color,
                                        const std::string& ownerTag,
                                        const float speed,
-                                       const float size);
+                                       const float size,
+                                       const std::string& soundName);
 
     static void SpawnWinderBullets(const glm::vec2& position,
                                    const glm::vec2& target,
@@ -54,21 +58,24 @@ public:
                                    const glm::vec3& color,
                                    const std::string& ownerTag,
                                    const float speed,
-                                   const float size);
+                                   const float size,
+                                   const std::string& soundName);
 
 private:
     static void SpawnDirectionalBullet(const glm::vec2& position,
                                        const glm::vec2& velocity,
                                        const glm::vec3& color,
                                        const std::string& ownerTag,
-                                       const float size);
+                                       const float size,
+                                       const std::string& soundName);
 
     static void SpawnExplosionBullets(const glm::vec2& position,
                                       const glm::vec3& color,
                                       const int bulletsNum,
                                       const std::string& ownerTag,
                                       const float speed,
-                                      const float size);
+                                      const float size,
+                                      const std::string& soundName);
 
     static std::shared_ptr<Entity> GetSpawner(const std::string& ownerTag);
 

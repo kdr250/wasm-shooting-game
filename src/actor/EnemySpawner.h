@@ -93,4 +93,7 @@ private:
 
     static std::string GenerateEventId(const std::string eventId);
     static std::string GenerateEventId(const int eventId);
+
+    inline static const std::string ENEMY_SHOOT_SOUND_NAME = "shoot_enemy";
+    inline static const std::string ENEMY_SHOOT_SOUND_PATH = "resources/audio/enemy.wav";
 };

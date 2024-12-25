@@ -33,16 +33,19 @@ void BulletSpawner::RegisterSpawnDirectionalBullet(const glm::vec2& position,
                                                    const glm::vec2& velocity,
                                                    const glm::vec3& color,
                                                    const std::string& ownerTag,
-                                                   const float size)
+                                                   const float size,
+                                                   const std::string& soundName)
 {
     std::function<Result(long, int)> event =
-        [position, velocity, color, ownerTag, size](long fromPreviousMilli, int executionCount)
+        [position, velocity, color, ownerTag, size, soundName](long fromPreviousMilli,
+                                                               int executionCount)
     {
         SpawnDirectionalBullet(position,  // position
                                velocity,  // velocity
                                color,     // color
                                ownerTag,  // owner tag
-                               size       // size
+                               size,      // size
+                               soundName  // sound name
         );
         return Result::COMPLETED;
     };
@@ -57,18 +60,20 @@ void BulletSpawner::RegisterSpawnExplosionBullets(const glm::vec2& position,
                                                   const int bulletsNum,
                                                   const std::string& ownerTag,
                                                   const float speed,
-                                                  const float size)
+                                                  const float size,
+                                                  const std::string& soundName)
 {
     std::function<Result(long, int)> event =
-        [position, color, bulletsNum, ownerTag, speed, size](long fromPreviousMilli,
-                                                             int executionCount)
+        [position, color, bulletsNum, ownerTag, speed, size, soundName](long fromPreviousMilli,
+                                                                        int executionCount)
     {
         SpawnExplosionBullets(position,    // position
                               color,       // color
                               bulletsNum,  // num of bullets
                               ownerTag,    // owner tag
                               speed,       // speed
-                              size         // size
+                              size,        // size
+                              soundName    // sound name
         );
         return Result::COMPLETED;
     };
@@ -83,11 +88,12 @@ void BulletSpawner::SpawnRollBullets(const glm::vec2& position,
                                      const int bulletsNum,
                                      const std::string& ownerTag,
                                      const float speed,
-                                     const float size)
+                                     const float size,
+                                     const std::string& soundName)
 {
     std::function<Result(long, int)> event =
-        [position, bulletsNum, speed, color, ownerTag, size](long fromPreviousMilli,
-                                                             int executionCount)
+        [position, bulletsNum, speed, color, ownerTag, size, soundName](long fromPreviousMilli,
+                                                                        int executionCount)
     {
         if (executionCount == bulletsNum)
         {
@@ -105,7 +111,8 @@ void BulletSpawner::SpawnRollBullets(const glm::vec2& position,
                                    velocity,  // velocity
                                    color,     // color
                                    ownerTag,  // owner tag
-                                   size       // size
+                                   size,      // size
+                                   soundName  // sound name
             );
             return Result::CONTINUE;
         }
@@ -123,11 +130,13 @@ void BulletSpawner::SpawnSequentialBullets(const glm::vec2& position,
                                            const glm::vec3& color,
                                            const std::string& ownerTag,
                                            const float speed,
-                                           const float size)
+                                           const float size,
+                                           const std::string& soundName)
 {
     std::function<Result(long, int)> event =
-        [position, target, bulletsNum, speed, color, ownerTag, size](long fromPreviousMilli,
-                                                                     int executionCount)
+        [position, target, bulletsNum, speed, color, ownerTag, size, soundName](
+            long fromPreviousMilli,
+            int executionCount)
     {
         if (executionCount == bulletsNum)
         {
@@ -141,7 +150,8 @@ void BulletSpawner::SpawnSequentialBullets(const glm::vec2& position,
                                    velocity,  // velocity
                                    color,     // color
                                    ownerTag,  // owner tag
-                                   size       // size
+                                   size,      // size
+                                   soundName  // sound name
             );
             return Result::CONTINUE;
         }
@@ -159,11 +169,12 @@ void BulletSpawner::SpawnWinderBullets(const glm::vec2& position,
                                        const glm::vec3& color,
                                        const std::string& ownerTag,
                                        const float speed,
-                                       const float size)
+                                       const float size,
+                                       const std::string& soundName)
 {
     std::function<Result(long, int)> event =
-        [position, target, loopNum, speed, color, ownerTag, size](long fromPreviousMilli,
-                                                                  int executionCount)
+        [position, target, loopNum, speed, color, ownerTag, size, soundName](long fromPreviousMilli,
+                                                                             int executionCount)
     {
         if (executionCount == loopNum)
         {
@@ -182,7 +193,8 @@ void BulletSpawner::SpawnWinderBullets(const glm::vec2& position,
                                        velocity,  // velocity
                                        color,     // color
                                        ownerTag,  // owner tag
-                                       size       // size
+                                       size,      // size
+                                       soundName  // sound name
                 );
             }
             return Result::CONTINUE;
@@ -199,9 +211,12 @@ void BulletSpawner::SpawnDirectionalBullet(const glm::vec2& position,
                                            const glm::vec2& velocity,
                                            const glm::vec3& color,
                                            const std::string& ownerTag,
-                                           const float size)
+                                           const float size,
+                                           const std::string& soundName)
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto& game          = Game::GetGame();
+    auto& entityManager = game.GetEntityManger();
+    auto& audioManager  = game.GetAudioManager();
 
     std::string tag = Bullet::GenerateTagName(ownerTag);
 
@@ -212,6 +227,8 @@ void BulletSpawner::SpawnDirectionalBullet(const glm::vec2& position,
     bullet->AddComponent<RectComponent>(size);
     bullet->AddComponent<LifespanComponent>(3.0f);
     bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, excludes);
+
+    audioManager.PlaySound(soundName);
 }
 
 void BulletSpawner::SpawnExplosionBullets(const glm::vec2& position,
@@ -219,9 +236,12 @@ void BulletSpawner::SpawnExplosionBullets(const glm::vec2& position,
                                           const int bulletsNum,
                                           const std::string& ownerTag,
                                           const float speed,
-                                          const float size)
+                                          const float size,
+                                          const std::string& soundName)
 {
-    auto& entityManager = Game::GetGame().GetEntityManger();
+    auto& game          = Game::GetGame();
+    auto& entityManager = game.GetEntityManger();
+    auto& audioManager  = game.GetAudioManager();
 
     std::string tag = Bullet::GenerateTagName(ownerTag);
 
@@ -243,6 +263,8 @@ void BulletSpawner::SpawnExplosionBullets(const glm::vec2& position,
         bullet->AddComponent<LifespanComponent>(10.0f);
         bullet->AddComponent<BoxCollisionComponent>(glm::vec2 {size / 2.0f, size / 2.0f}, excludes);
     }
+
+    audioManager.PlaySound(soundName);
 }
 
 std::shared_ptr<Entity> BulletSpawner::GetSpawner(const std::string& ownerTag)

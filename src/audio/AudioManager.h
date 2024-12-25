@@ -13,11 +13,12 @@ public:
     void PlayMusic(const std::string& name, bool loop);
 
     bool LoadSound(const std::string& name, const std::string& path);
-    void PlaySound(const std::string& name, bool loop);
+    void PlaySound(const std::string& name);
 
     void Unload();
 
 private:
     std::map<std::string, Mix_Music*> musics;
     std::map<std::string, Mix_Chunk*> sounds;
+    std::map<std::string, int> soundChannels;
 };

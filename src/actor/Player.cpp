@@ -11,6 +11,7 @@ std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
+    auto& audioManager  = game.GetAudioManager();
 
     if (!assetManager.LoadShader(SPRITE_SHADER_NAME, SPRITE_SHADER_VERT, SPRITE_SHADER_FRAG))
     {
@@ -23,6 +24,12 @@ std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
     if (!assetManager.LoadTexture(PLAYER_TEXTURE_NAME, PLAYER_TEXTURE))
     {
         SDL_Log("Failed to load texture");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!audioManager.LoadSound(PLAYER_SHOOT_SOUND_NAME, PLAYER_SHOOT_SOUND_PATH))
+    {
+        SDL_Log("Failed to load sound");
         exit(EXIT_FAILURE);
     }
 
@@ -97,7 +104,8 @@ void Player::Move(float deltaTime)
             glm::vec2 {0.0f, -600.0f},  // velocity
             BulletSpawner::GREEN,       // color
             player->GetTag(),           // owner tag
-            20.0f                       // size
+            20.0f,                      // size
+            PLAYER_SHOOT_SOUND_NAME     // sound name
         );
         input.ResetShootInterval();
     }

@@ -58,7 +58,7 @@ bool AudioManager::LoadSound(const std::string& name, const std::string& path)
     return true;
 }
 
-void AudioManager::PlaySound(const std::string& name, bool loop)
+void AudioManager::PlaySound(const std::string& name)
 {
     auto iter = sounds.find(name);
     if (iter == sounds.end())
@@ -67,14 +67,28 @@ void AudioManager::PlaySound(const std::string& name, bool loop)
         return;
     }
 
-    int loopFlag = static_cast<int>(loop) * -1;
-    auto sound   = (*iter).second;
+    auto sound = (*iter).second;
 
-    if (Mix_PlayChannel(-1, sound, loopFlag) != 0)
+    auto channelIter = soundChannels.find(name);
+    if (channelIter != soundChannels.end())
     {
-        SDL_Log("Failed to play sound: %s", name.c_str());
+        int channel = (*channelIter).second;
+        if (Mix_PlayChannel(channel, sound, 0) == -1)
+        {
+            SDL_Log("Failed to play sound %s: %s", name.c_str(), Mix_GetError());
+            return;
+        }
         return;
     }
+
+    int channelResult = Mix_PlayChannel(-1, sound, 0);
+    if (channelResult == -1)
+    {
+        SDL_Log("Failed to play sound %s: %s", name.c_str(), Mix_GetError());
+        return;
+    }
+
+    soundChannels.emplace(name, channelResult);
 }
 
 void AudioManager::Unload()
