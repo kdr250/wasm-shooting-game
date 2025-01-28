@@ -17,13 +17,8 @@ public:
     static constexpr int WINDOW_WIDTH  = 1024;
     static constexpr int WINDOW_HEIGHT = 768;
 
-#ifdef __EMSCRIPTEN__
     inline static const std::string SPRITE_SHADER_VERT = "resources/shader/Sprite.vert";
     inline static const std::string SPRITE_SHADER_FRAG = "resources/shader/Sprite.frag";
-#else
-    inline static const std::string SPRITE_SHADER_VERT = "resources/shader/SpriteV3.vert";
-    inline static const std::string SPRITE_SHADER_FRAG = "resources/shader/SpriteV3.frag";
-#endif
 
     inline static const std::string PLAYER_TEXTURE = "resources/texture/example.png";
     inline static const std::string FONT_PATH      = "resources/font/Roboto-Bold.ttf";

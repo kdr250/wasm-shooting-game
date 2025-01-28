@@ -1,7 +1,5 @@
-#ifdef GL_ES
 precision mediump float;
 precision mediump int;
-#endif
 
 uniform vec2 uWindowSize;
 uniform int uBulletCount;
@@ -9,7 +7,9 @@ uniform vec2 uBulletPositions[320];
 uniform vec2 uBulletSizes[320];
 uniform vec3 uBulletColors[320];
 
-varying vec2 inPos;
+in vec2 inPos;
+
+out vec4 outColor;
 
 void main()
 {
@@ -20,13 +20,8 @@ void main()
     vec3 nearestColor = uBulletColors[0];
     vec2 nearestSize = uBulletSizes[0];
 
-    for (int i = 0; i < 320; ++i)
+    for (int i = 0; i < uBulletCount; ++i)
     {
-        if (i >= uBulletCount)
-        {
-            break;
-        }
-
         vec2 uBulletPosition = uBulletPositions[i];
         vec2 centerPosition = uBulletPosition.xy;
 
@@ -45,5 +40,5 @@ void main()
     float strength = radius / nearestDist;
     vec3 color = nearestColor * strength;
 
-    gl_FragColor = vec4(color, strength);
+    outColor = vec4(color, strength);
 }

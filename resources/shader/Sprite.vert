@@ -1,16 +1,14 @@
-#ifdef GL_ES
 precision mediump float;
-#endif
 
 uniform vec2 uWindowSize;
 uniform vec2 uTextureSize;
 uniform vec2 uTexturePosition;
 uniform float uTextureScale;
 
-attribute vec3 inPosition;
-attribute vec2 inTexCoord;
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec2 inTexCoord;
 
-varying vec2 fragTexCoord;
+out vec2 fragTexCoord;
 
 void main()
 {
