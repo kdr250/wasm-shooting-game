@@ -1,6 +1,7 @@
 #include "Shader.h"
 #include <SDL2/SDL.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <sstream>
 
 Shader::Shader() {}
 
@@ -96,8 +97,17 @@ bool Shader::CompileShader(const std::string& contents, GLenum shaderType, GLuin
     // Create a shader of the specified type
     outShader = glCreateShader(shaderType);
 
+    std::stringstream fullContents;
+
     // Set the source characters and try to compile
-    const char* contentsChar = contents.c_str();
+#ifdef __EMSCRIPTEN__
+    fullContents << "#version 300 es" << std::endl;
+#else
+    fullContents << "#version 330" << std::endl;
+#endif
+    fullContents << contents;
+    std::string fullContent  = fullContents.str();
+    const char* contentsChar = fullContent.c_str();
     glShaderSource(outShader, 1, &contentsChar, nullptr);
     glCompileShader(outShader);
 
