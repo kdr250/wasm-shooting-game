@@ -102,7 +102,7 @@ void Player::Move(float deltaTime)
         BulletSpawner::RegisterSpawnDirectionalBullet(
             playerTransform.position + glm::vec2 {0.0f, -50.0f},
             glm::vec2 {0.0f, -600.0f},  // velocity
-            BulletSpawner::GREEN,       // color
+            BulletSpawner::YELLOW,      // color
             player->GetTag(),           // owner tag
             20.0f,                      // size
             PLAYER_SHOOT_SOUND_NAME     // sound name
