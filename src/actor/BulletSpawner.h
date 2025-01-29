@@ -13,9 +13,9 @@ class Entity;
 class BulletSpawner
 {
 public:
-    static constexpr float PI         = 3.1415926535f;
-    static constexpr glm::vec3 YELLOW = {1.0f, 1.0f, 0.0f};
-    static constexpr glm::vec3 RED    = {1.0f, 0.0f, 0.0f};
+    static constexpr float PI        = 3.1415926535f;
+    static constexpr glm::vec3 GREEN = {0.0f, 1.0f, 0.0f};
+    static constexpr glm::vec3 RED   = {1.0f, 0.0f, 0.0f};
 
     static void Initialize();
     static void Spawn(float deltaTime);
