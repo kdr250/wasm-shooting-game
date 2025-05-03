@@ -1,7 +1,7 @@
 #include "AssetManager.h"
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <png.h>
+#include <SDL2/SDL_image.h>
 #include <fstream>
 #include <sstream>
 
@@ -14,71 +14,22 @@ bool AssetManager::LoadTexture(const std::string& name, const std::string& path)
         return true;
     }
 
-    FILE* pngFile = fopen(path.c_str(), "rb");
-    if (!pngFile)
+    SDL_Surface* surface = IMG_Load(path.c_str());
+
+    if (!surface)
     {
-        SDL_Log("Failed to open image file %s", path.c_str());
+        SDL_Log("Failed to load texture file: %s", path.c_str());
         return false;
     }
 
-    auto pngStruct = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!pngStruct)
-    {
-        SDL_Log("Failed to create PNG structure %s", path.c_str());
-        return false;
-    }
+    int width  = surface->w;
+    int height = surface->h;
+    int format = SDL_ISPIXELFORMAT_ALPHA(surface->format->format) ? GL_RGBA : GL_RGB;
 
-    auto pngInfo = png_create_info_struct(pngStruct);
-    if (!pngInfo)
-    {
-        SDL_Log("Failed to create PNG info structure %s", path.c_str());
-        png_destroy_read_struct(&pngStruct, nullptr, nullptr);
-        pngStruct = nullptr;
-        return false;
-    }
-
-    if (setjmp(png_jmpbuf(pngStruct)))
-    {
-        return false;
-    }
-
-    png_init_io(pngStruct, pngFile);
-
-    png_read_info(pngStruct, pngInfo);
-
-    auto width      = png_get_image_width(pngStruct, pngInfo);
-    auto height     = png_get_image_height(pngStruct, pngInfo);
-    auto rowLen     = png_get_rowbytes(pngStruct, pngInfo);
-    auto colorType  = png_get_color_type(pngStruct, pngInfo);
-    auto numChannel = png_get_channels(pngStruct, pngInfo);
-
-    // prepare storage
-    auto pixels  = std::make_unique<png_byte[]>(height * rowLen);
-    auto rowPtrs = std::make_unique<png_bytep[]>(height);
-    for (png_uint_32 i = 0; i < height; ++i)
-    {
-        rowPtrs[i] = &pixels[i * rowLen];
-    }
-
-    // read pixels
-    png_read_image(pngStruct, rowPtrs.get());
-
-    auto image = std::make_unique<unsigned char[]>(numChannel * width * height);
-    for (int i = 0; i < height; ++i)
-    {
-        for (int j = 0; j < numChannel * width; ++j)
-        {
-            image[i * numChannel * width + j] = rowPtrs[i][j];
-        }
-    }
-
-    png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
-    fclose(pngFile);
-
-    int format = colorType == PNG_COLOR_TYPE_RGB_ALPHA ? GL_RGBA : GL_RGB;
-
-    Texture texture(format, width, height, image.get());
+    Texture texture(format, width, height, surface->pixels);
     textures.emplace(name, texture);
+
+    SDL_FreeSurface(surface);
 
     return true;
 }
@@ -102,54 +53,17 @@ bool AssetManager::LoadAnimation(const std::string& name,
         return true;
     }
 
-    FILE* pngFile = fopen(path.c_str(), "rb");
-    if (!pngFile)
+    SDL_Surface* surface = IMG_Load(path.c_str());
+
+    if (!surface)
     {
-        SDL_Log("Failed to open image file %s", path.c_str());
+        SDL_Log("Failed to load texture file: %s", path.c_str());
         return false;
     }
 
-    auto pngStruct = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!pngStruct)
-    {
-        SDL_Log("Failed to create PNG structure %s", path.c_str());
-        return false;
-    }
-
-    auto pngInfo = png_create_info_struct(pngStruct);
-    if (!pngInfo)
-    {
-        SDL_Log("Failed to create PNG info structure %s", path.c_str());
-        png_destroy_read_struct(&pngStruct, nullptr, nullptr);
-        pngStruct = nullptr;
-        return false;
-    }
-
-    if (setjmp(png_jmpbuf(pngStruct)))
-    {
-        return false;
-    }
-
-    png_init_io(pngStruct, pngFile);
-
-    png_read_info(pngStruct, pngInfo);
-
-    auto width      = png_get_image_width(pngStruct, pngInfo);
-    auto height     = png_get_image_height(pngStruct, pngInfo);
-    auto rowLen     = png_get_rowbytes(pngStruct, pngInfo);
-    auto colorType  = png_get_color_type(pngStruct, pngInfo);
-    auto numChannel = png_get_channels(pngStruct, pngInfo);
-
-    // prepare storage
-    auto pixels  = std::make_unique<png_byte[]>(height * rowLen);
-    auto rowPtrs = std::make_unique<png_bytep[]>(height);
-    for (png_uint_32 i = 0; i < height; ++i)
-    {
-        rowPtrs[i] = &pixels[i * rowLen];
-    }
-
-    // read pixels
-    png_read_image(pngStruct, rowPtrs.get());
+    int width  = surface->w;
+    int height = surface->h;
+    int format = SDL_ISPIXELFORMAT_ALPHA(surface->format->format) ? GL_RGBA : GL_RGB;
 
     int oneFrameWidth  = static_cast<int>(oneFrameSize.x);
     int oneFrameHeight = static_cast<int>(oneFrameSize.y);
@@ -158,33 +72,29 @@ bool AssetManager::LoadAnimation(const std::string& name,
 
     std::vector<Texture> textures;
 
-    for (int i = 0; i < heightCount; ++i)
+    SDL_Surface* split = SDL_CreateRGBSurfaceWithFormat(0,
+                                                        oneFrameWidth,
+                                                        oneFrameHeight,
+                                                        32,
+                                                        surface->format->format);
+
+    SDL_Rect source {0, 0, oneFrameWidth, oneFrameHeight};
+    SDL_Rect destination {0, 0, oneFrameWidth, oneFrameHeight};
+
+    for (int i = 0; i < widthCount; ++i)
     {
-        for (int j = 0; j < widthCount; ++j)
+        for (int j = 0; j < heightCount; ++j)
         {
-            auto image =
-                std::make_unique<unsigned char[]>(numChannel * oneFrameWidth * oneFrameHeight);
-            int index = 0;
-            for (int k = i * oneFrameHeight; k < (i + 1) * oneFrameHeight; ++k)
-            {
-                for (int l = j * numChannel * oneFrameWidth;
-                     l < (j + 1) * numChannel * oneFrameWidth;
-                     ++l)
-                {
-                    image[index] = rowPtrs[k][l];
-                    ++index;
-                }
-            }
-
-            int format = colorType == PNG_COLOR_TYPE_RGB_ALPHA ? GL_RGBA : GL_RGB;
-
-            Texture texture(format, oneFrameWidth, oneFrameHeight, image.get());
+            source.x = i * oneFrameWidth;
+            source.y = j * oneFrameHeight;
+            SDL_BlitSurface(surface, &source, split, &destination);
+            Texture texture(format, oneFrameWidth, oneFrameHeight, split->pixels);
             textures.emplace_back(texture);
         }
     }
 
-    png_destroy_read_struct(&pngStruct, &pngInfo, nullptr);
-    fclose(pngFile);
+    SDL_FreeSurface(split);
+    SDL_FreeSurface(surface);
 
     Animation animation(textures);
     animations.emplace(name, animation);

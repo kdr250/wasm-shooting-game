@@ -5,6 +5,10 @@
             "platform": "!wasm32"
         },
         {
+            "name": "sdl2-image",
+            "platform": "!wasm32"
+        },
+        {
             "name": "sdl2-ttf",
             "platform": "!wasm32"
         },
@@ -17,10 +21,6 @@
         },
         {
             "name": "glew",
-            "platform": "!wasm32"
-        },
-        {
-            "name": "libpng",
             "platform": "!wasm32"
         },
         "glm",

@@ -17,10 +17,10 @@ if (EMSCRIPTEN)
     set(VCPKG_TARGET_TRIPLET "wasm32-emscripten")
 else()
     find_package(SDL2 CONFIG REQUIRED)
+    find_package(SDL2_image CONFIG REQUIRED)
     find_package(SDL2_ttf CONFIG REQUIRED)
     find_package(SDL2_mixer CONFIG REQUIRED)
     find_package(GLEW REQUIRED)
-    find_package(PNG REQUIRED)
 endif()
 
 find_package(glm CONFIG REQUIRED)
@@ -41,7 +41,7 @@ add_executable(
 
 if (EMSCRIPTEN)
 
-    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_LIBPNG=1 -s USE_SDL_MIXER=2 -s SDL2_MIXER_FORMATS=[mp3] -s USE_MPG123=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 --preload-file resources/")
+    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=[png] -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2 -s SDL2_MIXER_FORMATS=[mp3] -s USE_MPG123=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 --preload-file resources/")
     set(CMAKE_CXX_FLAGS ${USE_FLAGS})
     set_target_properties(main PROPERTIES SUFFIX ".js")
 
@@ -59,10 +59,10 @@ else()
         main PRIVATE
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
         $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>
         $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
         GLEW::GLEW
-        PNG::PNG
         glm::glm
     )
 

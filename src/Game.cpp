@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <algorithm>
 #include "scene/SceneMenu.h"
@@ -27,6 +28,13 @@ bool Game::Initialize()
     if (sdlResult != 0)
     {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
+        return false;
+    }
+
+    int imageResult = IMG_Init(IMG_INIT_PNG);
+    if (imageResult == 0)
+    {
+        SDL_Log("Failed to initialize SDL_image: %s", SDL_GetError());
         return false;
     }
 
