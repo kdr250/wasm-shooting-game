@@ -31,13 +31,6 @@ bool Game::Initialize()
         return false;
     }
 
-    int imageResult = IMG_Init(IMG_INIT_PNG);
-    if (imageResult == 0)
-    {
-        SDL_Log("Failed to initialize SDL_image: %s", SDL_GetError());
-        return false;
-    }
-
     // Set OpenGL attributes
 #ifdef __EMSCRIPTEN__
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -81,6 +74,12 @@ bool Game::Initialize()
     }
 
     glGetError();  // On some platforms, GLEW will emit a benign error code, so clear it
+
+    if (IMG_Init(IMG_INIT_PNG) == 0)
+    {
+        SDL_Log("Failed to initialize SDL_image: %s", SDL_GetError());
+        return false;
+    }
 
     if (TTF_Init() != 0)
     {
