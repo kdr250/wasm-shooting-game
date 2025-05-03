@@ -101,9 +101,7 @@ bool Shader::CompileShader(const std::string& contents, GLenum shaderType, GLuin
 
     // Set the source characters and try to compile
 #ifdef __EMSCRIPTEN__
-    fullContents << "#version 300 es" << std::endl;
-#else
-    fullContents << "#version 330" << std::endl;
+    fullContents << "#version 300 es" << std::endl << "// ";
 #endif
     fullContents << contents;
     std::string fullContent  = fullContents.str();

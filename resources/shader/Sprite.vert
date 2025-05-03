@@ -1,3 +1,5 @@
+#version 330
+
 precision mediump float;
 
 uniform vec2 uWindowSize;

@@ -1,3 +1,5 @@
+#version 330
+
 precision highp float;
 
 in vec2 fragTexCoord;
