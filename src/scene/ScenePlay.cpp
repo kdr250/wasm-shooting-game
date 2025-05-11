@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
-#include "../actor/Background.h"
+#include "../actor/BackgroundShader.h"
 #include "../actor/Bullet.h"
 #include "../actor/BulletSpawner.h"
 #include "../actor/Enemy.h"
@@ -19,7 +19,7 @@
 ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
 {
     Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
-    Background::Spawn();
+    BackgroundShader::Spawn();
     BulletSpawner::Initialize();
     EnemySpawner::Initialize(sceneId);
     ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f});
@@ -143,7 +143,7 @@ void ScenePlay::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Background::Draw();
+    BackgroundShader::Draw();
     Bullet::Draw();
     Enemy::Draw();
     ExplosionEffect::Draw();
