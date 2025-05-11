@@ -4,10 +4,10 @@
 int ScoreActor::score          = 0;
 int ScoreActor::scoreToDisplay = 0;
 
-void ScoreActor::Spawn(const glm::vec2& position)
+void ScoreActor::Spawn(const glm::vec2& position, const int inScore)
 {
-    score          = 0;
-    scoreToDisplay = 0;
+    score          = inScore;
+    scoreToDisplay = inScore;
 
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
@@ -43,6 +43,11 @@ void ScoreActor::Spawn(const glm::vec2& position)
 void ScoreActor::AddScore(const int scoreToAdd)
 {
     score = std::min(score + scoreToAdd, MAX_SCORE);
+}
+
+int ScoreActor::GetScore()
+{
+    return score;
 }
 
 void ScoreActor::Draw()

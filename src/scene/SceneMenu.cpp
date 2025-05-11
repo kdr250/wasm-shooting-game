@@ -85,5 +85,5 @@ void SceneMenu::OnEnd()
     auto& assetManager = game.GetAssetManager();
 
     assetManager.RemoveTexture(TITLE);
-    game.ChangeScene("PLAY", std::make_shared<ScenePlay>(id + 1), true);
+    game.ChangeScene("PLAY", std::make_shared<ScenePlay>(id + 1, 3, 0), true);
 }

@@ -7,7 +7,7 @@ class Entity;
 class ScenePlay : public Scene
 {
 public:
-    ScenePlay(const int sceneId);
+    ScenePlay(const int sceneId, const int playerLife, const int score);
 
     void Update(float deltaTime) override;
     void DoAction(const Action& action) override;
@@ -28,4 +28,6 @@ private:
     bool paused  = false;
     bool cleared = false;
     bool over    = false;
+
+    bool hasNextScene = false;
 };

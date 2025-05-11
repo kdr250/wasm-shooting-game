@@ -9,16 +9,14 @@ class Entity;
 class BackgroundShader
 {
 public:
-    static void Spawn();
+    static void Spawn(const std::string& vertPath, const std::string& fragPath);
 
     static void Draw();
 
 private:
-    static const std::shared_ptr<Entity>& GetBackgroundShader();
+    static const std::vector<std::shared_ptr<Entity>>& GetBackgroundShaders();
 
-    inline static const std::string BACKGROUND_SHADER_VERT = "resources/shader/Background.vert";
-    inline static const std::string BACKGROUND_SHADER_FRAG = "resources/shader/Background.frag";
-    inline static const std::string BACKGROUND_SHADER_NAME = "background";
+    inline static const std::string BACKGROUND_SHADER_NAME = "background_shader";
 
     inline static const std::string BACKGROUND_SHADER_TAG = "background_shader";
 };

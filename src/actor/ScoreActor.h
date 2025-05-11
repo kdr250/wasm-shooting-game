@@ -10,8 +10,9 @@ class Entity;
 class ScoreActor
 {
 public:
-    static void Spawn(const glm::vec2& position);
+    static void Spawn(const glm::vec2& position, const int inScore);
     static void AddScore(const int scoreToAdd);
+    static int GetScore();
     static void Draw();
 
     static void Unload();

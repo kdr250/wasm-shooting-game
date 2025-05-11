@@ -1,7 +1,7 @@
 #include "Background.h"
 #include "../Game.h"
 
-void Background::Spawn()
+void Background::Spawn(const std::string& imagePath1, const std::string& imagePath2)
 {
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
@@ -15,8 +15,8 @@ void Background::Spawn()
 
     assetManager.CreateSpriteVertex();
 
-    if (!assetManager.LoadTexture(BACKGROUND_NAME_ONE, BACKGROUND_PATH_ONE)
-        || !assetManager.LoadTexture(BACKGROUND_NAME_TWO, BACKGROUND_PATH_TWO))
+    if (!assetManager.LoadTexture(BACKGROUND_NAME_ONE, imagePath1)
+        || !assetManager.LoadTexture(BACKGROUND_NAME_TWO, imagePath2))
     {
         SDL_Log("Failed to load texture");
         exit(EXIT_FAILURE);
@@ -69,6 +69,16 @@ void Background::Draw()
         texture.SetActive();
 
         glDrawElements(GL_TRIANGLES, vertexArray.GetNumIndices(), GL_UNSIGNED_INT, nullptr);
+    }
+}
+
+void Background::Unload()
+{
+    auto& assetManager = Game::GetGame().GetAssetManager();
+    for (auto& background : GetBackgrounds())
+    {
+        auto& sprite = background->GetComponent<SpriteComponent>();
+        assetManager.RemoveTexture(sprite.textureName);
     }
 }
 

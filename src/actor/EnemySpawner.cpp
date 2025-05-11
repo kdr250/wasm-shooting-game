@@ -28,7 +28,7 @@ std::vector<std::string> Split(std::string& str, const char* delimiter)
     return result;
 }
 
-void EnemySpawner::Initialize(const int sceneId)
+void EnemySpawner::Initialize(const std::vector<std::string>& allLine)
 {
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
@@ -46,26 +46,6 @@ void EnemySpawner::Initialize(const int sceneId)
 
     auto eventHandler = entityManager.AddEntity(EVENT_HANDLER_TAG);
     eventHandler->AddComponent<EventComponent>();
-
-    std::string filePath = "resources/scene/" + std::to_string(sceneId) + ".txt";
-    std::ifstream file;
-    file.open(filePath);
-
-    if (!file.is_open())
-    {
-        SDL_Log("Failed to open scene file: %s", filePath.c_str());
-        exit(EXIT_FAILURE);
-    }
-
-    std::string line;
-    std::vector<std::string> allLine;
-
-    while (std::getline(file, line))
-    {
-        allLine.push_back(line);
-    }
-
-    file.close();
 
     if (!assetManager.LoadShader(Enemy::SPRITE_SHADER_NAME,
                                  Enemy::SPRITE_SHADER_VERT,

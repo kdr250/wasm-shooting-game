@@ -13,7 +13,7 @@ class Entity;
 class EnemySpawner
 {
 public:
-    static void Initialize(const int sceneId);
+    static void Initialize(const std::vector<std::string>& allLine);
 
     static void Spawn(float deltaTime);
 

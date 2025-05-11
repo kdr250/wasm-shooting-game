@@ -14,6 +14,8 @@ public:
     static void Damaged(int damage);
     static void Draw();
 
+    static int GetLife();
+
     static void Unload();
 
 private:

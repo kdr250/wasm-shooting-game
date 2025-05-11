@@ -126,6 +126,11 @@ void PlayerLife::Draw()
     transform.position = originalPosition;
 }
 
+int PlayerLife::GetLife()
+{
+    return life;
+}
+
 void PlayerLife::Unload() {}
 
 std::shared_ptr<Entity>& PlayerLife::GetPlayerLife()

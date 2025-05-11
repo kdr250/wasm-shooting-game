@@ -6,7 +6,7 @@
 #include "Enemy.h"
 #include "PlayerLife.h"
 
-std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
+std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position, const int playerLife)
 {
     auto& game          = Game::GetGame();
     auto& assetManager  = game.GetAssetManager();
@@ -38,7 +38,7 @@ std::shared_ptr<Entity> Player::Spawn(const glm::vec2& position)
 
     auto player = entityManager.AddEntity(PLAYER_TAG);
     player->AddComponent<StateComponent>();
-    player->AddComponent<HealthComponent>(3, 2.0f);
+    player->AddComponent<HealthComponent>(playerLife, 2.0f);
     player->AddComponent<TransformComponent>(position, scale, speed);
     player->AddComponent<InputComponent>();
     player->AddComponent<SpriteComponent>(SPRITE_SHADER_NAME, PLAYER_TEXTURE_NAME);

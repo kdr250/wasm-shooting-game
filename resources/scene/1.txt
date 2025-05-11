@@ -29,3 +29,5 @@ Event 2 MoveEvent Type EveryPoints
 Event 3 MoveEvent Type EveryPoints
 Event 4 MoveEvent Type EveryPoints
 End
+
+Background Image resources/texture/background1.png resources/texture/background2.png

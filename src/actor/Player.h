@@ -11,7 +11,7 @@ class Action;
 class Player
 {
 public:
-    static std::shared_ptr<Entity> Spawn(const glm::vec2& position);
+    static std::shared_ptr<Entity> Spawn(const glm::vec2& position, const int playerLife);
     static void ProcessAction(const Action& action);
     static bool NeedsPause();
     static void Move(float deltaTime);

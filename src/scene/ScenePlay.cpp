@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include "../Game.h"
+#include "../actor/Background.h"
 #include "../actor/BackgroundShader.h"
 #include "../actor/Bullet.h"
 #include "../actor/BulletSpawner.h"
@@ -12,17 +13,17 @@
 #include "../actor/Player.h"
 #include "../actor/PlayerLife.h"
 #include "../actor/ScoreActor.h"
+#include "../actor/Spawner.h"
 #include "../actor/TextActor.h"
 #include "Action.h"
 #include "SceneMenu.h"
 
-ScenePlay::ScenePlay(const int sceneId) : Scene(sceneId)
+ScenePlay::ScenePlay(const int sceneId, const int playerLife, const int score) : Scene(sceneId)
 {
-    Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0});
-    BackgroundShader::Spawn();
+    Player::Spawn(glm::vec2 {Game::WINDOW_WIDTH / 2.0, Game::WINDOW_HEIGHT / 2.0}, playerLife);
     BulletSpawner::Initialize();
-    EnemySpawner::Initialize(sceneId);
-    ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f});
+    ScoreActor::Spawn(glm::vec2 {Game::WINDOW_WIDTH - 200.0f, Game::WINDOW_HEIGHT - 50.0f}, score);
+    hasNextScene = Spawner::Initialize(sceneId);
 
     RegisterAction(SDL_SCANCODE_W, "UP");
     RegisterAction(SDL_SCANCODE_A, "LEFT");
@@ -56,8 +57,15 @@ void ScenePlay::OnEnd()
     auto& assetManager  = game.GetAssetManager();
     auto& entityManager = game.GetEntityManger();
 
-    Player::Unload();
+    int playerLife = PlayerLife::GetLife();
+    int score      = ScoreActor::GetScore();
+
+    if (over)
+    {
+        Player::Unload();
+    }
     Enemy::Unload();
+    Background::Unload();
     ExplosionEffect::Unload();
     TextActor::Unload();
 
@@ -68,6 +76,13 @@ void ScenePlay::OnEnd()
     }
     entityManager.Update();
 
+    if (cleared && hasNextScene)
+    {
+        Game::GetGame().ChangeScene("PLAY",
+                                    std::make_shared<ScenePlay>(id + 1, playerLife, score),
+                                    true);
+        return;
+    }
     game.ChangeScene("MENU", std::make_shared<SceneMenu>(), true);
 }
 
@@ -88,6 +103,11 @@ void ScenePlay::DoAction(const Action& action)
         else if (action.name == "PAUSE" && Player::NeedsPause())
         {
             SetPause(!paused);
+        }
+        else if (action.name == "NEXT")
+        {
+            OnEnd();
+            return;
         }
     }
 
@@ -143,6 +163,7 @@ void ScenePlay::Render()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    Background::Draw();
     BackgroundShader::Draw();
     Bullet::Draw();
     Enemy::Draw();
@@ -160,6 +181,19 @@ void ScenePlay::OnClear()
 {
     TextActor::Spawn("Game Clear !!",
                      glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f});
+    if (hasNextScene)
+    {
+        TextActor::Spawn(
+            "Press Enter to Next Stage",
+            glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f + 100.0f});
+        RegisterAction(SDL_SCANCODE_RETURN, "NEXT");
+    }
+    else
+    {
+        TextActor::Spawn(
+            "Press Escape to Menu",
+            glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f + 100.0f});
+    }
     cleared = true;
 }
 
@@ -167,5 +201,7 @@ void ScenePlay::OnOver()
 {
     TextActor::Spawn("Game Over !!",
                      glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f});
+    TextActor::Spawn("Press Escape to Menu",
+                     glm::vec2 {Game::WINDOW_WIDTH / 2.0f, Game::WINDOW_HEIGHT / 2.0f + 100.0f});
     over = true;
 }
